@@ -1,17 +1,76 @@
-import { Link, NavLink } from "react-router-dom"
+// src/components/Header.jsx
+import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import Modal from "../ui/Modal";
+import SignIn from "../pages/SignIn";
 
 export default function Header() {
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [showParentTitle, setShowParentTitle] = useState(true);
+
   return (
-    <header style={{ position: "sticky", top: 0, background: "#fff", borderBottom: "1px solid #eee" }}>
-      <div style={{ maxWidth: 960, margin: "0 auto", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}>
-        <Link to="/" style={{ fontWeight: 700, textDecoration: "none", color: "#111" }}>CoDiYoung</Link>
-        <nav style={{ display: "flex", gap: 8 }}>
-          <NavLink to="/list/coding">코딩</NavLink>
-          <NavLink to="/list/design">디자인</NavLink>
-          <NavLink to="/list/video">영상</NavLink>
-          <NavLink to="/signin">로그인</NavLink>
+    <header className="sticky top-0 bg-white border-b border-gray-200 z-40">
+      <div className="max-w-4xl mx-auto h-14 flex items-center justify-between px-4">
+        <Link to="/" className="font-extrabold text-gray-900 no-underline">
+          CoDiYoung
+        </Link>
+        <nav className="flex space-x-2">
+          <NavLink
+            to="/list/coding"
+            className={({ isActive }) =>
+              `px-3 py-2 rounded hover:bg-gray-100 ${
+                isActive ? "font-semibold text-purple-700" : "text-gray-700"
+              }`
+            }
+          >
+            코딩
+          </NavLink>
+          <NavLink
+            to="/list/design"
+            className={({ isActive }) =>
+              `px-3 py-2 rounded hover:bg-gray-100 ${
+                isActive ? "font-semibold text-purple-700" : "text-gray-700"
+              }`
+            }
+          >
+            디자인
+          </NavLink>
+          <NavLink
+            to="/list/video"
+            className={({ isActive }) =>
+              `px-3 py-2 rounded hover:bg-gray-100 ${
+                isActive ? "font-semibold text-purple-700" : "text-gray-700"
+              }`
+            }
+          >
+            영상
+          </NavLink>
+          <button
+            onClick={() => setIsSignInOpen(true)}
+            className="px-3 py-2 rounded text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            로그인
+          </button>
         </nav>
       </div>
+
+      <Modal
+        isOpen={isSignInOpen}
+        onClose={() => {
+          setIsSignInOpen(false);
+          setShowParentTitle(true);
+        }}
+        title={showParentTitle ? "로그인" : ""}
+      >
+        <SignIn 
+          onClose={() => {
+            setIsSignInOpen(false);
+            setShowParentTitle(true);
+          }}
+          onHideParentTitle={() => setShowParentTitle(false)}
+          onShowParentTitle={() => setShowParentTitle(true)}
+        />
+      </Modal>
     </header>
-  )
+  );
 }

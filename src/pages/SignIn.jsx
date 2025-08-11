@@ -1,18 +1,128 @@
-import { useState } from "react"
+import { useAuth } from "../contexts/AuthContext";
+import { validateEmail, validatePassword } from "../utils/validation";
+import NonColorButton from "../ui/NonColorButton";
+import FormInput from "../ui/FormInput";
+import FindPassword from "./FindPassword";
+import Modal from "../ui/Modal";
 
-export default function SignIn() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+export default function SignIn({ onClose, onHideParentTitle, onShowParentTitle }) {
+  const {
+    email,
+    password,
+    emailError,
+    passwordError,
+    currentStep,
+    setEmail,
+    setPassword,
+    setEmailError,
+    setPasswordError,
+    setCurrentStep,
+    resetErrors
+  } = useAuth();
+
+  const showFindPassword = currentStep === 'findPassword' || currentStep === 'resetPassword';
+  const modalTitle = currentStep === 'resetPassword' ? '비밀번호 재설정' : '비밀번호 찾기';
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    
+    if (value) {
+      const error = validateEmail(value);
+      setEmailError(error);
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    
+    if (value) {
+      const error = validatePassword(value);
+      setPasswordError(error);
+    }
+  };
+
   const onSubmit = (e) => {
-    e.preventDefault()
-    console.log("로그인 시도:", { email, password })
-  }
+    e.preventDefault();
+    
+    const emailValidation = validateEmail(email);
+    const passwordValidation = validatePassword(password);
+    
+    setEmailError(emailValidation);
+    setPasswordError(passwordValidation);
+    
+    if (!emailValidation && !passwordValidation) {
+      if (onClose) onClose();
+    }
+  };
+
   return (
-    <form onSubmit={onSubmit}>
-      <h1>로그인</h1>
-      <input placeholder="이메일" value={email} onChange={(e)=>setEmail(e.target.value)} />
-      <input type="password" placeholder="비밀번호" value={password} onChange={(e)=>setPassword(e.target.value)} />
-      <button type="submit">로그인</button>
+    <form onSubmit={onSubmit} className="flex flex-col gap-10 mt-10">
+      <FormInput
+        type="email"
+        placeholder="아이디를 입력하세요"
+        value={email}
+        onChange={handleEmailChange}
+        error={emailError}
+        required
+        variant="signin"
+      />
+
+      <FormInput
+        type="password"
+        placeholder="비밀번호를 입력하세요"
+        value={password}
+        onChange={handlePasswordChange}
+        error={passwordError}
+        required
+        variant="signin"
+      />
+
+      <div className="flex flex-row gap-2 justify-between">
+        <div className="flex flex-row gap-2">
+          <input type="checkbox" className="w-4 h-4" />
+          <p className="text-sm text-[#6E6E6E]">자동 로그인</p>
+        </div>
+        <span
+          className="text-sm text-[#6E6E6E] cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            resetErrors();
+            setCurrentStep('findPassword');
+            if (onHideParentTitle) onHideParentTitle();
+          }}
+        >
+          비밀번호 찾기
+        </span>
+      </div>
+
+      <div className="flex justify-center mt-10">
+        <NonColorButton
+          type="submit"
+          className="w-96 p-4 text-center rounded-[10px]"
+        >
+          로그인
+        </NonColorButton>
+      </div>
+
+      <Modal
+        isOpen={showFindPassword}
+        onClose={() => {
+          resetErrors();
+          setCurrentStep('signin');
+          if (onShowParentTitle) onShowParentTitle();
+        }}
+        title={modalTitle}
+      >
+        <FindPassword 
+          onClose={() => {
+            resetErrors();
+            setCurrentStep('signin');
+            if (onShowParentTitle) onShowParentTitle();
+          }}
+        />
+      </Modal>
     </form>
-  )
+  );
 }
