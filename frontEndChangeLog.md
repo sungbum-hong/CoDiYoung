@@ -19,3 +19,8 @@
   - AuthContext를 통한 상태 관리 (`src/contexts/AuthContext.jsx`)
   - 중복 코드 제거 및 컴포넌트 구조 개선
   - 디버그 로그 및 불필요한 코드 정리
+
+### 🐛 버그 수정
+- FindPassword에서 ResetPassword로 전환되지 않는 문제 해결
+- AuthContext에서 newPassword와 password 에러 상태 분리
+- 무한 렌더링 루프 해결

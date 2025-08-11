@@ -14,6 +14,7 @@ const initialState = {
   isCodeSent: false,
   emailError: '',
   passwordError: '',
+  newPasswordError: '',
   confirmPasswordError: '',
   verificationCodeError: '',
 };
@@ -33,7 +34,7 @@ const authReducer = (state, action) => {
       return { ...state, verificationCode: action.payload, verificationCodeError: '' };
     
     case 'SET_NEW_PASSWORD':
-      return { ...state, newPassword: action.payload, passwordError: '' };
+      return { ...state, newPassword: action.payload, newPasswordError: '' };
     
     case 'SET_CONFIRM_PASSWORD':
       return { ...state, confirmPassword: action.payload, confirmPasswordError: '' };
@@ -49,6 +50,9 @@ const authReducer = (state, action) => {
     
     case 'SET_PASSWORD_ERROR':
       return { ...state, passwordError: action.payload };
+    
+    case 'SET_NEW_PASSWORD_ERROR':
+      return { ...state, newPasswordError: action.payload };
     
     case 'SET_CONFIRM_PASSWORD_ERROR':
       return { ...state, confirmPasswordError: action.payload };
@@ -68,6 +72,7 @@ const authReducer = (state, action) => {
         error: null,
         emailError: '',
         passwordError: '',
+        newPasswordError: '',
         confirmPasswordError: '',
         verificationCodeError: '',
       };
@@ -91,6 +96,7 @@ export function AuthProvider({ children }) {
     setError: (error) => dispatch({ type: 'SET_ERROR', payload: error }),
     setEmailError: (error) => dispatch({ type: 'SET_EMAIL_ERROR', payload: error }),
     setPasswordError: (error) => dispatch({ type: 'SET_PASSWORD_ERROR', payload: error }),
+    setNewPasswordError: (error) => dispatch({ type: 'SET_NEW_PASSWORD_ERROR', payload: error }),
     setConfirmPasswordError: (error) => dispatch({ type: 'SET_CONFIRM_PASSWORD_ERROR', payload: error }),
     setVerificationCodeError: (error) => dispatch({ type: 'SET_VERIFICATION_CODE_ERROR', payload: error }),
     setCodeSent: (sent) => dispatch({ type: 'SET_CODE_SENT', payload: sent }),

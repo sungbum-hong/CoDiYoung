@@ -63,7 +63,7 @@ export default function FindPassword({ onClose }) {
   };
 
   if (showResetPassword) {
-    return <ResetPassword email={email} onClose={onClose} />;
+    return <ResetPassword onClose={onClose} />;
   }
 
   return (
@@ -126,7 +126,7 @@ export default function FindPassword({ onClose }) {
           <ColorButton 
             type="button"
             onClick={handleVerifyCode}
-            disabled={!isCodeSent || !verificationCode || verificationCodeError}
+            disabled={!isCodeSent || !verificationCode}
             className="px-8 py-3 md:px-12 md:py-3 rounded-[5px] w-full sm:w-auto text-sm md:text-base"
           >
             인증확인

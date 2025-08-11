@@ -8,11 +8,11 @@ export default function ResetPassword({ onClose }) {
     email,
     newPassword,
     confirmPassword,
-    passwordError,
+    newPasswordError,
     confirmPasswordError,
     setNewPassword,
     setConfirmPassword,
-    setPasswordError,
+    setNewPasswordError,
     setConfirmPasswordError
   } = useAuth();
 
@@ -22,7 +22,7 @@ export default function ResetPassword({ onClose }) {
     setNewPassword(value);
     
     const error = validatePassword(value);
-    setPasswordError(error);
+    setNewPasswordError(error);
     
     if (confirmPassword) {
       const confirmError = validatePasswordConfirmation(value, confirmPassword);
@@ -44,7 +44,7 @@ export default function ResetPassword({ onClose }) {
     const passwordValidation = validatePassword(newPassword);
     const confirmValidation = validatePasswordConfirmation(newPassword, confirmPassword);
     
-    setPasswordError(passwordValidation);
+    setNewPasswordError(passwordValidation);
     setConfirmPasswordError(confirmValidation);
     
     if (!passwordValidation && !confirmValidation) {
@@ -55,7 +55,7 @@ export default function ResetPassword({ onClose }) {
   const isFormValid = () => {
     return newPassword && 
            confirmPassword && 
-           !passwordError && 
+           !newPasswordError && 
            !confirmPasswordError &&
            validatePassword(newPassword) === "" &&
            validatePasswordConfirmation(newPassword, confirmPassword) === "";
@@ -76,7 +76,7 @@ export default function ResetPassword({ onClose }) {
           placeholder="새 비밀번호 (8자 이상, 대소문자, 숫자, 특수문자 포함)"
           value={newPassword}
           onChange={handlePasswordChange}
-          error={passwordError}
+          error={newPasswordError}
           required
           className="text-sm md:text-base"
         />

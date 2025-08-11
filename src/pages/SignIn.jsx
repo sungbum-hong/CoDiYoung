@@ -20,7 +20,7 @@ export default function SignIn({ onClose, onHideParentTitle, onShowParentTitle }
     resetErrors
   } = useAuth();
 
-  const showFindPassword = currentStep === 'findPassword';
+  const showFindPassword = currentStep === 'findPassword' || currentStep === 'resetPassword';
   const modalTitle = currentStep === 'resetPassword' ? '비밀번호 재설정' : '비밀번호 찾기';
 
   const handleEmailChange = (e) => {

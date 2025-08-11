@@ -56,8 +56,9 @@ export const validateVerificationCode = (code) => {
     return "인증번호를 입력해주세요.";
   }
   
-  if (code.length !== 6) {
-    return "인증번호는 6자리여야 합니다.";
+  // 개발 단계에서는 임의 길이 허용 (최소 1자리 이상)
+  if (code.length < 1) {
+    return "인증번호를 입력해주세요.";
   }
   
   return "";
