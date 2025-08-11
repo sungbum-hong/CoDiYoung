@@ -3,10 +3,25 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import Modal from "../ui/Modal";
 import SignIn from "../pages/SignIn";
+import { useAuth } from "../contexts/AuthContext";
+import SuccessResetPassword from "../pages/SuccessResetPassword";
 
 export default function Header() {
   const [isSignInOpen, setIsSignInOpen] = useState(false);
-  const [showParentTitle, setShowParentTitle] = useState(true);
+  const { currentStep, resetState } = useAuth();
+  
+  const getModalTitle = () => {
+    switch (currentStep) {
+      case 'findPassword':
+        return '비밀번호 찾기';
+      case 'resetPassword':
+        return '비밀번호 재설정';
+      case 'successResetPassword':
+        return '비밀번호 재설정 완료';
+      default:
+        return '로그인';
+    }
+  };
 
   return (
     <header className="sticky top-0 bg-white border-b border-gray-200 z-40">
@@ -55,22 +70,32 @@ export default function Header() {
       </div>
 
       <Modal
-        isOpen={isSignInOpen}
+        isOpen={isSignInOpen && currentStep !== 'successResetPassword'}
         onClose={() => {
           setIsSignInOpen(false);
-          setShowParentTitle(true);
+          resetState();
         }}
-        title={showParentTitle ? "로그인" : ""}
+        title={getModalTitle()}
       >
         <SignIn 
           onClose={() => {
             setIsSignInOpen(false);
-            setShowParentTitle(true);
+            resetState();
           }}
-          onHideParentTitle={() => setShowParentTitle(false)}
-          onShowParentTitle={() => setShowParentTitle(true)}
         />
       </Modal>
+
+      {/* SuccessResetPassword를 전체 화면으로 렌더링 */}
+      {isSignInOpen && currentStep === 'successResetPassword' && (
+        <div className="fixed inset-0 bg-white z-50">
+          <SuccessResetPassword 
+            onClose={() => {
+              setIsSignInOpen(false);
+              resetState();
+            }}
+          />
+        </div>
+      )}
     </header>
   );
 }

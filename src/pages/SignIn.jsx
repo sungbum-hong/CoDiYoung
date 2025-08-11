@@ -3,9 +3,8 @@ import { validateEmail, validatePassword } from "../utils/validation";
 import NonColorButton from "../ui/NonColorButton";
 import FormInput from "../ui/FormInput";
 import FindPassword from "./FindPassword";
-import Modal from "../ui/Modal";
 
-export default function SignIn({ onClose, onHideParentTitle, onShowParentTitle }) {
+export default function SignIn({ onClose }) {
   const {
     email,
     password,
@@ -20,8 +19,7 @@ export default function SignIn({ onClose, onHideParentTitle, onShowParentTitle }
     resetErrors
   } = useAuth();
 
-  const showFindPassword = currentStep === 'findPassword' || currentStep === 'resetPassword';
-  const modalTitle = currentStep === 'resetPassword' ? '비밀번호 재설정' : '비밀번호 찾기';
+  const showFindPassword = currentStep === 'findPassword' || currentStep === 'resetPassword' || currentStep === 'successResetPassword';
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
@@ -57,6 +55,17 @@ export default function SignIn({ onClose, onHideParentTitle, onShowParentTitle }
     }
   };
 
+  if (showFindPassword) {
+    return (
+      <FindPassword 
+        onClose={() => {
+          resetErrors();
+          setCurrentStep('signin');
+        }}
+      />
+    );
+  }
+
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-10 mt-10">
       <FormInput
@@ -90,7 +99,6 @@ export default function SignIn({ onClose, onHideParentTitle, onShowParentTitle }
             e.preventDefault();
             resetErrors();
             setCurrentStep('findPassword');
-            if (onHideParentTitle) onHideParentTitle();
           }}
         >
           비밀번호 찾기
@@ -105,24 +113,6 @@ export default function SignIn({ onClose, onHideParentTitle, onShowParentTitle }
           로그인
         </NonColorButton>
       </div>
-
-      <Modal
-        isOpen={showFindPassword}
-        onClose={() => {
-          resetErrors();
-          setCurrentStep('signin');
-          if (onShowParentTitle) onShowParentTitle();
-        }}
-        title={modalTitle}
-      >
-        <FindPassword 
-          onClose={() => {
-            resetErrors();
-            setCurrentStep('signin');
-            if (onShowParentTitle) onShowParentTitle();
-          }}
-        />
-      </Modal>
     </form>
   );
 }

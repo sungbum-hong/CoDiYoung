@@ -62,8 +62,12 @@ export default function FindPassword({ onClose }) {
     }
   };
 
+  const handleResetPasswordSuccess = () => {
+    setCurrentStep('successResetPassword');
+  };
+
   if (showResetPassword) {
-    return <ResetPassword onClose={onClose} />;
+    return <ResetPassword onClose={handleResetPasswordSuccess} />;
   }
 
   return (
