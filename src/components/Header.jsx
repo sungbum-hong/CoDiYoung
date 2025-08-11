@@ -1,17 +1,18 @@
-import { Link, NavLink } from "react-router-dom"
+// src/components/Header.jsx
+import { Link, useLocation } from "react-router-dom";
 
-export default function Header() {
+export default function Header({ showLoginButton = true }) {
+  const { pathname } = useLocation();
+
   return (
-    <header style={{ position: "sticky", top: 0, background: "#fff", borderBottom: "1px solid #eee" }}>
-      <div style={{ maxWidth: 960, margin: "0 auto", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}>
-        <Link to="/" style={{ fontWeight: 700, textDecoration: "none", color: "#111" }}>CoDiYoung</Link>
-        <nav style={{ display: "flex", gap: 8 }}>
-          <NavLink to="/list/coding">코딩</NavLink>
-          <NavLink to="/list/design">디자인</NavLink>
-          <NavLink to="/list/video">영상</NavLink>
-          <NavLink to="/signin">로그인</NavLink>
-        </nav>
+    <header className="hd">
+      <div className="hd-inner">
+        <Link to="/" className="logo" aria-label="홈으로">로고</Link>
+
+        {showLoginButton && (
+          <Link to="/signin" className="login-btn">로그인</Link>
+        )}
       </div>
     </header>
-  )
+  );
 }
