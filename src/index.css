@@ -1,0 +1,126 @@
+/* 공통 톤 & 레이아웃 */
+:root{
+  --bg:#ffffff; --ink:#222; --muted:#666; --line:#ececec;
+  --chip:#f2f2f2; --panel:#f4f4f4; --shadow:0 2px 10px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui, -apple-system, "Segoe UI", Roboto, Pretendard, sans-serif;}
+main{max-width:1200px;margin:0 auto;padding:0 20px 60px}
+.section{margin:40px 0}
+.section-title{font-weight:700;font-size:14px;color:var(--muted);margin:0 0 12px}
+
+/* Header(상단 바 + 얇은 구분선) */
+.hd{margin-bottom: 48px;}
+.hd-inner{max-width:1200px;height:56px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.logo{font-weight:800;text-decoration:none;color:var(--ink)}
+.gnb{display:flex;gap:16px}
+.gnb a{color:#444;text-decoration:none;font-weight:600}
+.login-btn{font-weight:700;color:#111;text-decoration:none}
+
+/* Main Banner */
+.banner{background:var(--panel);border:1px solid var(--line); margin-bottom: 48px;}
+.banner-inner{height:240px;display:flex;flex-direction:column;justify-content:center;padding:0 16px}
+.banner-inner h1{margin:0 0 4px;font-size:18px}
+.banner-inner p{margin:0;color:var(--muted);font-size:13px}
+
+/* Study */
+.study-section { margin: 0 0 48px; }
+.study-section-title {
+  font-weight: 700; font-size: 24px; margin: 0 0 36px; color: #222;
+}
+
+/* 한 블록(라벨 + 점들) */
+.study-block { margin-bottom: 28px; }
+.study-block-label {
+  font-size: 18px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 16px;
+}
+.study-block-count {
+  font-size: 12px;
+  color: #999;
+  margin-left: 4px;
+}
+
+/* 점(원) 나열 */
+.study-block-dots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 20px;
+}
+.dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ddd;
+  border: 1px solid #e7e7e7;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04) inset;
+  cursor: pointer;
+  transition: transform .15s ease, filter .15s ease;
+  filter: grayscale(.1) brightness(1.02);
+}
+.dot:hover {
+  transform: translateY(-2px);
+  filter: none;
+}
+
+@media (min-width: 768px) {
+  .study-block-dots {
+    grid-template-columns: repeat(10, 1fr);
+  }
+}
+
+
+/* Carousel */
+.carousel{position:relative}
+
+/* Carousel 섹션 */
+.carousel-section {
+  margin: 36px 0;
+}
+.carousel-title {
+ font-weight: 700; font-size: 24px; margin: 0 0 36px; color: #222;
+}
+
+.track{
+  display:grid;gap:16px;overflow:auto;scroll-behavior:smooth;padding:4px 40px;
+  grid-auto-flow:column;scrollbar-width:none;
+}
+.track::-webkit-scrollbar{display:none}
+.card{
+  width:204px;border-radius:14px;overflow:hidden;background:#fff;border:1px solid var(--line);
+  box-shadow:var(--shadow);transition:transform .18s ease, box-shadow .18s ease;
+}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.08)}
+.thumb{aspect-ratio:3/2;background:#ddd;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;filter:brightness(.96) saturate(.9)}
+.meta{padding:10px 12px}
+.meta h3{margin:0 0 4px;font-size:13px}
+.meta p{margin:0;color:#777;font-size:12px}
+.nav{
+  position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;
+  border:1px solid var(--line);background:#fff;display:grid;place-items:center;cursor:pointer;
+}
+.nav.left{left:8px} .nav.right{right:8px}
+
+/* Partner */
+.partners{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;justify-items:center}
+.partner{
+  width:160px;height:60px;border-radius:12px;background:var(--chip);border:1px solid var(--line);
+  display:grid;place-items:center;box-shadow:var(--shadow)
+}
+.partner img{max-width:70%;max-height:60%;object-fit:contain;filter:grayscale(1);opacity:.85}
+.partner:hover img{filter:none;opacity:1}
+@media(max-width:900px){.partners{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.partners{grid-template-columns:repeat(2,1fr)}}
+
+
+/* Footer */
+.ft{background:#f5f5f5;border-top:1px solid var(--line);margin-top:40px}
+.ft-inner{max-width:1200px;margin:0 auto;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+.ft-left{font-weight:700}
+.ft-right{display:flex;gap:18px;color:#666;font-size:12px}
+.ft-copy{color:#888;font-size:12px;text-align:right;padding:0 20px 12px}
+
