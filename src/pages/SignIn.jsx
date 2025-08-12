@@ -1,25 +1,22 @@
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { validateEmail, validatePassword } from "../utils/validation";
 import NonColorButton from "../ui/NonColorButton";
 import FormInput from "../ui/FormInput";
-import FindPassword from "./FindPassword";
 
 export default function SignIn({ onClose }) {
+  const navigate = useNavigate();
   const {
     email,
     password,
     emailError,
     passwordError,
-    currentStep,
     setEmail,
     setPassword,
     setEmailError,
     setPasswordError,
-    setCurrentStep,
     resetErrors
   } = useAuth();
-
-  const showFindPassword = currentStep === 'findPassword' || currentStep === 'resetPassword' || currentStep === 'successResetPassword';
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
@@ -55,16 +52,10 @@ export default function SignIn({ onClose }) {
     }
   };
 
-  if (showFindPassword) {
-    return (
-      <FindPassword 
-        onClose={() => {
-          resetErrors();
-          setCurrentStep('signin');
-        }}
-      />
-    );
-  }
+  const handleFindPassword = () => {
+    resetErrors();
+    navigate('/findpassword');
+  };
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-10 mt-10">
@@ -95,11 +86,7 @@ export default function SignIn({ onClose }) {
         </div>
         <span
           className="text-sm text-[#6E6E6E] cursor-pointer"
-          onClick={(e) => {
-            e.preventDefault();
-            resetErrors();
-            setCurrentStep('findPassword');
-          }}
+          onClick={handleFindPassword}
         >
           비밀번호 찾기
         </span>

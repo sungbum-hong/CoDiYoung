@@ -1,9 +1,11 @@
-import { useAuth } from "../contexts/AuthContext";
-import { validatePassword, validatePasswordConfirmation } from "../utils/validation";
-import ColorButton from "../ui/ColorButton";
-import FormInput from "../ui/FormInput";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { validatePassword, validatePasswordConfirmation } from "../../utils/validation";
+import ColorButton from "../../ui/ColorButton";
+import FormInput from "../../ui/FormInput";
 
-export default function ResetPassword({ onClose }) {
+export default function ResetPassword() {
+  const navigate = useNavigate();
   const {
     email,
     newPassword,
@@ -46,7 +48,7 @@ export default function ResetPassword({ onClose }) {
     setConfirmPasswordError(confirmValidation);
     
     if (!passwordValidation && !confirmValidation) {
-      onClose();
+      navigate('/successresetpassword');
     }
   };
 
@@ -97,6 +99,15 @@ export default function ResetPassword({ onClose }) {
           >
             비밀번호 재설정
           </ColorButton>
+        </div>
+
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => navigate('/findpassword')}
+            className="text-sm text-gray-500 hover:text-gray-700"
+          >
+            이전으로
+          </button>
         </div>
       </div>
     </div>

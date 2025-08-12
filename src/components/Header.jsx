@@ -1,26 +1,62 @@
 // src/components/Header.jsx
-import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import Modal from "../ui/Modal";
 import SignIn from "../pages/SignIn";
+import FindPassword from "../feature/SignIn/FindPassword";
+import ResetPassword from "../feature/SignIn/ResetPassword";
+import SuccessResetPassword from "../feature/SignIn/SuccessResetPassword";
 import { useAuth } from "../contexts/AuthContext";
-import SuccessResetPassword from "../pages/SuccessResetPassword";
 
 export default function Header() {
   const [isSignInOpen, setIsSignInOpen] = useState(false);
-  const { currentStep, resetState } = useAuth();
-  
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { resetState } = useAuth();
+
+  // URL이 인증 관련 경로일 때 모달 자동으로 열기
+  useEffect(() => {
+    const authPaths = ['/signin', '/findpassword', '/resetpassword', '/successresetpassword'];
+    if (authPaths.includes(location.pathname)) {
+      setIsSignInOpen(true);
+    }
+  }, [location.pathname]);
+
   const getModalTitle = () => {
-    switch (currentStep) {
-      case 'findPassword':
+    switch (location.pathname) {
+      case '/findpassword':
         return '비밀번호 찾기';
-      case 'resetPassword':
+      case '/resetpassword':
         return '비밀번호 재설정';
-      case 'successResetPassword':
+      case '/successresetpassword':
         return '비밀번호 재설정 완료';
       default:
         return '로그인';
     }
+  };
+
+  const getModalContent = () => {
+    switch (location.pathname) {
+      case '/findpassword':
+        return <FindPassword />;
+      case '/resetpassword':
+        return <ResetPassword />;
+      case '/successresetpassword':
+        return <SuccessResetPassword />;
+      default:
+        return <SignIn onClose={handleModalClose} />;
+    }
+  };
+
+  const handleLoginClick = () => {
+    navigate('/signin');
+    setIsSignInOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsSignInOpen(false);
+    resetState();
+    navigate('/');
   };
 
   return (
@@ -61,7 +97,7 @@ export default function Header() {
             영상
           </NavLink>
           <button
-            onClick={() => setIsSignInOpen(true)}
+            onClick={handleLoginClick}
             className="px-3 py-2 rounded text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
             로그인
@@ -70,30 +106,17 @@ export default function Header() {
       </div>
 
       <Modal
-        isOpen={isSignInOpen && currentStep !== 'successResetPassword'}
-        onClose={() => {
-          setIsSignInOpen(false);
-          resetState();
-        }}
+        isOpen={isSignInOpen && location.pathname !== '/successresetpassword'}
+        onClose={handleModalClose}
         title={getModalTitle()}
       >
-        <SignIn 
-          onClose={() => {
-            setIsSignInOpen(false);
-            resetState();
-          }}
-        />
+        {getModalContent()}
       </Modal>
 
       {/* SuccessResetPassword를 전체 화면으로 렌더링 */}
-      {isSignInOpen && currentStep === 'successResetPassword' && (
+      {isSignInOpen && location.pathname === '/successresetpassword' && (
         <div className="fixed inset-0 bg-white z-50">
-          <SuccessResetPassword 
-            onClose={() => {
-              setIsSignInOpen(false);
-              resetState();
-            }}
-          />
+          <SuccessResetPassword />
         </div>
       )}
     </header>

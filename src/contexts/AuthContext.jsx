@@ -3,7 +3,6 @@ import { createContext, useContext, useReducer } from 'react';
 const AuthContext = createContext();
 
 const initialState = {
-  currentStep: 'signin',
   email: '',
   password: '',
   verificationCode: '',
@@ -21,9 +20,6 @@ const initialState = {
 
 const authReducer = (state, action) => {
   switch (action.type) {
-    case 'SET_STEP':
-      return { ...state, currentStep: action.payload };
-    
     case 'SET_EMAIL':
       return { ...state, email: action.payload, emailError: '' };
     
@@ -86,7 +82,6 @@ export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   const actions = {
-    setCurrentStep: (step) => dispatch({ type: 'SET_STEP', payload: step }),
     setEmail: (email) => dispatch({ type: 'SET_EMAIL', payload: email }),
     setPassword: (password) => dispatch({ type: 'SET_PASSWORD', payload: password }),
     setVerificationCode: (code) => dispatch({ type: 'SET_VERIFICATION_CODE', payload: code }),
