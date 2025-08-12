@@ -1,6 +1,4 @@
-import React from "react";
-
-export default function ProjectModal({ isOpen, onClose, currentIndex = 0, totalItems = 1, onIndexChange }) {
+export default function ProjectGalleryModal({ isOpen, onClose, currentIndex = 0, totalItems = 1, onIndexChange }) {
   if (!isOpen) return null;
 
   const handlePrevious = () => {

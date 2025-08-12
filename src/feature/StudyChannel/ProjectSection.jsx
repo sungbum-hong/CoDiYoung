@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ProjectModal from "./Modal/ProjectModal.jsx";
+import ProjectGalleryModal from "./Modal/ProjectGalleryModal.jsx";
 
 export default function ProjectSection({ projectCount = 3 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,7 +22,7 @@ export default function ProjectSection({ projectCount = 3 }) {
         </div>
       </div>
       
-      <ProjectModal 
+      <ProjectGalleryModal 
         isOpen={isModalOpen} 
         onClose={closeModal}
         currentIndex={currentProjectIndex}

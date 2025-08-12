@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Avatar from "./Avatar.jsx";
-import LoginModal from "./Modal/LoginModal.jsx";
+import LoginModal from "../../ui/LoginModal.jsx";
 import NonColorButton from "../../ui/NonColorButton.jsx";
 const defaultProject = {
   name: '프로젝트 이름',

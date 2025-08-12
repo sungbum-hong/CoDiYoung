@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
-import ProjectModal from "../ProjectPage/Modal/ProjectModal.jsx";
+import ProjectDetailModal from "../../ui/ProjectDetailModal.jsx";
 
 export default function ProjectSection({ title = "프로젝트", itemCount = 10 }) {
   const scrollRef = useRef(null);
@@ -72,7 +72,7 @@ export default function ProjectSection({ title = "프로젝트", itemCount = 10 
         <ChevronRightIcon className="w-5 h-5 text-gray-600" />
       </button>
 
-      <ProjectModal 
+      <ProjectDetailModal 
         isOpen={isModalOpen}
         onClose={closeModal}
         projectIndex={selectedProjectIndex}
