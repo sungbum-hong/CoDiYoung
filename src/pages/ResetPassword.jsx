@@ -38,9 +38,7 @@ export default function ResetPassword({ onClose }) {
     setConfirmPasswordError(error);
   };
 
-  const handleResetPassword = (e) => {
-    e.preventDefault();
-    
+  const handleResetPassword = () => {
     const passwordValidation = validatePassword(newPassword);
     const confirmValidation = validatePasswordConfirmation(newPassword, confirmPassword);
     
@@ -70,7 +68,7 @@ export default function ResetPassword({ onClose }) {
         </p>
       </div>
 
-      <form onSubmit={handleResetPassword} className="flex flex-col gap-4 md:gap-6 flex-1">
+      <div className="flex flex-col gap-4 md:gap-6 flex-1">
         <FormInput
           type="password"
           placeholder="새 비밀번호 (8자 이상, 대소문자, 숫자, 특수문자 포함)"
@@ -93,14 +91,14 @@ export default function ResetPassword({ onClose }) {
 
         <div className="flex justify-center" style={{ marginTop: "30px" }}>
           <ColorButton 
-            type="submit"
+            onClick={handleResetPassword}
             disabled={!isFormValid()}
             className="px-8 py-3 md:px-12 md:py-3 rounded-[5px] w-full sm:w-auto text-sm md:text-base"
           >
             비밀번호 재설정
           </ColorButton>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

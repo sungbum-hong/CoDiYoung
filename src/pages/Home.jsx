@@ -1,3 +1,9 @@
+import Banner from "../components/Banner";
+
 export default function Home() {
-  return <h1>홈 화면</h1>
+  return (
+    <div>
+      <Banner />
+    </div>
+  );
 }
