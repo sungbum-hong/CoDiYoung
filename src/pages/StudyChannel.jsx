@@ -19,7 +19,7 @@ export default function StudyChannel() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <StudyChannelHeader />
 
       <main className="max-w-6xl mx-auto px-6 pb-16">

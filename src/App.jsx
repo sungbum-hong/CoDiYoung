@@ -7,6 +7,7 @@ import FindPassword from "./feature/SignIn/FindPassword.jsx"
 import ResetPassword from "./feature/SignIn/ResetPassword.jsx"
 import SuccessResetPassword from "./feature/SignIn/SuccessResetPassword.jsx"
 import StudyChannel from "./pages/StudyChannel.jsx"
+import ProjectPage from "./pages/ProjectPage.jsx"
 
 const router = createBrowserRouter([
   { path: "/", element: <AppLayout />, children: [
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
       { path: "/resetpassword", element: <ResetPassword /> },
       { path: "/successresetpassword", element: <SuccessResetPassword /> },
       { path: "/study/:category", element: <StudyChannel /> },
+      { path: "/project/:projectId", element: <ProjectPage /> },
   ]},
 ])
 
