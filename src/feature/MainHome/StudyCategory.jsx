@@ -15,12 +15,12 @@ export default function StudyCategory({
   };
 
   return (
-    <section className="p-4 space-y-6">
-      <h2 className="font-bold mb-3">{title}</h2>
+    <section className="space-y-6 mb-21">
+      <h2 className="font-bold text-2xl mb-7">{title}</h2>
 
       {rows.map((r) => (
         <div key={r.label}>
-          <p className="text-sm text-gray-500 mb-2">{r.label}</p>
+          <p className="text-gray-500 font-bold text-1.5xl mb-3">{r.label}</p>
           <div className="grid grid-cols-9 gap-4">
             {Array.from({ length: r.count }).map((_, i) => (
               <button
