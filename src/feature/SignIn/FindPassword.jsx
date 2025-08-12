@@ -1,27 +1,24 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../contexts/AuthContext";
-import { validateEmail, validateVerificationCode } from "../utils/validation";
-import ColorButton from "../ui/ColorButton";
-import FormInput from "../ui/FormInput";
-import ResetPassword from "./ResetPassword";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { validateEmail, validateVerificationCode } from "../../utils/validation";
+import ColorButton from "../../ui/ColorButton";
+import FormInput from "../../ui/FormInput";
 
-export default function FindPassword({ onClose }) {
+export default function FindPassword() {
+  const navigate = useNavigate();
   const {
     email,
     verificationCode,
     emailError,
     verificationCodeError,
     isCodeSent,
-    currentStep,
     setEmail,
     setVerificationCode,
     setEmailError,
     setVerificationCodeError,
-    setCodeSent,
-    setCurrentStep
+    setCodeSent
   } = useAuth();
-
-  const showResetPassword = currentStep === 'resetPassword';
 
 
   const handleEmailChange = (e) => {
@@ -48,7 +45,7 @@ export default function FindPassword({ onClose }) {
     setVerificationCodeError(error);
     
     if (!error) {
-      setCurrentStep('resetPassword');
+      navigate('/resetpassword');
     }
   };
 
@@ -62,13 +59,6 @@ export default function FindPassword({ onClose }) {
     }
   };
 
-  const handleResetPasswordSuccess = () => {
-    setCurrentStep('successResetPassword');
-  };
-
-  if (showResetPassword) {
-    return <ResetPassword onClose={handleResetPasswordSuccess} />;
-  }
 
   return (
     <div className="flex flex-col h-full p-4 md:p-6">
@@ -135,6 +125,15 @@ export default function FindPassword({ onClose }) {
           >
             인증확인
           </ColorButton>
+        </div>
+
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => navigate('/signin')}
+            className="text-sm text-gray-500 hover:text-gray-700"
+          >
+            로그인으로 돌아가기
+          </button>
         </div>
       </div>
     </div>

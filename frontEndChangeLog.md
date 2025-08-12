@@ -83,3 +83,46 @@
   - Banner.jsx를 5개의 독립적인 컴포넌트로 분리
   - props를 통한 데이터 전달 구조 구현
   - 컴포넌트 간 의존성 최소화
+
+- **프로젝트 구조 조정**
+  - feature 기반 폴더 구조 적용
+  - MainHome 폴더에 홈 관련 컴포넌트 정리
+
+### 파일 구조 변경
+- `src/feature/MainHome/MainBanner.jsx` - 메인 배너 컴포넌트
+- `src/feature/MainHome/StudyCategory.jsx` - 스터디 카테고리 선택
+- `src/feature/MainHome/Partners.jsx` - 파트너 섹션
+- `src/feature/MainHome/ProjectSection.jsx` - 프로젝트 섹션
+- `src/pages/StudyChannel.jsx` - 스터디 채널 페이지 생성
+
+## [2025-08-12] - 인증 시스템 라우터 기반 리팩터링
+
+### 📝 작업 내용
+- **모달 내 라우터 시스템 구현**
+  - 모달창 내에서 `/signin` → `/findpassword` → `/resetpassword` 라우터 플로우
+  - Header 로그인 버튼 클릭 시 모달 + 라우터 네비게이션
+  - URL 변경에 따른 모달 내용 동적 업데이트
+
+- **StudyChannel 컴포넌트 리팩터링**
+  - 모놀리식 컴포넌트를 5개의 독립적인 섹션으로 분리
+  - `StudyChannelHeader.jsx` - 상단 헤더
+  - `ProfileSection.jsx` - 프로필 + 정보 표시  
+  - `AttendanceSection.jsx` - 출석체크 (StarIcon 포함)
+  - `StudySection.jsx` - 스터디 카드 그리드
+  - `ProjectSection.jsx` - 참여 프로젝트 섹션
+
+### 파일 구조 변경
+- `src/components/Header.jsx` - 라우터 기반 모달 시스템으로 업데이트
+- `src/pages/SignIn.jsx` - 라우터 네비게이션 로직 추가  
+- `src/feature/SignIn/FindPassword.jsx` - `useNavigate()` 훅 사용
+- `src/feature/SignIn/ResetPassword.jsx` - 라우터 기반 네비게이션
+- `src/feature/SignIn/SuccessResetPassword.jsx` - 완료 후 라우터 이동
+- `src/contexts/AuthContext.jsx` - `currentStep` 관련 코드 제거
+- `src/feature/StudyChannel/` - 새 폴더 생성 및 컴포넌트 분리
+
+### 🔧 기술적 개선사항
+- **Feature 기반 구조**: 기능별 폴더 구조로 프로젝트 구조 개선
+- **재사용성 증대**: Props 기반 데이터 전달로 컴포넌트 재사용성 향상  
+- **동적 카테고리**: URL 파라미터 기반 카테고리 동적 표시
+- **코드 분리**: 각 섹션별 독립 컴포넌트로 유지보수성 개선
+
