@@ -64,3 +64,47 @@
 - SuccessResetPassword가 표시되지 않는 문제 해결
 - form 중첩으로 인한 hydration 오류 해결
 - 모달 크기가 화면을 벗어나는 문제 해결
+
+## [2025-08-12] - 컴포넌트 리팩토링 및 라우터 기능 추가
+
+### 📝 작업 내용
+- **Banner.jsx 컴포넌트 분리 및 리팩토링**
+  - 76줄의 모놀리식 컴포넌트를 5개의 작은 컴포넌트로 분리
+  - MainBanner, StudyCategory, Partners, Footer, ProjectSection 컴포넌트로 분리
+  - 재사용성 및 유지보수성 향상
+
+- **CSS 스타일링 통일화**
+  - 모든 컴포넌트를 Tailwind CSS로 통일 (`src/components/MainBanner.jsx`, `src/components/StudyCategory.jsx`, `src/components/Partners.jsx`, `src/components/Footer.jsx`)
+  - 일관된 스타일링 시스템 구축
+  - 반응형 디자인 및 호버 효과 추가
+
+- **ProjectSection.jsx 스크롤 기능 개선**
+  - 화면에 정확히 5개 카드 표시하도록 컨테이너 너비 조정
+  - 카드 단위(212px) 정확한 스크롤 거리 계산
+  - 접근성 향상을 위한 aria-label 추가
+
+- **라우터 기능 구현**
+  - StudyChannel 페이지 생성 (`src/pages/StudyChannel.jsx`)
+  - App.jsx에 `/study/:category` 경로 추가
+  - StudyCategory.jsx에 클릭 이벤트 및 네비게이션 기능 추가
+
+### 🔧 기술적 개선사항
+- **컴포넌트 구조 개선**
+  - Banner.jsx를 5개의 독립적인 컴포넌트로 분리
+  - props를 통한 데이터 전달 구조 구현
+  - 컴포넌트 간 의존성 최소화
+
+- **라우터 플로우 구축**
+  - React Router를 활용한 SPA 네비게이션
+  - URL 파라미터를 통한 동적 페이지 렌더링
+  - 카테고리별(코딩/디자인/영상편집) 스터디 채널 페이지 구현
+
+- **스크롤 UX 개선**
+  - 정확한 카드 크기 계산을 통한 부드러운 스크롤
+  - 5개 카드 고정 표시로 일관된 사용자 경험
+  - 버튼 위치 최적화
+
+### 🐛 버그 수정
+- ProjectSection 스크롤 거리 부정확 문제 해결
+- 컴포넌트 스타일링 불일치 문제 해결
+- StudyCategory 클릭 이벤트 미동작 문제 해결
