@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function NonColorButton({
   children,
   onClick,
@@ -13,7 +11,7 @@ export default function NonColorButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`bg-white border-2 border-[#193794] text-[#193794] rounded-[5px]
+      className={`bg-white border-2 border-[#193794] text-[#193794] rounded-[47px]
                   transition-colors duration-200
                   disabled:opacity-50 disabled:cursor-not-allowed
                   ${className}`}

@@ -1,8 +1,20 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import ProjectDetailModal from "../../ui/ProjectDetailModal.jsx";
 
 export default function ProjectSection({ title = "프로젝트", itemCount = 10 }) {
   const scrollRef = useRef(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
+
+  const handleProjectClick = (index) => {
+    setSelectedProjectIndex(index);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -45,6 +57,7 @@ export default function ProjectSection({ title = "프로젝트", itemCount = 10 
           <div
             key={i}
             className="bg-gray-300 w-48 h-60 rounded-2xl flex-shrink-0 flex items-center justify-center hover:bg-gray-400 transition-colors cursor-pointer"
+            onClick={() => handleProjectClick(i)}
           >
           </div>
         ))}
@@ -58,6 +71,12 @@ export default function ProjectSection({ title = "프로젝트", itemCount = 10 
       >
         <ChevronRightIcon className="w-5 h-5 text-gray-600" />
       </button>
+
+      <ProjectDetailModal 
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        projectIndex={selectedProjectIndex}
+      />
     </section>
   );
 }

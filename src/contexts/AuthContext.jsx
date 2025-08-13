@@ -1,116 +1,79 @@
-import { createContext, useContext, useReducer } from 'react';
+import { createContext, useContext } from 'react';
+import { AuthFormProvider, useAuthForm } from './AuthFormContext';
+import { PasswordResetProvider, usePasswordReset } from './PasswordResetContext';
+import { UIProvider, useUI } from './UIContext';
 
 const AuthContext = createContext();
 
-const initialState = {
-  email: '',
-  password: '',
-  verificationCode: '',
-  newPassword: '',
-  confirmPassword: '',
-  isLoading: false,
-  error: null,
-  isCodeSent: false,
-  emailError: '',
-  passwordError: '',
-  newPasswordError: '',
-  confirmPasswordError: '',
-  verificationCodeError: '',
-};
-
-const authReducer = (state, action) => {
-  switch (action.type) {
-    case 'SET_EMAIL':
-      return { ...state, email: action.payload, emailError: '' };
-    
-    case 'SET_PASSWORD':
-      return { ...state, password: action.payload, passwordError: '' };
-    
-    case 'SET_VERIFICATION_CODE':
-      return { ...state, verificationCode: action.payload, verificationCodeError: '' };
-    
-    case 'SET_NEW_PASSWORD':
-      return { ...state, newPassword: action.payload, newPasswordError: '' };
-    
-    case 'SET_CONFIRM_PASSWORD':
-      return { ...state, confirmPassword: action.payload, confirmPasswordError: '' };
-    
-    case 'SET_LOADING':
-      return { ...state, isLoading: action.payload };
-    
-    case 'SET_ERROR':
-      return { ...state, error: action.payload };
-    
-    case 'SET_EMAIL_ERROR':
-      return { ...state, emailError: action.payload };
-    
-    case 'SET_PASSWORD_ERROR':
-      return { ...state, passwordError: action.payload };
-    
-    case 'SET_NEW_PASSWORD_ERROR':
-      return { ...state, newPasswordError: action.payload };
-    
-    case 'SET_CONFIRM_PASSWORD_ERROR':
-      return { ...state, confirmPasswordError: action.payload };
-    
-    case 'SET_VERIFICATION_CODE_ERROR':
-      return { ...state, verificationCodeError: action.payload };
-    
-    case 'SET_CODE_SENT':
-      return { ...state, isCodeSent: action.payload };
-    
-    case 'RESET_STATE':
-      return { ...initialState };
-    
-    case 'RESET_ERRORS':
-      return {
-        ...state,
-        error: null,
-        emailError: '',
-        passwordError: '',
-        newPasswordError: '',
-        confirmPasswordError: '',
-        verificationCodeError: '',
-      };
-    
-    default:
-      return state;
-  }
-};
-
+// 통합된 AuthProvider - 기존 API와 호환성 유지
 export function AuthProvider({ children }) {
-  const [state, dispatch] = useReducer(authReducer, initialState);
-
-  const actions = {
-    setEmail: (email) => dispatch({ type: 'SET_EMAIL', payload: email }),
-    setPassword: (password) => dispatch({ type: 'SET_PASSWORD', payload: password }),
-    setVerificationCode: (code) => dispatch({ type: 'SET_VERIFICATION_CODE', payload: code }),
-    setNewPassword: (password) => dispatch({ type: 'SET_NEW_PASSWORD', payload: password }),
-    setConfirmPassword: (password) => dispatch({ type: 'SET_CONFIRM_PASSWORD', payload: password }),
-    setLoading: (loading) => dispatch({ type: 'SET_LOADING', payload: loading }),
-    setError: (error) => dispatch({ type: 'SET_ERROR', payload: error }),
-    setEmailError: (error) => dispatch({ type: 'SET_EMAIL_ERROR', payload: error }),
-    setPasswordError: (error) => dispatch({ type: 'SET_PASSWORD_ERROR', payload: error }),
-    setNewPasswordError: (error) => dispatch({ type: 'SET_NEW_PASSWORD_ERROR', payload: error }),
-    setConfirmPasswordError: (error) => dispatch({ type: 'SET_CONFIRM_PASSWORD_ERROR', payload: error }),
-    setVerificationCodeError: (error) => dispatch({ type: 'SET_VERIFICATION_CODE_ERROR', payload: error }),
-    setCodeSent: (sent) => dispatch({ type: 'SET_CODE_SENT', payload: sent }),
-    resetState: () => dispatch({ type: 'RESET_STATE' }),
-    resetErrors: () => dispatch({ type: 'RESET_ERRORS' }),
-  };
-
-  const value = {
-    ...state,
-    ...actions,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <UIProvider>
+      <AuthFormProvider>
+        <PasswordResetProvider>
+          {children}
+        </PasswordResetProvider>
+      </AuthFormProvider>
+    </UIProvider>
+  );
 }
 
+// 기존 useAuth 훅과 호환되도록 통합된 훅 제공
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  const authForm = useAuthForm();
+  const passwordReset = usePasswordReset();
+  const ui = useUI();
+
+  // 기존 API와 동일하게 모든 상태와 액션을 합쳐서 반환
+  return {
+    // AuthForm 상태
+    email: authForm.email,
+    password: authForm.password,
+    emailError: authForm.emailError,
+    passwordError: authForm.passwordError,
+    
+    // PasswordReset 상태 (email은 AuthForm과 별도로 관리)
+    verificationCode: passwordReset.verificationCode,
+    newPassword: passwordReset.newPassword,
+    confirmPassword: passwordReset.confirmPassword,
+    isCodeSent: passwordReset.isCodeSent,
+    verificationCodeError: passwordReset.verificationCodeError,
+    newPasswordError: passwordReset.newPasswordError,
+    confirmPasswordError: passwordReset.confirmPasswordError,
+    
+    // UI 상태
+    isLoading: ui.isLoading,
+    error: ui.error,
+    
+    // AuthForm 액션
+    setEmail: authForm.setEmail,
+    setPassword: authForm.setPassword,
+    setEmailError: authForm.setEmailError,
+    setPasswordError: authForm.setPasswordError,
+    
+    // PasswordReset 액션
+    setVerificationCode: passwordReset.setVerificationCode,
+    setNewPassword: passwordReset.setNewPassword,
+    setConfirmPassword: passwordReset.setConfirmPassword,
+    setVerificationCodeError: passwordReset.setVerificationCodeError,
+    setNewPasswordError: passwordReset.setNewPasswordError,
+    setConfirmPasswordError: passwordReset.setConfirmPasswordError,
+    setCodeSent: passwordReset.setCodeSent,
+    
+    // UI 액션
+    setLoading: ui.setLoading,
+    setError: ui.setError,
+    
+    // 통합 액션들
+    resetState: () => {
+      authForm.resetForm();
+      passwordReset.resetState();
+      ui.resetUI();
+    },
+    resetErrors: () => {
+      authForm.resetErrors();
+      passwordReset.resetErrors();
+      ui.clearError();
+    },
+  };
 }
