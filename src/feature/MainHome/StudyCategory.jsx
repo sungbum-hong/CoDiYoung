@@ -1,32 +1,72 @@
 import { useNavigate } from "react-router-dom";
+import { PencilIcon } from "@heroicons/react/24/outline";
+import { ROUTES } from '../../constants/routes';
+import { COLORS } from '../../constants/colors';
+import { CONFIG } from '../../constants/config';
 
 export default function StudyCategory({
   title = "스터디 채널",
   rows = [
-    { label: "코딩", count: 9 },
-    { label: "디자인", count: 9 },
-    { label: "영상편집", count: 9 },
+    { label: "코딩", count: CONFIG.CARD.STUDY.DEFAULT_COUNT },
+    { label: "디자인", count: CONFIG.CARD.STUDY.DEFAULT_COUNT },
+    { label: "영상편집", count: CONFIG.CARD.STUDY.DEFAULT_COUNT },
   ],
 }) {
   const navigate = useNavigate();
 
   const handleCategoryClick = (category) => {
-    navigate(`/study/${category}`);
+    navigate(`${ROUTES.STUDY_CATEGORY.replace(':category', category)}`);
+  };
+
+  const handleWriteClick = () => {
+    navigate(ROUTES.WRITE);
   };
 
   return (
     <section className="space-y-6 mb-21">
-      <h2 className="font-bold text-2xl mb-7">{title}</h2>
+      <div className="flex items-center justify-between mb-7">
+        <h2 className="font-bold text-2xl">{title}</h2>
+        <button 
+          onClick={handleWriteClick}
+          className="p-2 rounded-full transition-colors"
+          style={{
+            backgroundColor: 'transparent',
+            ':hover': {
+              backgroundColor: COLORS.GRAY_100
+            }
+          }}
+        >
+          <PencilIcon 
+            className="w-5 h-5" 
+            style={{ color: COLORS.GRAY_600 }}
+          />
+        </button>
+      </div>
 
       {rows.map((r) => (
         <div key={r.label}>
-          <p className="text-gray-500 font-bold text-1.5xl mb-3">{r.label}</p>
-          <div className="grid grid-cols-9 gap-4">
+          <p 
+            className="font-bold text-1.5xl mb-3"
+            style={{ color: COLORS.GRAY_500 }}
+          >{r.label}</p>
+          <div 
+            className="grid gap-4"
+            style={{ gridTemplateColumns: `repeat(${CONFIG.CARD.STUDY.DEFAULT_COUNT}, minmax(0, 1fr))` }}
+          >
             {Array.from({ length: r.count }).map((_, i) => (
               <button
                 key={i}
                 onClick={() => handleCategoryClick(r.label)}
-                className="w-12 h-12 bg-gray-300 rounded-full hover:bg-gray-400 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-12 h-12 rounded-full transition-colors cursor-pointer focus:outline-none focus:ring-2"
+                style={{
+                  backgroundColor: COLORS.GRAY_300,
+                  ':hover': {
+                    backgroundColor: COLORS.GRAY_400
+                  },
+                  ':focus': {
+                    ringColor: COLORS.BLUE_600
+                  }
+                }}
                 aria-label={`${r.label} 스터디 채널 ${i + 1}번`}
               ></button>
             ))}

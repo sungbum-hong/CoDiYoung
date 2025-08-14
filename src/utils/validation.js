@@ -1,11 +1,14 @@
+import { MESSAGES } from '../constants/messages.js';
+import { CONFIG } from '../constants/config.js';
+
 export const validateEmail = (email) => {
   if (!email) {
-    return "이메일을 입력해주세요.";
+    return MESSAGES.VALIDATION.EMAIL_REQUIRED;
   }
   
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = CONFIG.VALIDATION.EMAIL_REGEX;
   if (!emailRegex.test(email)) {
-    return "올바른 이메일 형식이 아닙니다.";
+    return MESSAGES.VALIDATION.EMAIL_INVALID;
   }
   
   return "";
@@ -13,27 +16,27 @@ export const validateEmail = (email) => {
 
 export const validatePassword = (password) => {
   if (!password) {
-    return "비밀번호를 입력해주세요.";
+    return MESSAGES.VALIDATION.PASSWORD_REQUIRED;
   }
   
-  if (password.length < 8) {
-    return "비밀번호는 최소 8자 이상이어야 합니다.";
+  if (password.length < CONFIG.VALIDATION.PASSWORD_MIN_LENGTH) {
+    return MESSAGES.VALIDATION.PASSWORD_MIN_LENGTH;
   }
   
   if (!/(?=.*[a-z])/.test(password)) {
-    return "비밀번호에 소문자를 포함해야 합니다.";
+    return MESSAGES.VALIDATION.PASSWORD_NEED_LOWERCASE;
   }
   
   if (!/(?=.*[A-Z])/.test(password)) {
-    return "비밀번호에 대문자를 포함해야 합니다.";
+    return MESSAGES.VALIDATION.PASSWORD_NEED_UPPERCASE;
   }
   
   if (!/(?=.*\d)/.test(password)) {
-    return "비밀번호에 숫자를 포함해야 합니다.";
+    return MESSAGES.VALIDATION.PASSWORD_NEED_NUMBER;
   }
   
   if (!/(?=.*[!@#$%^&*])/.test(password)) {
-    return "비밀번호에 특수문자(!@#$%^&*)를 포함해야 합니다.";
+    return MESSAGES.VALIDATION.PASSWORD_NEED_SPECIAL;
   }
   
   return "";
@@ -41,11 +44,11 @@ export const validatePassword = (password) => {
 
 export const validatePasswordConfirmation = (password, confirmPassword) => {
   if (!confirmPassword) {
-    return "비밀번호 확인을 입력해주세요.";
+    return MESSAGES.VALIDATION.PASSWORD_CONFIRM_REQUIRED;
   }
   
   if (password !== confirmPassword) {
-    return "비밀번호가 일치하지 않습니다.";
+    return MESSAGES.VALIDATION.PASSWORD_NOT_MATCH;
   }
   
   return "";
@@ -53,12 +56,12 @@ export const validatePasswordConfirmation = (password, confirmPassword) => {
 
 export const validateVerificationCode = (code) => {
   if (!code) {
-    return "인증번호를 입력해주세요.";
+    return MESSAGES.VALIDATION.VERIFICATION_CODE_REQUIRED;
   }
   
   // 개발 단계에서는 임의 길이 허용 (최소 1자리 이상)
   if (code.length < 1) {
-    return "인증번호를 입력해주세요.";
+    return MESSAGES.VALIDATION.VERIFICATION_CODE_REQUIRED;
   }
   
   return "";

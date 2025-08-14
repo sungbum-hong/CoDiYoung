@@ -10,7 +10,10 @@ const FindPassword = lazy(() => import("./feature/SignIn/FindPassword.jsx"))
 const ResetPassword = lazy(() => import("./feature/SignIn/ResetPassword.jsx"))
 const SuccessResetPassword = lazy(() => import("./feature/SignIn/SuccessResetPassword.jsx"))
 const StudyChannel = lazy(() => import("./pages/StudyChannel.jsx"))
-const ProjectPage = lazy(() => import("./pages/ProjectPage.jsx"))
+const ProjectPageLayout = lazy(() => import("./feature/ProjectPage/ProjectPageLayout.jsx"))
+const WritePageLayout = lazy(() => import("./feature/WritePage/WritePageLayout.jsx"))
+const WriteForm = lazy(() => import("./feature/WritePage/WriteForm.jsx"))
+const MyProfileLayout = lazy(() => import("./feature/MyProfile/MyProfileLayout.jsx"))
 
 const router = createBrowserRouter([
   { path: "/", element: <AppLayout />, children: [
@@ -20,7 +23,9 @@ const router = createBrowserRouter([
       { path: "/resetpassword", element: <Suspense fallback={<div className="flex justify-center items-center h-32">로딩 중...</div>}><ResetPassword /></Suspense> },
       { path: "/successresetpassword", element: <Suspense fallback={<div className="flex justify-center items-center h-32">로딩 중...</div>}><SuccessResetPassword /></Suspense> },
       { path: "/study/:category", element: <Suspense fallback={<div className="flex justify-center items-center h-32">로딩 중...</div>}><StudyChannel /></Suspense> },
-      { path: "/project/:projectId", element: <Suspense fallback={<div className="flex justify-center items-center h-32">로딩 중...</div>}><ProjectPage /></Suspense> },
+      { path: "/project/:projectId", element: <Suspense fallback={<div className="flex justify-center items-center h-32">로딩 중...</div>}><ProjectPageLayout /></Suspense> },
+      { path: "/write", element: <Suspense fallback={<div className="flex justify-center items-center h-32">로딩 중...</div>}><WritePageLayout><WriteForm /></WritePageLayout></Suspense> },
+      { path: "/myprofile", element: <Suspense fallback={<div className="flex justify-center items-center h-32">로딩 중...</div>}><MyProfileLayout /></Suspense> },
   ]},
 ])
 
