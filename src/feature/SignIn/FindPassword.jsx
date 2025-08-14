@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { validateEmail, validateVerificationCode } from "../../utils/validation";
-import ColorButton from "../../ui/ColorButton";
+import Button from "../../ui/Button.jsx";
 import FormInput from "../../ui/FormInput";
 
 export default function FindPassword() {
@@ -81,14 +81,14 @@ export default function FindPassword() {
               className="text-sm md:text-base"
             />
           </div>
-          <ColorButton
+          <Button variant="primary"
             onClick={handleSendVerification}
             type="button"
             disabled={isCodeSent}
             className="whitespace-nowrap px-3 py-2 md:px-5 md:py-2.5 text-xs md:text-sm w-full sm:w-auto"
           >
             {isCodeSent ? "전송완료" : "인증번호보내기"}
-          </ColorButton>
+          </Button>
         </div>
 
         <AnimatePresence>
@@ -117,14 +117,14 @@ export default function FindPassword() {
         </AnimatePresence>
 
         <div className="flex justify-center" style={{ marginTop: "30px" }}>
-          <ColorButton 
+          <Button variant="primary" 
             type="button"
             onClick={handleVerifyCode}
             disabled={!isCodeSent || !verificationCode}
             className="px-8 py-3 md:px-12 md:py-3 rounded-[5px] w-full sm:w-auto text-sm md:text-base"
           >
             인증확인
-          </ColorButton>
+          </Button>
         </div>
 
         <div className="flex justify-center mt-4">

@@ -1,3 +1,6 @@
+import { COLORS } from '../constants/colors.js';
+import { CONFIG } from '../constants/config.js';
+
 // src/ui/FormInput.jsx
 export default function FormInput({
   type = "text",
@@ -24,14 +27,29 @@ export default function FormInput({
 
   const getVariantStyles = () => {
     if (variant === 'signin') {
-    return `rounded-[15px] bg-white border-[2px] ${
-    error ? 'border-red-500' : 'border-[#722EFF]'
-    } focus:ring-2 focus:ring-purple-500 focus:border-[#722EFF]`;
+      return {
+        className: "bg-white border-[2px] focus:ring-2 focus:ring-purple-500",
+        style: {
+          borderRadius: `${CONFIG.BORDER_RADIUS.MEDIUM}px`,
+          borderColor: error ? COLORS.ERROR : COLORS.PRIMARY,
+          focusBorderColor: COLORS.PRIMARY,
+        }
+      };
     }
     // 기본(언더라인형)
-    return `border-0 border-b-2 bg-transparent ${
-      error ? "border-red-500" : "border-gray-300"
-    } focus:border-[#722EFF] placeholder-gray-500`;
+    return {
+      className: `border-0 border-b-2 bg-transparent placeholder-gray-500`,
+      style: {
+        borderBottomColor: error ? COLORS.ERROR : COLORS.GRAY_300,
+        focusBorderBottomColor: COLORS.PRIMARY,
+      }
+    };
+  };
+
+  const variantConfig = getVariantStyles();
+
+  const inputStyle = {
+    ...variantConfig.style,
   };
 
   return (
@@ -46,10 +64,25 @@ export default function FormInput({
         className={[
           baseStyles,
           sizeStyles[size] || sizeStyles.md, // ← 크기 적용
-          getVariantStyles(),
+          variantConfig.className,
           disabled ? "text-gray-500" : "",
           className,                          // ← 필요 시 추가 오버라이드
         ].join(" ")}
+        style={inputStyle}
+        onFocus={(e) => {
+          if (variant === 'signin') {
+            e.target.style.borderColor = COLORS.PRIMARY;
+          } else {
+            e.target.style.borderBottomColor = COLORS.PRIMARY;
+          }
+        }}
+        onBlur={(e) => {
+          if (variant === 'signin') {
+            e.target.style.borderColor = error ? COLORS.ERROR : COLORS.PRIMARY;
+          } else {
+            e.target.style.borderBottomColor = error ? COLORS.ERROR : COLORS.GRAY_300;
+          }
+        }}
       />
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>

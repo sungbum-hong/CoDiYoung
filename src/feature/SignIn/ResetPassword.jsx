@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { validatePassword, validatePasswordConfirmation } from "../../utils/validation";
-import ColorButton from "../../ui/ColorButton";
+import Button from "../../ui/Button.jsx";
 import FormInput from "../../ui/FormInput";
 
 export default function ResetPassword() {
@@ -92,13 +92,13 @@ export default function ResetPassword() {
         />
 
         <div className="flex justify-center" style={{ marginTop: "30px" }}>
-          <ColorButton 
+          <Button variant="primary" 
             onClick={handleResetPassword}
             disabled={!isFormValid()}
             className="px-8 py-3 md:px-12 md:py-3 rounded-[5px] w-full sm:w-auto text-sm md:text-base"
           >
             비밀번호 재설정
-          </ColorButton>
+          </Button>
         </div>
 
         <div className="flex justify-center mt-4">

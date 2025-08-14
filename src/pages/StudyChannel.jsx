@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-import StudyChannelHeader from "../feature/StudyChannel/StudyChannelHeader";
 import ProfileSection from "../feature/StudyChannel/ProfileSection";
 import AttendanceSection from "../feature/StudyChannel/AttendanceSection";
 import StudySection from "../feature/StudyChannel/StudySection";
@@ -20,8 +19,6 @@ export default function StudyChannel() {
 
   return (
     <div className="min-h-screen">
-      <StudyChannelHeader />
-
       <main className="max-w-6xl mx-auto px-6 pb-16">
         <ProfileSection 
           category={getCategoryTitle(category)} 

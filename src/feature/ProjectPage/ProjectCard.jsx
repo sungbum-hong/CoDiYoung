@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Avatar from "./Avatar.jsx";
 import LoginModal from "../../ui/LoginModal.jsx";
-import NonColorButton from "../../ui/NonColorButton.jsx";
+import Button from "../../ui/Button.jsx";
+import { COLORS } from '../../constants/colors.js';
 const defaultProject = {
   name: '프로젝트 이름',
   slogan: '프로젝트 슬로건',
@@ -35,12 +36,12 @@ export default function ProjectCard({ project = defaultProject }) {
           <h2 className="text-lg md:text-xl font-medium">{name}</h2>
           <p className="text-base md:text-lg text-gray-700">{slogan}</p>
 
-          <NonColorButton
+          <Button variant="secondary"
             onClick={handleApply}
             className="w-32 h-8"
           >
             신청하기
-          </NonColorButton>
+          </Button>
         </div>
       </div>
 
@@ -67,7 +68,7 @@ export default function ProjectCard({ project = defaultProject }) {
 
       {/* Big description / image box */}
       <div className="mt-10 relative">
-        <div className="border-2 border-[#1a237e] rounded-2xl p-8 h-96 flex items-center justify-center">
+        <div className="border-2 rounded-2xl p-8 h-96 flex items-center justify-center" style={{ borderColor: COLORS.BORDER }}>
           <p className="text-center text-lg text-gray-700">{description}</p>
         </div>
         

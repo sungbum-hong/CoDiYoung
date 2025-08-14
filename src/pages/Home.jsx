@@ -1,4 +1,3 @@
-import MainBanner from "../feature/MainHome/MainBanner";
 import StudyCategory from "../feature/MainHome/StudyCategory";
 import ProjectSection from "../feature/MainHome/ProjectSection";
 import Partners from "../feature/MainHome/Partners";
@@ -7,7 +6,14 @@ import Footer from "../components/Footer";
 export default function Home() {
   return (
     <div className="text-gray-800">
-      <MainBanner />
+      {/* 메인 배너 섹션 */}
+      <section className="mb-21">
+        <div className="bg-gray-300 h-75 rounded flex items-center justify-center">
+          <div className="text-center">
+          </div>
+        </div>
+      </section>
+
       <StudyCategory />
       <ProjectSection />
       

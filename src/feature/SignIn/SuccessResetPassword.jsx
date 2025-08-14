@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import ColorButton from "../../ui/ColorButton";
+import Button from "../../ui/Button.jsx";
 
 export default function SuccessResetPassword() {
   const navigate = useNavigate();
@@ -14,12 +14,13 @@ export default function SuccessResetPassword() {
         비밀번호 변경 완료!!
       </h2>
       
-      <ColorButton 
+      <Button 
+        variant="primary"
         onClick={handleConfirm}
         className="px-12 py-3 rounded-[5px] text-base"
       >
         확인
-      </ColorButton>
+      </Button>
     </div>
   );
 }

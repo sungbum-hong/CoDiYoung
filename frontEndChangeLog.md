@@ -1,5 +1,38 @@
 # Frontend Changelog
 
+## [2025-08-14] - 글작성 페이지/유저프로필 개선 및 상수화 리팩토링
+
+### 📝 작업 내용
+- **글작성 페이지(TiptapEditor, WriteForm) 개선**
+  - Tiptap 툴바/에디터 컨테이너 스타일을 상수 기반으로 정리 (`src/feature/WritePage/TiptapEditor.jsx`)
+  - 에디터 최소 높이, 보더, 보더라디우스 등 하드코딩 제거 → `CONFIG`/`COLORS` 적용
+  - 테이블 기본 HTML을 `CONFIG.EDITOR.TABLE.DEFAULT_HTML`로 이전하여 재사용성 확보
+  - 영상 임베드 기본 크기 `CONFIG.EDITOR.VIDEO`로 통일
+
+- **유저프로필(MyProfile) 개선**
+  - `MyProfileLayout`, `ProfileSidebar`, `ProfileField`에서 색상/치수/전환시간 등 상수화
+  - 버튼/인풋/보더 스타일 일관성 개선, 회색 팔레트 및 보더 컬러를 `COLORS`로 교체
+
+- **전체 리팩토링(상수화/토큰화)**
+  - 색상 상수 확장 및 변형 세트: `src/constants/colors.js`, CSS 변수: `src/styles/variables.css`
+  - 크기/레이아웃 상수: `src/constants/sizes.js`, `src/constants/config.js`
+  - 메시지/라우트 상수: `src/constants/messages.js`, `src/constants/routes.js`
+  - UI 컴포넌트 상수 적용: `Button.jsx`, `FormInput.jsx`, `BaseModal.jsx`, `ProjectDetailModal.jsx`
+  - 하드코딩된 HEX/인라인 값 대거 제거 → `COLORS`/`CONFIG`/`MODAL_SIZES` 사용
+
+- **환경/빌드**
+  - `CONFIG.ENV` 추가: `MODE`, `VITE_API_BASE_URL`, `VITE_USE_MOCK_DATA`(플래그)
+  - 프로덕션 빌드 검증 완료 (Vite build 성공)
+
+### 🐛 기타
+- 모달 오버레이/컨테이너 컬러를 상수 기반으로 통일하여 테마 일관성 개선
+
+### ✅ Todo 진행상태
+- CSS 파일의 하드코딩 색상 수정: 부분 적용 (컴포넌트 인라인 HEX 제거, CSS 변수 기반 유지)
+- UI 컴포넌트들의 하드코딩 값들 상수로 교체: 완료 (`Button.jsx`, `FormInput.jsx`, `BaseModal.jsx`, `ProjectDetailModal.jsx`)
+- 테스트 데이터 및 개발용 설정 분리: 기본 환경 키/플래그 추가 (`CONFIG.ENV.MODE`, `VITE_API_BASE_URL`, `VITE_USE_MOCK_DATA`) — 사용처 순차 적용 예정
+- 최종 빌드 테스트 및 검증: 완료 (Vite build 성공)
+
 ## [2025-08-11] - 로그인 페이지 구현 및 리팩토링
 
 ### 📝 작업 내용

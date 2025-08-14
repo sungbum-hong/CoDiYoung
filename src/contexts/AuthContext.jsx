@@ -44,6 +44,8 @@ export function useAuth() {
     // UI 상태
     isLoading: ui.isLoading,
     error: ui.error,
+    isAuthenticated: ui.isAuthenticated,
+    user: ui.user,
     
     // AuthForm 액션
     setEmail: authForm.setEmail,
@@ -63,6 +65,8 @@ export function useAuth() {
     // UI 액션
     setLoading: ui.setLoading,
     setError: ui.setError,
+    setUser: ui.setUser,
+    logout: ui.logout,
     
     // 통합 액션들
     resetState: () => {

@@ -5,6 +5,8 @@ const UIContext = createContext();
 const initialState = {
   isLoading: false,
   error: null,
+  isAuthenticated: false,
+  user: null,
 };
 
 const uiReducer = (state, action) => {
@@ -17,6 +19,20 @@ const uiReducer = (state, action) => {
     
     case 'CLEAR_ERROR':
       return { ...state, error: null };
+
+    case 'SET_USER':
+      return { 
+        ...state, 
+        isAuthenticated: true, 
+        user: action.payload 
+      };
+    
+    case 'LOGOUT':
+      return { 
+        ...state, 
+        isAuthenticated: false, 
+        user: null 
+      };
 
     case 'RESET_UI':
       return { ...initialState };
@@ -33,6 +49,8 @@ export function UIProvider({ children }) {
     setLoading: (loading) => dispatch({ type: 'SET_LOADING', payload: loading }),
     setError: (error) => dispatch({ type: 'SET_ERROR', payload: error }),
     clearError: () => dispatch({ type: 'CLEAR_ERROR' }),
+    setUser: (user) => dispatch({ type: 'SET_USER', payload: user }),
+    logout: () => dispatch({ type: 'LOGOUT' }),
     resetUI: () => dispatch({ type: 'RESET_UI' }),
   };
 
