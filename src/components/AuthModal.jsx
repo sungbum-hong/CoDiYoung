@@ -1,54 +1,43 @@
+// src/components/AuthModalManager.jsx (또는 AuthModal.jsx)
 import BaseModal from "../ui/BaseModal";
 import SignIn from "../pages/SignIn";
-import FindPassword from "../feature/SignIn/FindPassword";
-import ResetPassword from "../feature/SignIn/ResetPassword";
-import SuccessResetPassword from "../feature/SignIn/SuccessResetPassword";
+// ⛔️ 아래 세 개는 라우터에서 전체 페이지로 렌더되므로 모달에서 사용하지 않음
+// import FindPassword from "../feature/SignIn/FindPassword";
+// import ResetPassword from "../feature/SignIn/ResetPassword";
+// import SuccessResetPassword from "../feature/SignIn/SuccessResetPassword";
 
-export default function AuthModal({ 
-  isOpen, 
-  onClose, 
-  title, 
-  currentPath 
+/**
+ * 변경 사항:
+ * - 로그인(SignIn)만 모달 표시
+ * - /signin, /findpassword, /resetpassword, /successresetpassword 에서는 렌더하지 않음
+ * - isOpen === false 일 때 DOM에 남지 않음 (오버레이로 헤더 클릭 가림 방지)
+ */
+export default function AuthModal({
+  isOpen = false,
+  onClose,
+  title = "로그인",
+  currentPath = "",
 }) {
-  const getModalContent = () => {
-    switch (currentPath) {
-      case "/findpassword":
-        return <FindPassword />;
-      case "/resetpassword":
-        return <ResetPassword />;
-      case "/successresetpassword":
-        return <SuccessResetPassword />;
-      default:
-        return <SignIn onClose={onClose} />;
-    }
-  };
+  const DISABLE_ROUTES = [
+    "/signin",
+    "/findpassword",
+    "/resetpassword",
+    "/successresetpassword",
+  ];
+
+  // 모달이 닫혀있거나, 인증 관련 경로이면 아무것도 렌더하지 않음
+  if (!isOpen || DISABLE_ROUTES.includes(currentPath)) return null;
 
   return (
-    <>
-      {/* 모달 */}
-      <BaseModal
-        isOpen={isOpen && currentPath !== "/successresetpassword"}
-        onClose={onClose}
-        title={title}
-        size="DEFAULT"
-        showTitle={true}
-        className="p-6"
-        style={{
-          left: "50%",
-          top: "20%",
-          transform: "translateX(-50%)",
-          position: "absolute",
-        }}
-      >
-        {getModalContent()}
-      </BaseModal>
-      
-      {/* 성공 화면 - 전체 화면 표시 */}
-      {isOpen && currentPath === "/successresetpassword" && (
-        <div className="fixed inset-0 bg-white z-50">
-          <SuccessResetPassword />
-        </div>
-      )}
-    </>
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      size="DEFAULT"
+      showTitle={true}
+      className="p-6"
+    >
+      <SignIn onClose={onClose} />
+    </BaseModal>
   );
 }
