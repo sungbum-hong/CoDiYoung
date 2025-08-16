@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+// src/ui/BaseModal.jsx
+import { useEffect, useRef } from 'react';
 import { COLORS, COLOR_VARIANTS } from '../constants/colors.js';
 import { MODAL_SIZES } from '../constants/sizes.js';
 
@@ -13,25 +14,40 @@ export default function BaseModal({
   className = '',
   style = {} 
 }) {
+  const dialogRef = useRef(null);
+  const titleId = showTitle && title ? 'base-modal-title' : undefined;
+
+  // body 스크롤 잠금
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  // ESC로 닫기 + 열릴 때 포커스
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') onClose?.();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    // 모달 첫 렌더 후 포커스
+    requestAnimationFrame(() => dialogRef.current?.focus());
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null; // 닫혀 있으면 완전 언마운트
 
   const modalSize = MODAL_SIZES[size] || MODAL_SIZES.DEFAULT;
-  
+
   const handleOverlayClick = (e) => {
     if (closeOnOverlayClick && e.target === e.currentTarget) {
-      onClose();
+      onClose?.();
     }
   };
 
@@ -39,20 +55,34 @@ export default function BaseModal({
     <>
       {/* 모달 타이틀 (선택적) */}
       {showTitle && title && (
-        <div className="fixed top-10 left-1/2 transform -translate-x-1/2 z-[60] pointer-events-none">
-          <h1 className="text-2xl font-bold select-none" style={{ color: COLORS.GRAY_900 }}>{title}</h1>
+        <div
+          className="fixed top-10 left-1/2 -translate-x-1/2 z-[1200] pointer-events-none"
+          aria-hidden="true"
+        >
+          <h1
+            id={titleId}
+            className="text-2xl font-bold select-none"
+            style={{ color: COLORS.GRAY_900 }}
+          >
+            {title}
+          </h1>
         </div>
       )}
 
-      {/* 모달 배경 오버레이 */}
+      {/* 모달 배경 오버레이 (헤더보다 위에 있도록 z 올림) */}
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center"
+        className="fixed inset-0 z-[1100] flex items-center justify-center"
         style={{ backgroundColor: `${COLORS.BLACK}66` }}
         onClick={handleOverlayClick}
       >
         {/* 모달 컨텐츠 */}
         <div
-          className={`rounded-lg shadow-lg relative ${className}`}
+          ref={dialogRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          className={`relative z-[1101] rounded-lg shadow-lg outline-none ${className}`}
           style={{
             backgroundColor: COLOR_VARIANTS.modal.background,
             width: size === 'DEFAULT' ? "68.5vw" : `${modalSize.width}px`,
