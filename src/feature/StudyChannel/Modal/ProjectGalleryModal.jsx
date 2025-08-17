@@ -13,7 +13,7 @@ export default function ProjectGalleryModal({ isOpen, onClose, currentIndex = 0,
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/40"
       onClick={onClose}
     >
       {/* 모달 박스 */}
@@ -44,7 +44,7 @@ export default function ProjectGalleryModal({ isOpen, onClose, currentIndex = 0,
           </button>
 
           {/* 원형 테두리와 이미지 */}
-          <div className="w-[600px] h-[600px] rounded-full bg-gray-300 flex items-center justify-center p-32 relative">
+          <div className="w-[650px] h-[650px] rounded-full flex items-center justify-center p-32 relative">
             {/* 이미지 영역 */}
             <div className="w-full h-full bg-white rounded-full flex items-center justify-center shadow-inner">
               <span className="text-gray-500 text-lg">이미지 {currentIndex + 1}</span>
@@ -53,8 +53,8 @@ export default function ProjectGalleryModal({ isOpen, onClose, currentIndex = 0,
             {/* 확인 버튼 */}
             <button
               onClick={onClose}
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 border border-blue-500 text-blue-500 px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors font-medium z-20"
-            >
+              className="absolute bottom-40 left-1/2 transform -translate-x-1/2 border border-[#722EFF] px-8 py-2.5 rounded-full hover:bg-[#722EFF] hover:text-[#FFFFFF] transition-colors font-medium z-20 cursor-pointer"
+              >
               확인
             </button>
           </div>

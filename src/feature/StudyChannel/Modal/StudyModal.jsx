@@ -19,15 +19,14 @@ export default function StudyModal({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50 bg-black/40"
+      className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/40"
       onClick={onClose}
     >
       {/* 모달 박스 */}
       <div
-        className="relative bg-gray-300 rounded-lg shadow-lg overflow-y-auto"
+        className="relative rounded-lg overflow-y-auto"
         style={{
-          width: "min(90vw, 1040px)", // 최대 1040px, 90vw 이하
-          aspectRatio: "1300 / 1650", // 피그마 비율 유지
+          width: "min(75vw, 600px)", // 최대 1040px, 90vw 이하
           maxHeight: "90vh", // 화면 90% 이상 안 넘어가게
         }}
         onClick={(e) => e.stopPropagation()}
@@ -68,12 +67,7 @@ export default function StudyModal({
           {/* 버튼 영역 */}
           <button
             onClick={onClose}
-            className="bg-white rounded font-medium hover:bg-blue-50 transition-colors"
-            style={{
-              width: "48.7%", // 634 / 1300 ≈ 0.487
-              height: "9.3%", // 154 / 1650 ≈ 0.093
-              minHeight: "40px",
-            }}
+            className="absolute bottom-20 left-1/2 transform -translate-x-1/2 border border-[#722EFF] px-8 py-2.5 rounded-lg hover:bg-[#722EFF] hover:text-[#FFFFFF] transition-colors font-medium z-20 cursor-pointer"
           >
             확인
           </button>

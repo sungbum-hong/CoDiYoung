@@ -14,6 +14,12 @@ export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
 
   const modalConfig = MODAL_SIZES.PROJECT_DETAIL;
 
+  // 버튼 공통 사이즈(기존 값 유지)
+  const btnStyle = {
+    width: `${modalConfig.buttonWidth || CONFIG.CARD.PROJECT.WIDTH}px`,
+    height: `${modalConfig.buttonHeight || 70}px`,
+  };
+
   return (
     <BaseModal
       isOpen={isOpen}
@@ -22,39 +28,37 @@ export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
       showTitle={false}
       className="w-[90%] max-w-[704px] mx-4"
     >
-      {/* 프로젝트 이미지 */}
-      <div className="h-48 rounded-lg mb-4 flex items-center justify-center">
-        <p className="text-gray-500">프로젝트 이미지</p>
+      {/* 상대 위치 기준 래퍼 */}
+      <div className="relative">
+        {/* 프로젝트 이미지 */}
+        <div className="h-48 rounded-lg mb-4 flex items-center justify-center">
+          <p className="text-gray-500">프로젝트 이미지</p>
+        </div>
+
+        {/* 버튼 그룹: 하단 중앙 고정 */}
+        <div className="absolute top-110 left-1/2 -translate-x-1/2 z-20 flex flex-col sm:flex-row gap-15">
+          <Button
+            variant="secondary"
+            onClick={handleExplore}
+            className="font-medium cursor-pointer transition-colors
+             hover:!bg-[#722EFF] hover:!text-white"
+            style={{ btnStyle, width:150,  height:50}}
+            >
+            구경하기
+          </Button>
+
+          <Button
+            variant="secondary"
+            onClick={onClose}
+      className="font-medium cursor-pointer
+           bg-transparent text-black
+           hover:!bg-transparent hover:!text-black"
+            style={{ btnStyle, width:150,  height: 50  }}
+          >
+            닫기
+          </Button>
+        </div>
       </div>
-
-      {/* 버튼들 */}
-      <Button
-        variant="secondary"
-        onClick={handleExplore}
-        className="absolute font-medium"
-        style={{
-          width: `${modalConfig.buttonWidth || CONFIG.CARD.PROJECT.WIDTH}px`,
-          height: `${modalConfig.buttonHeight || 70}px`,
-          left: `${modalConfig.startX || 147}px`,
-          top: `${modalConfig.startY ? modalConfig.startY - 1070 : 450}px`,
-        }}
-      >
-        구경하기
-      </Button>
-
-      <Button
-        variant="secondary"
-        onClick={onClose}
-        className="absolute font-medium"
-        style={{
-          width: `${modalConfig.buttonWidth || CONFIG.CARD.PROJECT.WIDTH}px`,
-          height: `${modalConfig.buttonHeight || 70}px`,
-          left: `${(modalConfig.startX || 147) + 307}px`,
-          top: `${modalConfig.startY ? modalConfig.startY - 1066 : 454}px`,
-        }}
-      >
-        닫기
-      </Button>
     </BaseModal>
   );
 }
