@@ -188,8 +188,8 @@ export default function FindPassword() {
   };
 
   return (
-    <div className="min-h-screen flex" role="main" aria-labelledby="find-password-heading">
-      <div className="w-full max-w-[1120px] px-6 pt-1 pb-1">
+    <div className="min-h-[calc(100dvh-96px)] grid place-items-center flex" role="main" aria-labelledby="find-password-heading">
+      <div className="w-full max-w-[1120px]">
         <h2 className="text-2xl font-bold mb-[48px] text-center">
           {MESSAGES.UI?.FIND_PASSWORD ?? "비밀번호 찾기"}
         </h2>

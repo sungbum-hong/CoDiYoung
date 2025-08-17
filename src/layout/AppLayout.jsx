@@ -27,13 +27,13 @@ export default function AppLayout() {
   }, [isAuthRoute]);
 
   // Header 실제 높이 보정: h-16(64) + pt-3(12) + mb-5(20) = 96px
-  const base = "mx-auto px-4 sm:px-6 lg:px-6";
+   const base = "relative z-0 mx-auto px-4 sm:px-6 lg:px-6"; // ← z-0 추가
   const authLayout =
     "max-w-[1120px] min-h-[calc(100dvh-96px)] grid place-items-center overflow-hidden";
   const normalLayout = "max-w-[1240px]";
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden">
       {!hideHeader && <Header disableAuthModal={isAuthRoute} />}
       <main className={`${base} ${isAuthRoute ? authLayout : normalLayout}`}>
         <Outlet />
