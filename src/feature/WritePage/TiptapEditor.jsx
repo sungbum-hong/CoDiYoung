@@ -292,7 +292,7 @@ export default function TiptapEditor({ content, onChange }) {
       </div>
 
       {/* 에디터 영역 */}
-      <div className={`${isFullscreen ? 'h-full' : 'min-h-[300px]'} bg-white overflow-y-auto`}>
+      <div className={`${isFullscreen ? 'h-full' : 'min-h-[550px]'} bg-white overflow-y-auto`}>
         {showHTML ? (
           <textarea 
             value={editor.getHTML()} 

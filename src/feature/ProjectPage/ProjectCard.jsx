@@ -25,9 +25,9 @@ export default function ProjectCard({ project = defaultProject }) {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-8">
+    <div className="max-w-6xl mx-auto px-6">
       {/* Top section */}
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-44">
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-44 py-6">
         <div className="flex-shrink-0">
           <Avatar size="lg" src={leadImage} alt="팀장 이미지" />
         </div>
@@ -68,7 +68,7 @@ export default function ProjectCard({ project = defaultProject }) {
 
       {/* Big description / image box */}
       <div className="mt-10 relative">
-        <div className="border-2 rounded-2xl p-8 h-96 flex items-center justify-center" style={{ borderColor: COLORS.BORDER }}>
+        <div className="border-2 rounded-2xl p-8 h-96 flex items-center justify-center mt-12" style={{ borderColor: COLORS.BORDER }}>
           <p className="text-center text-lg text-gray-700">{description}</p>
         </div>
         

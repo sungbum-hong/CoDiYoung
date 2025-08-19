@@ -19,7 +19,7 @@ export default function StudyChannel() {
 
   return (
     <div className="min-h-screen">
-      <main className="max-w-6xl mx-auto px-6 pb-16">
+      <main className="max-w-6xl mx-auto px-6">
         <ProfileSection 
           category={getCategoryTitle(category)} 
           studyCount={1234} 
