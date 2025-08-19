@@ -25,7 +25,7 @@ const router = createBrowserRouter([
       { path: "/study/:category", element: <Suspense fallback={<div className="flex justify-center items-center h-32">로딩 중...</div>}><StudyChannel /></Suspense> },
       { path: "/project/:projectId", element: <Suspense fallback={<div className="flex justify-center items-center h-32">로딩 중...</div>}><ProjectPageLayout /></Suspense> },
       { path: "/write", element: <Suspense fallback={<div className="flex justify-center items-center h-32">로딩 중...</div>}><WritePageLayout><WriteForm /></WritePageLayout></Suspense> },
-      { path: "/myprofile", element: <Suspense fallback={<div className="flex justify-center items-center h-32">로딩 중...</div>}><MyProfileLayout /></Suspense> },
+      { path: "/profile", element: <Suspense fallback={<div className="flex justify-center items-center h-32">로딩 중...</div>}><MyProfileLayout /></Suspense> },
   ]},
 ])
 

@@ -1,4 +1,4 @@
-import { useAuthModal } from '../hooks/useModal';
+import { useAuthModal } from '../hooks/useAuthModal';
 import { useAuthState, useAuthActions } from '../hooks/useAuth';
 import UserProfile from './UserProfile';
 import LoginButtons from './LoginButtons';

@@ -6,19 +6,17 @@ export default function ProfileImageSection() {
   const [username, setUsername] = useState("u1");
 
   const handleToggle = () => {
-    if (isEditing) {
-      setIsEditing(false);
-    } else {
-      setIsEditing(true);
-    }
+    setIsEditing((prev) => !prev);
   };
 
   return (
-    <div className={`border border-purple-400 rounded-lg transition-all duration-300 ${
-      isEditing ? 'p-4' : 'p-3'
-    }`}>
+    <div
+      className={`border border-purple-400 rounded-lg transition-all duration-300 flex items-center p-6 ${
+        isEditing ? "h-32" : "h-20"
+      }`}
+    >
       {isEditing ? (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full">
           <div className="w-8 h-8 rounded-full bg-gray-300"></div>
           <input
             type="text"
@@ -34,7 +32,7 @@ export default function ProfileImageSection() {
           </Button>
         </div>
       ) : (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gray-300"></div>
             <span className="text-sm">{username}</span>
@@ -47,3 +45,4 @@ export default function ProfileImageSection() {
     </div>
   );
 }
+0

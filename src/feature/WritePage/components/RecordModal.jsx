@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import Button from '../ui/Button.jsx';
+import Button from '../../../ui/Button.jsx';
 
 export default function RecordModal({ isOpen, onClose }) {
   const navigate = useNavigate();

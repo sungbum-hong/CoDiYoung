@@ -1,4 +1,4 @@
-// src/components/AuthModalManager.jsx (또는 AuthModal.jsx)
+// src/components/AuthModal.jsx
 import BaseModal from "../ui/BaseModal";
 import SignIn from "../pages/SignIn";
 // ⛔️ 아래 세 개는 라우터에서 전체 페이지로 렌더되므로 모달에서 사용하지 않음

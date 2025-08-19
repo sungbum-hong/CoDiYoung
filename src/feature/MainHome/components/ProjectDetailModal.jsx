@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import BaseModal from "./BaseModal.jsx";
-import Button from "./Button.jsx";
-import { MODAL_SIZES } from '../constants/sizes.js';
-import { CONFIG } from '../constants/config.js';
+import BaseModal from "../../../ui/BaseModal.jsx";
+import Button from "../../../ui/Button.jsx";
+import { MODAL_SIZES } from '../../../constants/sizes.js';
+import { CONFIG } from '../../../constants/config.js';
 
 export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
   const navigate = useNavigate();

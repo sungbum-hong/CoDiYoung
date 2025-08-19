@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Avatar from "./Avatar.jsx";
-import LoginModal from "../../ui/LoginModal.jsx";
+import LoginModal from "./components/LoginModal.jsx";
 import Button from "../../ui/Button.jsx";
 import { COLORS } from '../../constants/colors.js';
 const defaultProject = {

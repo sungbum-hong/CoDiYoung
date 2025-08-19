@@ -15,7 +15,7 @@ export const ROUTES = {
   
   // 사용자 기능
   WRITE: "/write",
-  MY_PROFILE: "/myprofile",
+  PROFILE: "/profile",
 }
 
 // 동적 라우트 생성 헬퍼 함수
@@ -27,7 +27,7 @@ export const generateRoute = {
 // 인증이 필요한 경로들
 export const AUTH_REQUIRED_ROUTES = [
   ROUTES.WRITE,
-  ROUTES.MY_PROFILE,
+  ROUTES.PROFILE,
 ]
 
 // 인증 관련 경로들 (로그인 후 리다이렉트 제외 대상)
