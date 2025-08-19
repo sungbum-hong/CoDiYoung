@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import RecordModal from '../../components/RecordModal';
+import RecordModal from './components/RecordModal';
 import Button from '../../ui/Button.jsx';
 
 export default function WritePageLayout({ children }) {

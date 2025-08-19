@@ -1,4 +1,4 @@
-import BaseModal from './BaseModal.jsx';
+import BaseModal from '../../../ui/BaseModal.jsx';
 
 export default function LoginModal({ onClose }) {
     return (

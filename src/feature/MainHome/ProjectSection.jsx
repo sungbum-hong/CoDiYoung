@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
-import ProjectDetailModal from "../../ui/ProjectDetailModal.jsx";
+import ProjectDetailModal from "./components/ProjectDetailModal.jsx";
 import { CONFIG } from '../../constants/config.js';
 import { COLORS } from '../../constants/colors.js';
 import { MESSAGES } from '../../constants/messages.js';

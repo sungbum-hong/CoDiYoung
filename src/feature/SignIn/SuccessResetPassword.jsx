@@ -1,25 +1,27 @@
 import { useNavigate } from "react-router-dom";
+import { SIGNIN_CONSTANTS } from "./constants";
+import { authStyles } from "./styles/authStyles";
 import Button from "../../ui/Button.jsx";
 
 export default function SuccessResetPassword() {
   const navigate = useNavigate();
 
   const handleConfirm = () => {
-    navigate('/signin');
+    navigate(SIGNIN_CONSTANTS.ROUTES.SIGN_IN);
   };
 
   return (
-    <div className="flex flex-col h-full justify-center items-center p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-        비밀번호 변경 완료!!
+    <div className={authStyles.layout.centerVertical} role="main" aria-labelledby="success-heading">
+      <h2 id="success-heading" className={`${authStyles.typography.heading} text-gray-900`}>
+        {SIGNIN_CONSTANTS.MESSAGES.PASSWORD_RESET_SUCCESS}
       </h2>
       
       <Button 
         variant="primary"
         onClick={handleConfirm}
-        className="px-12 py-3 rounded-[5px] text-base"
+        className={authStyles.button.fixedWidth}
       >
-        확인
+        {SIGNIN_CONSTANTS.MESSAGES.CONFIRM}
       </Button>
     </div>
   );
