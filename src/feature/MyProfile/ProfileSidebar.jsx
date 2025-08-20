@@ -12,7 +12,7 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
   return (
     <aside className="w-full md:w-1/3 bg-white shadow-sm min-h-screen flex flex-col items-center justify-start pt-8 px-4">
       <div 
-        className="rounded-full bg-gray-300 flex items-center justify-center font-semibold text-lg mb-8"
+        className="rounded-full bg-gray-300 flex items-center justify-center font-semibold text-lg mb-16"
         style={{
           width: 'min(20vw, 180px)',
           height: 'min(20vw, 180px)',
@@ -22,7 +22,7 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
         U1
       </div>
 
-      <nav className="flex flex-col items-center w-full space-y-6">
+      <nav className="flex flex-col items-center w-full space-y-8">
         {menuItems.map((item) => (
           <button
             key={item}
@@ -31,8 +31,8 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
               backgroundColor: activeSection === item ? COLORS.PRIMARY : "transparent",
               color: activeSection === item ? "white" : COLORS.PRIMARY,
               borderColor: COLORS.PRIMARY,
-              width: 'min(70%, 200px)',
-              height: 'min(8vh, 60px)'
+              width: 'min(65%, 160px)',
+              height: 'min(6vh, 48px)'
             }}
             className="rounded-md border text-center transition-all duration-200 hover:bg-blue-500 hover:text-white active:bg-blue-600 text-sm md:text-base"
             onMouseEnter={(e) => {
