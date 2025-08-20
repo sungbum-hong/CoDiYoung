@@ -25,14 +25,14 @@ export default function MyProfileLayout() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row w-full min-h-screen bg-gray-50 justify-center">
+    <div className="flex flex-col md:flex-row w-full min-h-screen justify-center">
       {/* Wrapper 중앙 정렬, max-width 적용 */}
       <div className="flex w-full max-w-[1200px]">
         <ProfileSidebar 
           activeSection={activeSection} 
           onSectionChange={handleSectionChange} 
         />
-        <main className="flex-1 p-6 md:pl-[6.9%]">
+        <main className="flex-1 py-15 px-5">
           {renderContent()}
         </main>
       </div>
