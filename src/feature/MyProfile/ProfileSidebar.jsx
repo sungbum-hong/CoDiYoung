@@ -10,34 +10,48 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
   ];
 
   return (
-    <aside className="w-full md:w-[35.6%] flex flex-col justify-between items-center bg-white shadow-sm min-h-screen p-6">
-      
-      {/* 프로필 */}
-      <div className="w-[13.85%] max-w-[266px] aspect-square rounded-full bg-gray-300 flex items-center justify-center font-semibold text-lg">
-  U1
-</div>
+    <aside className="w-full md:w-1/3 bg-white shadow-sm min-h-screen flex flex-col items-center justify-start pt-8 px-4">
+      <div 
+        className="rounded-full bg-gray-300 flex items-center justify-center font-semibold text-lg mb-8"
+        style={{
+          width: 'min(20vw, 180px)',
+          height: 'min(20vw, 180px)',
+          aspectRatio: '1/1'
+        }}
+      >
+        U1
+      </div>
 
-      {/* 메뉴 */}
-      <nav className="flex flex-col items-center w-full" style={{ gap: '132px' }}>
+      <nav className="flex flex-col items-center w-full space-y-6">
         {menuItems.map((item) => (
           <button
             key={item}
             onClick={() => onSectionChange(item)}
-            className={`w-full max-w-[220px] h-[3.25rem] rounded-md border text-center transition-colors
-              
-              bg-transparent text-[${COLORS.PRIMARY}] border-[${COLORS.PRIMARY}] hover:bg-[${COLORS.PRIMARY}]/10
-              
-              text-[1.25rem]`}
+            style={{
+              backgroundColor: activeSection === item ? COLORS.PRIMARY : "transparent",
+              color: activeSection === item ? "white" : COLORS.PRIMARY,
+              borderColor: COLORS.PRIMARY,
+              width: 'min(70%, 200px)',
+              height: 'min(8vh, 60px)'
+            }}
+            className="rounded-md border text-center transition-all duration-200 hover:bg-blue-500 hover:text-white active:bg-blue-600 text-sm md:text-base"
+            onMouseEnter={(e) => {
+              if (activeSection !== item) {
+                e.target.style.backgroundColor = COLORS.PRIMARY;
+                e.target.style.color = "white";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeSection !== item) {
+                e.target.style.backgroundColor = "transparent";
+                e.target.style.color = COLORS.PRIMARY;
+              }
+            }}
           >
             {item}
           </button>
         ))}
       </nav>
-
-      {/* 맨 아래 로고 */}
-      <div className="mb-[5%] text-lg font-semibold">
-        CoDiYoung
-      </div>
     </aside>
   );
 }
