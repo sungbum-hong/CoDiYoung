@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import Button from '../../../ui/Button.jsx';
 
-export default function RecordModal({ isOpen, onClose }) {
+export default function RecordModal({ isOpen, onClose, message = "오늘도 수고했어!!" }) {
   const navigate = useNavigate();
 
   if (!isOpen) return null;
@@ -15,7 +15,7 @@ export default function RecordModal({ isOpen, onClose }) {
       <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
       <div className="relative w-screen h-screen bg-white flex flex-col items-center justify-center">
         <h1 className="text-4xl font-bold text-gray-800 mb-48">
-          오늘도 수고했어!!
+          {message}
         </h1>
         <Button
           variant="primary"
