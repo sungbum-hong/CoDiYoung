@@ -1,4 +1,5 @@
-import { createContext, useContext, useReducer } from 'react';
+import { createContext, useContext, useReducer, useEffect } from 'react';
+import { AuthService } from '../services/authService.js';
 
 const UIContext = createContext();
 
@@ -19,6 +20,26 @@ const uiReducer = (state, action) => {
     
     case 'CLEAR_ERROR':
       return { ...state, error: null };
+
+    case 'LOGIN_SUCCESS':
+      // 로그인 성공 시 사용자 정보 저장
+      AuthService.saveUserToStorage(action.payload);
+      return { 
+        ...state, 
+        isAuthenticated: true, 
+        user: action.payload,
+        isLoading: false,
+        error: null
+      };
+
+    case 'LOGIN_FAILURE':
+      return {
+        ...state,
+        isAuthenticated: false,
+        user: null,
+        isLoading: false,
+        error: action.payload
+      };
 
     case 'SET_USER':
       return { 
@@ -45,12 +66,49 @@ const uiReducer = (state, action) => {
 export function UIProvider({ children }) {
   const [state, dispatch] = useReducer(uiReducer, initialState);
 
+  // 앱 초기화 시 로그인 상태 확인
+  useEffect(() => {
+    const currentUser = AuthService.getCurrentUser();
+    if (currentUser) {
+      dispatch({ type: 'SET_USER', payload: currentUser });
+    }
+  }, []);
+
   const actions = {
     setLoading: (loading) => dispatch({ type: 'SET_LOADING', payload: loading }),
     setError: (error) => dispatch({ type: 'SET_ERROR', payload: error }),
     clearError: () => dispatch({ type: 'CLEAR_ERROR' }),
     setUser: (user) => dispatch({ type: 'SET_USER', payload: user }),
-    logout: () => dispatch({ type: 'LOGOUT' }),
+    
+    // Mock 로그인 함수
+    login: async (email, password) => {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'CLEAR_ERROR' });
+      
+      try {
+        const user = await AuthService.login(email, password);
+        dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+        return { success: true, user };
+      } catch (error) {
+        dispatch({ type: 'LOGIN_FAILURE', payload: error.message });
+        return { success: false, error: error.message };
+      }
+    },
+
+    // 로그아웃 함수
+    logout: async () => {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      
+      try {
+        await AuthService.logout();
+        dispatch({ type: 'LOGOUT' });
+        return { success: true };
+      } catch (error) {
+        dispatch({ type: 'SET_ERROR', payload: error.message });
+        return { success: false, error: error.message };
+      }
+    },
+
     resetUI: () => dispatch({ type: 'RESET_UI' }),
   };
 

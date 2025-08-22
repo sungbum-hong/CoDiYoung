@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Avatar from "./Avatar.jsx";
-import LoginModal from "./components/LoginModal.jsx";
+import ApplicationModal from "./components/ApplicationModal.jsx";
 import Button from "../../ui/Button.jsx";
 import { COLORS } from '../../constants/colors.js';
 const defaultProject = {
@@ -14,14 +14,14 @@ const defaultProject = {
 
 export default function ProjectCard({ project = defaultProject }) {
   const { name, slogan, leadImage, members, tech, description } = project;
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
 
   const handleApply = () => {
-    setIsLoginModalOpen(true);
+    setIsApplicationModalOpen(true);
   };
 
-  const closeLoginModal = () => {
-    setIsLoginModalOpen(false);
+  const closeApplicationModal = () => {
+    setIsApplicationModalOpen(false);
   };
 
   return (
@@ -72,9 +72,12 @@ export default function ProjectCard({ project = defaultProject }) {
           <p className="text-center text-lg text-gray-700">{description}</p>
         </div>
         
-        {/* LoginModal */}
-        {isLoginModalOpen && (
-          <LoginModal onClose={closeLoginModal} />
+        {/* ApplicationModal */}
+        {isApplicationModalOpen && (
+          <ApplicationModal 
+            onClose={closeApplicationModal} 
+            projectName={name}
+          />
         )}
       </div>
     </div>

@@ -66,6 +66,7 @@ export function useAuth() {
     setLoading: ui.setLoading,
     setError: ui.setError,
     setUser: ui.setUser,
+    login: ui.login,
     logout: ui.logout,
     
     // 통합 액션들
