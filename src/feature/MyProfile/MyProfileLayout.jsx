@@ -2,6 +2,7 @@ import { useState } from 'react';
 import ProfileSidebar from './ProfileSidebar';
 import ProfileContent from './ProfileContent';
 import StudyContent from './StudyContent';
+import ProjectContent from './ProjectContent';
 import { MESSAGES } from '../../constants/messages';
 
 export default function MyProfileLayout() {
@@ -16,7 +17,7 @@ export default function MyProfileLayout() {
       case MESSAGES.SECTIONS.STUDY_LIST:
         return <StudyContent />;
       case MESSAGES.SECTIONS.PROJECT_LIST:
-        return <div className="bg-white shadow-sm rounded-md p-6 min-h-[300px]">프로젝트 목록 (구현 예정)</div>;
+        return <ProjectContent />;
       case MESSAGES.SECTIONS.ATTENDANCE_CHECK:
         return <div className="bg-white shadow-sm rounded-md p-6 min-h-[300px]">출석체크 (구현 예정)</div>;
       default:
