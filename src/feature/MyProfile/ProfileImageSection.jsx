@@ -12,7 +12,7 @@ export default function ProfileImageSection() {
   return (
     <div
       className={`border border-purple-400 rounded-lg transition-all duration-300 flex items-center p-6 ${
-        isEditing ? "h-32" : "h-20"
+        isEditing ? "h-21" : "h-12"
       }`}
     >
       {isEditing ? (
@@ -22,7 +22,7 @@ export default function ProfileImageSection() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 flex-1"
+            className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 flex-1"
           />
           <Button variant="secondary" onClick={() => {}} className="h-8 text-xs">
             이미지 찾기
@@ -35,9 +35,10 @@ export default function ProfileImageSection() {
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gray-300"></div>
-            <span className="text-sm">{username}</span>
           </div>
-          <Button variant="secondary" onClick={handleToggle} className="h-8 text-xs">
+          <Button  variant="secondary"
+                  onClick={handleToggle}
+                  className="!h-8 !text-xs">
             수정
           </Button>
         </div>

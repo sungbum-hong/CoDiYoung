@@ -5,7 +5,7 @@ export default function AttendanceStars() {
   return (
     <div className="flex flex-col gap-1 mt-6">
       {[...Array(3)].map((_, rowIndex) => (
-        <div key={rowIndex} className="flex gap-1">
+        <div key={rowIndex} className="flex gap-8">
           {[...Array(14)].map((_, colIndex) => {
             const starIndex = rowIndex * 14 + colIndex;
             const isAttended = starIndex < attendedDays;

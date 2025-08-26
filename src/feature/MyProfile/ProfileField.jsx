@@ -15,7 +15,7 @@ export default function ProfileField({ label, value }) {
   return (
     <div
   className={`border rounded-lg transition-all flex items-center p-6 ${
-    isEditing ? "h-32" : "h-20"
+    isEditing ? "h-21" : "h-12"
   }`}
   style={{
     borderColor: COLORS.PRIMARY,
@@ -23,7 +23,7 @@ export default function ProfileField({ label, value }) {
   }}
 >
   {isEditing ? (
-    <div className="flex items-center gap-3 w-full">
+    <div className="flex items-center gap-3 w-full ">
       <div className="text-sm font-medium text-center min-w-[60px] flex items-center justify-center">
         {label}
       </div>
@@ -54,7 +54,7 @@ export default function ProfileField({ label, value }) {
         <Button
           variant="secondary"
           onClick={handleToggle}
-          className="h-8 text-xs"
+          className="!h-8 !text-xs"
         >
           {MESSAGES.UI.EDIT}
         </Button>
