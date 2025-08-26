@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import ProjectDetailModal from "./components/ProjectDetailModal.jsx";
 import { CONFIG } from '../../constants/config.js';
-import { COLORS } from '../../constants/colors.js';
+import { COLORS } from '../../utils/colors.js';
 import { MESSAGES } from '../../constants/messages.js';
 
 export default function ProjectSection({ title = MESSAGES.SECTIONS.PROJECT_LIST, itemCount = CONFIG.DEFAULTS.PROJECT_COUNT }) {

@@ -25,6 +25,7 @@ export default function Header() {
     const result = await logout();
     if (result.success) {
       navigate(ROUTES.HOME);
+      window.location.reload();
     }
   };
 
@@ -57,17 +58,17 @@ export default function Header() {
                 </div>
 
                 {/* 호버 드롭다운 메뉴 */}
-                <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 flex flex-col">
                   <button
                     onClick={handleProfileClick}
-                    className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left"
+                    className="btn-dropdown"
                   >
                     내 프로필
                   </button>
                   
                   <button
                     onClick={handleLogout}
-                    className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left"
+                    className="btn-dropdown"
                   >
                     로그아웃
                   </button>
@@ -77,7 +78,7 @@ export default function Header() {
               // 로그인하지 않은 상태
               <Link
                 to="/signin"
-                className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                className="btn-base"
               >
                 로그인
               </Link>

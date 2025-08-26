@@ -1,16 +1,15 @@
-// src/pages/SignIn.jsx
+// src/feature/Auth/SignInPage.jsx
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { useUI } from "../contexts/UIContext";
-import { validateEmail, validatePassword } from "../utils/validation";
-import Button from "../ui/Button.jsx";
-import FormInput from "../ui/FormInput";
-import { COLORS } from "../constants/colors.js";
-import { ROUTES } from "../constants/routes.js";
-import { MESSAGES } from "../constants/messages.js";
-import { DEV_ACCOUNTS } from "../services/authService.js";
+import { useAuth } from "../../contexts/AuthContext";
+import { useUI } from "../../contexts/UIContext";
+import { validateEmail, validatePassword } from "../../utils/validation";
+import Button from "../../ui/Button.jsx";
+import FormInput from "../../ui/FormInput";
+import { COLORS } from "../../utils/colors.js";
+import { ROUTES } from "../../constants/routes.js";
+import { MESSAGES } from "../../constants/messages.js";
 
-export default function SignIn({ onClose }) {
+export default function SignInPage({ onClose }) {
   const navigate = useNavigate();
   const { login, isLoading, error, clearError } = useUI();
   const {
@@ -80,17 +79,6 @@ export default function SignIn({ onClose }) {
           {MESSAGES.UI.LOGIN}
         </h2>
 
-        {/* 개발용 계정 정보 */}
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <h3 className="text-sm font-semibold text-blue-800 mb-2">개발용 테스트 계정</h3>
-          <div className="text-xs text-blue-600 space-y-1">
-            {DEV_ACCOUNTS.slice(0, 3).map(account => (
-              <div key={account.email}>
-                <strong>{account.nickname}</strong>: {account.email} / {account.password}
-              </div>
-            ))}
-          </div>
-        </div>
 
         <form
           onSubmit={onSubmit}

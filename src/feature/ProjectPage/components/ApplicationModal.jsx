@@ -2,7 +2,7 @@ import { useState } from "react";
 import BaseModal from "../../../ui/BaseModal.jsx";
 import FormInput from "../../../ui/FormInput.jsx";
 import Button from "../../../ui/Button.jsx";
-import { COLORS } from "../../../constants/colors.js";
+import { COLORS } from "../../../utils/colors.js";
 
 export default function ApplicationModal({ onClose, projectName = "프로젝트" }) {
   const [formData, setFormData] = useState({

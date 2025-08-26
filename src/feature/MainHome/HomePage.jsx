@@ -1,9 +1,9 @@
-import StudyCategory from "../feature/MainHome/StudyCategory";
-import ProjectSection from "../feature/MainHome/ProjectSection";
-import Partners from "../feature/MainHome/Partners";
-import Footer from "../components/Footer";
+import StudyCategory from "./StudyCategory";
+import ProjectSection from "./ProjectSection";
+import Partners from "./Partners";
+import Footer from "../../components/Footer";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <div className="text-gray-800">
       {/* 메인 배너 섹션 */}

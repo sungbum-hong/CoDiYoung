@@ -53,7 +53,7 @@ export default function ProjectGalleryModal({ isOpen, onClose, currentIndex = 0,
             {/* 확인 버튼 */}
             <button
               onClick={onClose}
-              className="absolute bottom-40 left-1/2 transform -translate-x-1/2 border border-[#722EFF] px-8 py-2.5 rounded-full hover:bg-[#722EFF] hover:text-[#FFFFFF] transition-colors font-medium z-20 cursor-pointer"
+              className="absolute bottom-40 left-1/2 transform -translate-x-1/2 border border-[var(--color-primary)] px-8 py-2.5 rounded-full hover:bg-[var(--color-primary)] hover:text-[#FFFFFF] transition-colors font-medium z-20 cursor-pointer"
               >
               확인
             </button>

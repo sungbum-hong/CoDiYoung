@@ -31,9 +31,9 @@ export default function LoginModal({ onClose, onProviderLogin }) {
           variant="primary"
           onClick={goLogin}
           className="h-10 px-5 border transition-colors
-                     hover:bg-[#722EFF] hover:text-white hover:border-[#722EFF]
-                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#722EFF]/40
-                     active:bg-[#5d24cc]"
+                     hover:bg-[var(--color-primary)] hover:text-white hover:border-[var(--color-primary)]
+                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40
+                     active:bg-[color-mix(in_srgb,var(--color-primary)_90%,black)]"
         >
           로그인
         </Button>

@@ -38,13 +38,13 @@ export default function UserProfile() {
       <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-1 z-50 border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
         <button
           onClick={onProfileClick}
-          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          className="btn-menu-item"
         >
           {MESSAGES.UI.MY_PROFILE}
         </button>
         <button
           onClick={onLogout}
-          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          className="btn-menu-item"
         >
           {MESSAGES.UI.LOGOUT}
         </button>

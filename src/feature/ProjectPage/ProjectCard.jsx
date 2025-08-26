@@ -2,7 +2,7 @@ import { useState } from "react";
 import Avatar from "./Avatar.jsx";
 import ApplicationModal from "./components/ApplicationModal.jsx";
 import Button from "../../ui/Button.jsx";
-import { COLORS } from '../../constants/colors.js';
+import { COLORS } from '../../utils/colors.js';
 const defaultProject = {
   name: '프로젝트 이름',
   slogan: '프로젝트 슬로건',

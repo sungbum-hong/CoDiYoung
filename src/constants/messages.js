@@ -69,29 +69,6 @@ export const MESSAGES = {
     PROFILE_INFO: "프로필 정보",
   },
 
-  // Footer
-  FOOTER: {
-    LOGO: "로고",
-    CUSTOMER_SERVICE: "고객센터",
-    PARTNERSHIP: "제휴",
-    NOTICE: "공지사항",
-    COPYRIGHT: "© 2025 YourCompany. All rights reserved.",
-  },
-
-  // 페이지 제목/설명
-  PAGES: {
-    HOME_TITLE: "코디영에 오신 것을 환영합니다",
-    HOME_SUBTITLE: "함께 성장하는 코딩 커뮤니티",
-    STUDY_SUBTITLE: "함께 성장하는 스터디에 참여하세요",
-  },
-
-  // 카테고리
-  CATEGORIES: {
-    CODING: "코딩",
-    DESIGN: "디자인",
-    BUSINESS: "비즈니스",
-    VIDEO: "영상",
-  },
 
   // 플레이스홀더
   PLACEHOLDERS: {
@@ -106,17 +83,4 @@ export const MESSAGES = {
     PROJECT_DESCRIPTION: "프로젝트 설명 또는 이미지가 들어갈 영역입니다.",
   },
 
-  // 에디터 관련
-  EDITOR: {
-    HELP_MESSAGE: "Ctrl + / 를 눌러 명령어 도움말을 확인하세요.",
-    INSERT_TABLE: "테이블 삽입",
-    INSERT_IMAGE: "이미지 삽입",
-    INSERT_LINK: "링크 삽입",
-    TOGGLE_FULLSCREEN: "전체화면 토글",
-    SHOW_HTML: "HTML 보기",
-    ALIGN_LEFT: "왼쪽 정렬",
-    ALIGN_CENTER: "가운데 정렬",
-    ALIGN_RIGHT: "오른쪽 정렬",
-    ALIGN_JUSTIFY: "양쪽 정렬",
-  }
 }

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import { ROUTES } from '../../constants/routes';
-import { COLORS } from '../../constants/colors';
+import { COLORS } from '../../utils/colors';
 import { CONFIG } from '../../constants/config';
 
 export default function StudyCategory({

@@ -30,19 +30,19 @@ export const authStyles = {
     primary: `
       w-64 h-11 rounded-[15px] font-semibold cursor-pointer
       transition-colors duration-200
-      !bg-[#722EFF] hover:!bg-[#5B24D6]
+      !bg-[var(--color-primary)] hover:!bg-[color-mix(in_srgb,var(--color-primary)_90%,black)]
       !text-white !border-transparent
-      focus-visible:!ring-2 focus-visible:!ring-[#722EFF]/40 focus-visible:!ring-offset-2
-      disabled:!bg-[#722EFF]/50 disabled:cursor-not-allowed
+      focus-visible:!ring-2 focus-visible:!ring-[var(--color-primary)]/40 focus-visible:!ring-offset-2
+      disabled:!bg-[var(--color-primary)]/50 disabled:cursor-not-allowed
     `,
     
     // Secondary button (send code button)
     secondary: `
       w-full h-11 text-sm mb-3 rounded-[15px]
       transition-colors duration-200
-      !bg-white !text-[#722EFF] !border !border-[#722EFF]
-      hover:!bg-[#722EFF] hover:!text-[#FFF]
-      focus-visible:!ring-2 focus-visible:!ring-[#722EFF]/40 focus-visible:!ring-offset-2
+      !bg-white !text-[var(--color-primary)] !border !border-[var(--color-primary)]
+      hover:!bg-[var(--color-primary)] hover:!text-[#FFF]
+      focus-visible:!ring-2 focus-visible:!ring-[var(--color-primary)]/40 focus-visible:!ring-offset-2
       disabled:opacity-50 disabled:pointer-events-none
     `,
     

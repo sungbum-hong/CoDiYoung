@@ -1,4 +1,4 @@
-import { COLORS } from "../../constants/colors";
+import { COLORS } from "../../utils/colors";
 import { MESSAGES } from "../../constants/messages";
 
 export default function ProfileSidebar({ activeSection, onSectionChange }) {

@@ -1,4 +1,4 @@
-import { COLORS } from '../../constants/colors';
+import { COLORS } from '../../utils/colors';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BaseModal from '../../ui/BaseModal';

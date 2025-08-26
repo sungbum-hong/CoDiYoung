@@ -18,17 +18,6 @@ export const ROUTES = {
   PROFILE: "/profile",
 }
 
-// 동적 라우트 생성 헬퍼 함수
-export const generateRoute = {
-  studyCategory: (category) => `/study/${category}`,
-  projectDetail: (projectId) => `/project/${projectId}`,
-}
-
-// 인증이 필요한 경로들
-export const AUTH_REQUIRED_ROUTES = [
-  ROUTES.WRITE,
-  ROUTES.PROFILE,
-]
 
 // 인증 관련 경로들 (로그인 후 리다이렉트 제외 대상)
 export const AUTH_ROUTES = [
