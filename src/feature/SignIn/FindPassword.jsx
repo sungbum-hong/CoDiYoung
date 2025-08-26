@@ -1,6 +1,6 @@
 import { usePasswordReset } from "./hooks/usePasswordReset";
 import { MESSAGES } from "../../constants/messages";
-import { COLORS } from '../../constants/colors.js';
+import { COLORS } from '../../utils/colors.js';
 import { SIGNIN_CONSTANTS } from "./constants";
 import { authStyles } from "./styles/authStyles";
 import Button from "../../ui/Button.jsx";

@@ -1,29 +1,13 @@
 // 설정값 및 매직넘버 상수
-import { COLORS } from './colors.js';
+import { COLORS } from '../utils/colors.js';
 
 export const CONFIG = {
-  // 환경값
-  ENV: {
-    MODE: (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.MODE) || 'development',
-    API_BASE_URL: (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL) || 'http://localhost:3000',
-    FEATURE_FLAGS: {
-      USE_MOCK_DATA: (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_USE_MOCK_DATA) === 'true',
-    }
-  },
   // 검증 설정
   VALIDATION: {
     PASSWORD_MIN_LENGTH: 8,
     EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   },
 
-  // 출석 체크 설정
-  ATTENDANCE: {
-    TOTAL_DAYS: 42,
-    DEFAULT_ATTENDED: 2,
-    GRID_ROWS: 3,
-    GRID_COLUMNS: 14,
-    TOTAL_COUNT: 30, // 월 기준
-  },
 
   // 에디터 설정
   EDITOR: {
@@ -102,11 +86,6 @@ export const CONFIG = {
     BOUNCE_DURATION: 500,
   },
 
-  // 폼 설정
-  FORM: {
-    DEBOUNCE_DELAY: 300,
-    AUTO_SAVE_INTERVAL: 30000, // 30초
-  },
 
   // 기본 카운트/제한값
   DEFAULTS: {
@@ -127,31 +106,4 @@ export const CONFIG = {
     EXTRA_LARGE: 25,
   },
 
-  // Z-Index 설정 (레이어 관리)
-  Z_INDEX: {
-    DROPDOWN: 10,
-    STICKY: 20,
-    MODAL_BACKDROP: 40,
-    MODAL: 50,
-    TOOLTIP: 60,
-    NOTIFICATION: 70,
-    OVERLAY: 80,
-    LOADING: 90,
-  },
-
-  // 브레이크포인트 (Tailwind 기준)
-  BREAKPOINTS: {
-    SM: 640,
-    MD: 768,
-    LG: 1024,
-    XL: 1280,
-    XXL: 1536,
-  },
-
-  // 미디어 쿼리
-  MEDIA_QUERIES: {
-    MOBILE: '@media (max-width: 767px)',
-    TABLET: '@media (min-width: 768px) and (max-width: 1023px)', 
-    DESKTOP: '@media (min-width: 1024px)',
-  }
 }

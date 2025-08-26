@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./styles/variables.css";
+@import "./styles/commonStyles.css";
 
 .hidden-scrollbar {
   -ms-overflow-style: none;

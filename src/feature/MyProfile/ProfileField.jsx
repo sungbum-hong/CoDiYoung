@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Button from "../../ui/Button.jsx";
-import { COLORS } from "../../constants/colors";
+import { COLORS } from "../../utils/colors";
 import { MESSAGES } from "../../constants/messages";
 import { CONFIG } from "../../constants/config";
 

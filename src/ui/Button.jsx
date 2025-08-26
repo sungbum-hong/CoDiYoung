@@ -1,4 +1,4 @@
-import { COLOR_VARIANTS, COLORS } from '../constants/colors.js';
+import { COLOR_VARIANTS, COLORS } from '../utils/colors.js';
 import { BUTTON_SIZES } from '../constants/sizes.js';
 import { CONFIG } from '../constants/config.js';
 

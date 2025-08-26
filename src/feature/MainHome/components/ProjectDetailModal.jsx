@@ -41,7 +41,7 @@ export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
             variant="secondary"
             onClick={handleExplore}
             className="font-medium cursor-pointer transition-colors
-             hover:!bg-[#722EFF] hover:!text-white"
+             hover:!bg-[var(--color-primary)] hover:!text-white"
             style={{ btnStyle, width:150,  height:50}}
             >
             구경하기

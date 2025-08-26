@@ -67,7 +67,7 @@ export default function StudyModal({
           {/* 버튼 영역 */}
           <button
             onClick={onClose}
-            className="absolute bottom-20 left-1/2 transform -translate-x-1/2 border border-[#722EFF] px-8 py-2.5 rounded-lg hover:bg-[#722EFF] hover:text-[#FFFFFF] transition-colors font-medium z-20 cursor-pointer"
+            className="absolute bottom-20 left-1/2 transform -translate-x-1/2 border border-[var(--color-primary)] px-8 py-2.5 rounded-lg hover:bg-[var(--color-primary)] hover:text-[#FFFFFF] transition-colors font-medium z-20 cursor-pointer"
           >
             확인
           </button>

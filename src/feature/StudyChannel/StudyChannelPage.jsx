@@ -1,10 +1,10 @@
 import { useParams } from "react-router-dom";
-import ProfileSection from "../feature/StudyChannel/ProfileSection";
-import AttendanceSection from "../feature/StudyChannel/AttendanceSection";
-import StudySection from "../feature/StudyChannel/StudySection";
-import ProjectSection from "../feature/StudyChannel/ProjectSection";
+import ProfileSection from "./ProfileSection";
+import AttendanceSection from "./AttendanceSection";
+import StudySection from "./StudySection";
+import ProjectSection from "./ProjectSection";
 
-export default function StudyChannel() {
+export default function StudyChannelPage() {
   const { category } = useParams();
   const attendanceFilledCount = 2;
 

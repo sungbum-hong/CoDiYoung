@@ -1,21 +1,16 @@
-/* CSS Custom Properties (CSS Variables) for consistent theming */
 :root {
-  /* Brand Colors */
   --color-primary: #722EFF;
   --color-secondary: #193794;
   --color-accent: #15267E;
   --color-border: #1a237e;
   
-  /* Basic Colors */
   --color-white: #FFFFFF;
   --color-black: #000000;
   
-  /* State Colors */
   --color-error: #EF4444;
   --color-success: #10B981;
   --color-warning: #F59E0B;
   
-  /* Gray Scale */
   --color-gray-50: #F9FAFB;
   --color-gray-100: #F3F4F6;
   --color-gray-200: #E5E7EB;
@@ -27,19 +22,15 @@
   --color-gray-800: #1F2937;
   --color-gray-900: #111827;
   
-  /* Blue Variants */
   --color-blue-600: #2563EB;
   --color-blue-800: #1E3A8A;
   --color-blue-900: #1E40AF;
   
-  /* Red Variants */
   --color-red-600: #DC2626;
   
-  /* Table & Editor Colors */
   --color-table-border: #CCC;
   --color-table-header-bg: #F2F2F2;
   --color-editor-border: #DDD;
   
-  /* Custom Colors */
   --color-custom-gray: #6E6E6E;
 }

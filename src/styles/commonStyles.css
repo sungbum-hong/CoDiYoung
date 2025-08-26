@@ -1,0 +1,44 @@
+
+/* 버튼 스타일 */
+.btn-base {
+  @apply px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-menu-item {
+  @apply block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100;
+}
+
+.btn-dropdown {
+  @apply w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left;
+}
+
+.btn-nav {
+  @apply rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors;
+}
+
+/* 입력 필드 스타일 */
+.input-base {
+  @apply border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2;
+}
+
+.input-primary {
+  @apply input-base focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)];
+}
+
+.input-error {
+  @apply input-base border-red-300 focus:ring-red-500 focus:border-red-500;
+}
+
+/* 레이아웃 스타일 */
+.flex-center {
+  @apply flex justify-center items-center;
+}
+
+.flex-between {
+  @apply flex justify-between items-center;
+}
+
+/* 반응형 패딩 */
+.responsive-padding {
+  @apply px-4 py-2 md:px-6 md:py-3;
+}

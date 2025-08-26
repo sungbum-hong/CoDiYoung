@@ -1,6 +1,6 @@
 // src/ui/BaseModal.jsx
 import { useEffect, useRef } from 'react';
-import { COLORS, COLOR_VARIANTS } from '../constants/colors.js';
+import { COLORS, COLOR_VARIANTS } from '../utils/colors.js';
 import { MODAL_SIZES } from '../constants/sizes.js';
 
 export default function BaseModal({ 
