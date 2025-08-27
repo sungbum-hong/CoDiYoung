@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { AuthService } from '../services/authService.js';
 
 const UIContext = createContext();
@@ -110,6 +110,23 @@ export function UIProvider({ children }) {
     },
 
     resetUI: () => dispatch({ type: 'RESET_UI' }),
+
+    // 프로필 정보 로드
+    loadProfile: useCallback(async () => {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'CLEAR_ERROR' });
+      
+      try {
+        const profile = await AuthService.getMyProfile();
+        dispatch({ type: 'SET_USER', payload: profile });
+        return { success: true, profile };
+      } catch (error) {
+        dispatch({ type: 'SET_ERROR', payload: error.message });
+        return { success: false, error: error.message };
+      } finally {
+        dispatch({ type: 'SET_LOADING', payload: false });
+      }
+    }, []),
   };
 
   const value = {
