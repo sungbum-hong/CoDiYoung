@@ -1,10 +1,36 @@
+import { useEffect } from 'react';
 import { useUI } from '../../contexts/UIContext';
 import ProfileField from './ProfileField';
 import ProfileImageSection from './ProfileImageSection';
 import AttendanceStars from './AttendanceStars';
 
 export default function ProfileContent() {
-  const { user } = useUI();
+  const { user, isLoading, error, loadProfile } = useUI();
+
+  useEffect(() => {
+    // 컴포넌트 마운트 시 프로필 정보 로드
+    loadProfile();
+  }, [loadProfile]);
+
+  if (isLoading) {
+    return (
+      <div className="bg-white shadow-sm rounded-lg p-6">
+        <div className="text-center text-gray-500">
+          프로필 정보를 불러오는 중...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white shadow-sm rounded-lg p-6">
+        <div className="text-center text-red-500">
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -17,26 +43,23 @@ export default function ProfileContent() {
   }
 
   return (
-    <main className="flex-1 p-6 flex flex-col gap-10">
-      {/* 프로필 이미지 섹션 */}
-      <ProfileImageSection />
+    <div className="bg-white shadow-sm rounded-lg p-6">
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">프로필 정보</h1>
 
-      <div className="bg-white shadow-sm rounded-lg p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">프로필 정보</h1>
+      <div className="space-y-4">
+        {/* 프로필 이미지 섹션 */}
+        <ProfileImageSection />
 
-        <div className="space-y-4">
-          {/* 사용자 정보 필드들 */}
-          <ProfileField label="이름" value={user.name} />
-          <ProfileField label="이메일" value={user.email} />
-          <ProfileField label="전화번호" value={user.phone} />
-          <ProfileField label="비밀번호" value="••••••••" />
+        {/* 사용자 정보 필드들 */}
+        <ProfileField label="닉네임" value={user.nickName || user.nickname || '닉네임 없음'} />
+        <ProfileField label="이메일" value={user.email || '이메일 없음'} />
+        <ProfileField label="비밀번호" value="••••••••" />
 
-          {/* 출석 스타 */}
-          <div className="mt-6">
-            <AttendanceStars />
-          </div>
+        {/* 출석 스타 */}
+        <div className="mt-6">
+          <AttendanceStars />
         </div>
       </div>
-    </main>
+    </div>
   );
 }

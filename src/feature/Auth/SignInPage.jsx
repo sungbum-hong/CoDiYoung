@@ -33,7 +33,6 @@ export default function SignInPage({ onClose }) {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted!', { email, password }); // 디버그 로그
     
     // 클라이언트 측 검증
     const eErr = validateEmail(email);
@@ -41,30 +40,22 @@ export default function SignInPage({ onClose }) {
     setEmailError(eErr);
     setPasswordError(pErr);
     
-    console.log('Validation errors:', { eErr, pErr }); // 디버그 로그
-    
     if (eErr || pErr) {
-      console.log('Validation failed, returning early');
       return;
     }
 
-    console.log('Starting login process...'); // 디버그 로그
-    
     // 서버 측 로그인 시도
     try {
       const result = await login(email, password);
-      console.log('Login result:', result); // 디버그 로그
       
       if (result.success) {
         // 로그인 성공 시 홈으로 이동
-        console.log('Login successful, navigating to home');
         navigate(ROUTES.HOME);
         onClose?.(); // 모달이 있다면 닫기
       }
     } catch (error) {
-      console.error('Login error:', error);
+      // 에러는 UI Context에서 처리됨
     }
-    // 실패 시 에러는 이미 UI Context에서 처리됨
   };
 
   const handleFindPassword = () => {
