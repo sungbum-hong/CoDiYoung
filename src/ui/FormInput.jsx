@@ -15,12 +15,7 @@ export default function FormInput({
   size = "md",            // ← 추가: sm | md | lg | xl
 }) {
   // 크기 프리셋
-  const sizeStyles = {
-    sm: "h-10 text-sm px-3",
-    md: "h-12 text-base px-4",
-    lg: "h-14 text-lg px-5",
-    xl: "h-16 text-xl px-6",
-  };
+  const sizeStyles = CONFIG.INPUT_SIZES;
 
   // 공통 베이스 (세로패딩은 size 프리셋으로 통일하므로 p-* 제거)
   const baseStyles = "w-full focus:outline-none transition-colors";
@@ -28,7 +23,8 @@ export default function FormInput({
   const getVariantStyles = () => {
     if (variant === 'signin') {
       return {
-        className: "bg-white border-[2px] focus:ring-2 focus:ring-purple-500",
+        className: "bg-white border-[2px] focus:ring-2",
+        focusRingColor: COLORS.PRIMARY,
         style: {
           borderRadius: `${CONFIG.BORDER_RADIUS.MEDIUM}px`,
           borderColor: error ? COLORS.ERROR : COLORS.PRIMARY,
@@ -38,7 +34,8 @@ export default function FormInput({
     }
     // 기본(언더라인형)
     return {
-      className: `border-0 border-b-2 bg-transparent placeholder-gray-500`,
+      className: `border-0 border-b-2 bg-transparent`,
+      placeholderColor: COLORS.GRAY_500,
       style: {
         borderBottomColor: error ? COLORS.ERROR : COLORS.GRAY_300,
         focusBorderBottomColor: COLORS.PRIMARY,
@@ -63,12 +60,15 @@ export default function FormInput({
         required={required}
         className={[
           baseStyles,
-          sizeStyles[size] || sizeStyles.md, // ← 크기 적용
+          sizeStyles[size] || CONFIG.INPUT_SIZES.md, // ← 크기 적용
           variantConfig.className,
-          disabled ? "text-gray-500" : "",
+          disabled ? "" : "",
           className,                          // ← 필요 시 추가 오버라이드
         ].join(" ")}
-        style={inputStyle}
+        style={{
+          ...inputStyle,
+          color: disabled ? COLORS.GRAY_500 : 'inherit'
+        }}
         onFocus={(e) => {
           if (variant === 'signin') {
             e.target.style.borderColor = COLORS.PRIMARY;
@@ -84,7 +84,7 @@ export default function FormInput({
           }
         }}
       />
-      {error && <p className="text-red-500 text-xs">{error}</p>}
+      {error && <p className="text-xs" style={{ color: COLORS.ERROR }}>{error}</p>}
     </div>
   );
 }

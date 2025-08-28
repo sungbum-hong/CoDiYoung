@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import TiptapEditor from './TiptapEditor';
 import Button from '../../ui/Button';
+import { MESSAGES } from '../../constants/messages.js';
 
 export default function WriteForm() {
   const [content, setContent] = useState('');
@@ -24,10 +25,10 @@ export default function WriteForm() {
     }
 
     if (isEditMode) {
-      console.log(`아이템 ${id} 수정 완료:`, content);
+      console.log(`아이템 ${id} ${MESSAGES.UI.EDIT_COMPLETE}:`, content);
       // TODO: 수정 API 호출
     } else {
-      console.log('새 글 작성 완료:', content);
+      console.log(`${MESSAGES.UI.WRITE_COMPLETE}:`, content);
       // TODO: 작성 API 호출
     }
     
@@ -39,8 +40,8 @@ export default function WriteForm() {
   };
 
   const handleDelete = () => {
-    if (window.confirm(`아이템 ${id}를 삭제하시겠습니까?`)) {
-      console.log(`아이템 ${id} 삭제 완료`);
+    if (window.confirm(`아이템 ${id}${MESSAGES.UI.DELETE_CONFIRM}`)) {
+      console.log(`아이템 ${id} ${MESSAGES.UI.DELETE_COMPLETE}`);
       // TODO: 삭제 API 호출
       navigate('/');
     }

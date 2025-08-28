@@ -94,7 +94,7 @@ export default function ApplicationModal({ onClose, projectName = "프로젝트"
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* 질문 입력 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: COLORS.GRAY_700 }}>
               질문
             </label>
             <FormInput
@@ -110,7 +110,7 @@ export default function ApplicationModal({ onClose, projectName = "프로젝트"
 
           {/* 포지션 입력 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: COLORS.GRAY_700 }}>
               포지션
             </label>
             <FormInput

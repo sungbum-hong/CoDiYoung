@@ -1,7 +1,7 @@
 // src/ui/BaseModal.jsx
 import { useEffect, useRef } from 'react';
 import { COLORS, COLOR_VARIANTS } from '../utils/colors.js';
-import { MODAL_SIZES } from '../constants/sizes.js';
+import { CONFIG } from '../constants/config.js';
 
 export default function BaseModal({ 
   isOpen, 
@@ -43,7 +43,7 @@ export default function BaseModal({
 
   if (!isOpen) return null; // 닫혀 있으면 완전 언마운트
 
-  const modalSize = MODAL_SIZES[size] || MODAL_SIZES.DEFAULT;
+  const modalSize = CONFIG.MODAL_SIZES[size] || CONFIG.MODAL_SIZES.DEFAULT;
 
   const handleOverlayClick = (e) => {
     if (closeOnOverlayClick && e.target === e.currentTarget) {
@@ -56,7 +56,8 @@ export default function BaseModal({
       {/* 모달 타이틀 (선택적) */}
       {showTitle && title && (
         <div
-          className="fixed top-10 left-1/2 -translate-x-1/2 z-[1200] pointer-events-none"
+          className={`fixed top-10 left-1/2 -translate-x-1/2 pointer-events-none`}
+          style={{ zIndex: CONFIG.Z_INDEX.MODAL_TITLE }}
           aria-hidden="true"
         >
           <h1
@@ -71,8 +72,8 @@ export default function BaseModal({
 
       {/* 모달 배경 오버레이 (헤더보다 위에 있도록 z 올림) */}
       <div
-        className="fixed inset-0 z-[1100] flex items-center justify-center"
-        style={{ backgroundColor: `${COLORS.BLACK}66` }}
+        className="fixed inset-0 flex items-center justify-center"
+        style={{ zIndex: CONFIG.Z_INDEX.MODAL_BACKDROP, backgroundColor: `${COLORS.BLACK}66` }}
         onClick={handleOverlayClick}
       >
         {/* 모달 컨텐츠 */}
@@ -82,8 +83,9 @@ export default function BaseModal({
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          className={`relative z-[1101] rounded-lg shadow-lg outline-none ${className}`}
+          className={`relative rounded-lg shadow-lg outline-none ${className}`}
           style={{
+            zIndex: CONFIG.Z_INDEX.MODAL_CONTENT,
             backgroundColor: COLOR_VARIANTS.modal.background,
             width: size === 'DEFAULT' ? "68.5vw" : `${modalSize.width}px`,
             height: size === 'DEFAULT' ? "min(939px, 70vh)" : `${modalSize.height}px`,

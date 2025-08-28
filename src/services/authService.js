@@ -1,8 +1,11 @@
+import { CONFIG } from '../constants/config.js';
+import { MESSAGES } from '../constants/messages.js';
+
 export class AuthService {
   // 로그인 함수
   static async login(email, password) {
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(CONFIG.API.AUTH.LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -12,7 +15,7 @@ export class AuthService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || '로그인에 실패했습니다.');
+        throw new Error(errorData.message || MESSAGES.ERRORS.LOGIN_FAILED);
       }
 
       const userData = await response.json();
@@ -29,7 +32,7 @@ export class AuthService {
       return userData;
     } catch (error) {
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        throw new Error('서버에 연결할 수 없습니다. 네트워크를 확인해주세요.');
+        throw new Error(MESSAGES.ERRORS.NETWORK_ERROR);
       }
       throw error;
     }
@@ -41,7 +44,7 @@ export class AuthService {
       const token = localStorage.getItem('auth_token');
       
       // 서버에 로그아웃 요청
-      await fetch('/api/auth/logout', {
+      await fetch(CONFIG.API.AUTH.LOGOUT, {
         method: 'POST',
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
@@ -65,7 +68,7 @@ export class AuthService {
       const userInfo = localStorage.getItem('user_info');
       return userInfo ? JSON.parse(userInfo) : null;
     } catch (error) {
-      console.error('Failed to get current user:', error);
+      console.error(MESSAGES.ERRORS.GET_CURRENT_USER_FAILED, error);
       return null;
     }
   }
@@ -86,18 +89,18 @@ export class AuthService {
   static async getMyProfile() {
     const token = localStorage.getItem('auth_token');
     if (!token) {
-      throw new Error('로그인이 필요합니다.');
+      throw new Error(MESSAGES.ERRORS.LOGIN_REQUIRED);
     }
     
     // API 완성 후 실제 구현 예정
-    throw new Error('프로필 API가 구현되지 않았습니다.');
+    throw new Error(MESSAGES.ERRORS.PROFILE_API_NOT_IMPLEMENTED);
   }
 
   // 이메일 인증 코드 발송
   static async sendVerificationCode(email) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        reject(new Error('API 연동이 필요합니다.'));
+        reject(new Error(MESSAGES.ERRORS.API_INTEGRATION_REQUIRED));
       }, 1000);
     });
   }
@@ -106,7 +109,7 @@ export class AuthService {
   static async resetPassword(email, verificationCode, newPassword) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        reject(new Error('API 연동이 필요합니다.'));
+        reject(new Error(MESSAGES.ERRORS.API_INTEGRATION_REQUIRED));
       }, 1000);
     });
   }

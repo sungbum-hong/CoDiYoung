@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useUI } from '../../contexts/UIContext';
+import { COLORS } from '../../utils/colors.js';
 import ProfileField from './ProfileField';
 import ProfileImageSection from './ProfileImageSection';
 import AttendanceStars from './AttendanceStars';
@@ -15,7 +16,7 @@ export default function ProfileContent() {
   if (isLoading) {
     return (
       <div className="bg-white shadow-sm rounded-lg p-6">
-        <div className="text-center text-gray-500">
+        <div className="text-center" style={{ color: COLORS.GRAY_500 }}>
           프로필 정보를 불러오는 중...
         </div>
       </div>
@@ -25,7 +26,7 @@ export default function ProfileContent() {
   if (error) {
     return (
       <div className="bg-white shadow-sm rounded-lg p-6">
-        <div className="text-center text-red-500">
+        <div className="text-center" style={{ color: COLORS.ERROR }}>
           {error}
         </div>
       </div>
@@ -35,7 +36,7 @@ export default function ProfileContent() {
   if (!user) {
     return (
       <div className="bg-white shadow-sm rounded-lg p-6">
-        <div className="text-center text-gray-500">
+        <div className="text-center" style={{ color: COLORS.GRAY_500 }}>
           사용자 정보를 불러올 수 없습니다.
         </div>
       </div>

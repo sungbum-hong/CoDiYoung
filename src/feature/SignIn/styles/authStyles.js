@@ -41,7 +41,7 @@ export const authStyles = {
       w-full h-11 text-sm mb-3 rounded-[15px]
       transition-colors duration-200
       !bg-white !text-[var(--color-primary)] !border !border-[var(--color-primary)]
-      hover:!bg-[var(--color-primary)] hover:!text-[#FFF]
+      hover:!bg-[var(--color-primary)] hover:!text-white
       focus-visible:!ring-2 focus-visible:!ring-[var(--color-primary)]/40 focus-visible:!ring-offset-2
       disabled:opacity-50 disabled:pointer-events-none
     `,

@@ -8,6 +8,7 @@ import FormInput from "../../ui/FormInput";
 import { COLORS } from "../../utils/colors.js";
 import { ROUTES } from "../../constants/routes.js";
 import { MESSAGES } from "../../constants/messages.js";
+import { CONFIG } from "../../constants/config.js";
 
 export default function SignInPage({ onClose }) {
   const navigate = useNavigate();
@@ -64,8 +65,8 @@ export default function SignInPage({ onClose }) {
   };
 
   return (
-    <div className="min-h-[calc(100dvh-96px)] grid place-items-center overflow-hidden">
-      <div className="w-full max-w-[1120px]">
+    <div className={`min-h-[calc(100dvh-${CONFIG.LAYOUT.HEADER_TOTAL_HEIGHT}px)] grid place-items-center overflow-hidden`}>
+      <div className={`w-full max-w-[${CONFIG.LAYOUT.AUTH_MAX_WIDTH}px]`}>
         <h2 className="text-2xl font-bold mb-[48px] text-center">
           {MESSAGES.UI.LOGIN}
         </h2>
@@ -155,24 +156,12 @@ export default function SignInPage({ onClose }) {
               disabled={isLoading}
               className="w-64 py-3 font-semibold cursor-pointer"
               style={{
-                color: isLoading ? COLORS.GRAY_400 : COLORS.ACCENT,
+                color: isLoading ? COLORS.GRAY_400 : COLORS.PRIMARY,
                 transition: "all 0.2s",
                 opacity: isLoading ? 0.6 : 1,
               }}
-              onMouseEnter={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
-                  e.currentTarget.style.color = "white";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = COLORS.ACCENT;
-                }
-              }}
             >
-              {isLoading ? '로그인 중...' : MESSAGES.UI.LOGIN}
+              {isLoading ? MESSAGES.UI.LOGGING_IN : MESSAGES.UI.LOGIN}
             </Button>
           </div>
         </form>

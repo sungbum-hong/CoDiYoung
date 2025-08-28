@@ -29,12 +29,9 @@ export default function StudyCategory({
         <button 
           onClick={handleWriteClick}
           className="p-2 rounded-full transition-colors"
-          style={{
-            backgroundColor: 'transparent',
-            ':hover': {
-              backgroundColor: COLORS.GRAY_100
-            }
-          }}
+          style={{ backgroundColor: 'transparent' }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = COLORS.GRAY_100}
+          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
         >
           <PencilIcon 
             className="w-5 h-5" 
@@ -60,13 +57,11 @@ export default function StudyCategory({
                 className="w-12 h-12 rounded-full transition-colors cursor-pointer focus:outline-none focus:ring-2"
                 style={{
                   backgroundColor: COLORS.GRAY_300,
-                  ':hover': {
-                    backgroundColor: COLORS.GRAY_400
-                  },
-                  ':focus': {
-                    ringColor: COLORS.BLUE_600
-                  }
                 }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = COLORS.GRAY_400}
+                onMouseLeave={(e) => e.target.style.backgroundColor = COLORS.GRAY_300}
+                onFocus={(e) => e.target.style.boxShadow = `0 0 0 2px ${COLORS.BLUE_600}`}
+                onBlur={(e) => e.target.style.boxShadow = 'none'}
                 aria-label={`${r.label} 스터디 채널 ${i + 1}번`}
               ></button>
             ))}

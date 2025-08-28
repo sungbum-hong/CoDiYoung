@@ -1,14 +1,15 @@
 
 import { useState } from "react";
+import { COLORS } from "../../utils/colors.js";
 
 function ProjectCreateForm({ onBack }) {
   return (
     <div className="w-full max-w-md">
       <h2 className="text-sm mb-4 font-medium">프로젝트 개설</h2>
 
-      <div className="border-2 border-purple-400 rounded-lg p-6 flex flex-col items-center gap-4">
+      <div className="border-2 rounded-lg p-6 flex flex-col items-center gap-4" style={{ borderColor: COLORS.PRIMARY }}>
         {/* 이미지 업로드 영역 */}
-        <div className="w-full h-40 border-2 border-purple-400 rounded-md flex items-center justify-center text-gray-400">
+        <div className="w-full h-40 border-2 rounded-md flex items-center justify-center" style={{ borderColor: COLORS.PRIMARY, color: COLORS.GRAY_400 }}>
           이미지
         </div>
 
@@ -16,40 +17,40 @@ function ProjectCreateForm({ onBack }) {
         <input
           type="text"
           placeholder="프로젝트 명을 적어주세요"
-          className="w-full border-2 border-purple-400 rounded-md p-2 text-center placeholder-gray-400"
+          className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)]"
         />
         <input
           type="text"
           placeholder="참여 인원을 입력해주세요"
-          className="w-full border-2 border-purple-400 rounded-md p-2 text-center placeholder-gray-400"
+          className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)]"
         />
         <input
           type="text"
           placeholder="포지션을 정해주세요"
-          className="w-full border-2 border-purple-400 rounded-md p-2 text-center placeholder-gray-400"
+          className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)]"
         />
         <input
           type="text"
           placeholder="기술을 선택해주세요"
-          className="w-full border-2 border-purple-400 rounded-md p-2 text-center placeholder-gray-400"
+          className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)]"
         />
         <input
           type="text"
           placeholder="질문1"
-          className="w-full border-2 border-purple-400 rounded-md p-2 text-center placeholder-gray-400"
+          className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)]"
         />
         <input
           type="text"
           placeholder="질문2"
-          className="w-full border-2 border-purple-400 rounded-md p-2 text-center placeholder-gray-400"
+          className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)]"
         />
 
         {/* 버튼 영역 */}
         <div className="flex justify-between w-full mt-4">
-          <button className="flex-1 border-2 border-purple-400 rounded-md py-2 mx-1">
+          <button className="flex-1 border-2 border-[var(--color-primary)] rounded-md py-2 mx-1">
             개설
           </button>
-          <button className="flex-1 border-2 border-purple-400 rounded-md py-2 mx-1">
+          <button className="flex-1 border-2 border-[var(--color-primary)] rounded-md py-2 mx-1">
             취소
           </button>
         </div>
@@ -92,7 +93,7 @@ export default function ProjectContent() {
       {/* 신청 프로젝트 */}
       <div className="mb-10">
         <h2 className="text-sm font-medium mb-2">신청 프로젝트</h2>
-        <div className="w-full max-w-xl h-64 border-2 border-purple-600 rounded-md flex items-center justify-center">
+        <div className="w-full max-w-xl h-64 border-2 border-[var(--color-primary)] rounded-md flex items-center justify-center">
           <span className="font-bold text-lg">없음</span>
         </div>
       </div>
@@ -100,7 +101,7 @@ export default function ProjectContent() {
       {/* 진행 프로젝트 */}
       <div className="mb-10">
         <h2 className="text-sm font-medium mb-2">진행 프로젝트</h2>
-        <div className="w-full max-w-xl h-64 border-2 border-purple-600 rounded-md flex items-center justify-center">
+        <div className="w-full max-w-xl h-64 border-2 border-[var(--color-primary)] rounded-md flex items-center justify-center">
           <span className="font-bold text-lg">없음</span>
         </div>
       </div>
@@ -109,9 +110,9 @@ export default function ProjectContent() {
       <div>
         <h2 className="text-sm font-medium mb-3">프로젝트</h2>
         <div className="flex space-x-4">
-          <div className="w-6 h-6 rounded-full bg-gray-300" />
-          <div className="w-6 h-6 rounded-full bg-gray-300" />
-          <div className="w-6 h-6 rounded-full bg-gray-300" />
+          <div className="w-6 h-6 rounded-full bg-[var(--color-gray-300)]" />
+          <div className="w-6 h-6 rounded-full bg-[var(--color-gray-300)]" />
+          <div className="w-6 h-6 rounded-full bg-[var(--color-gray-300)]" />
         </div>
       </div>
     </div>

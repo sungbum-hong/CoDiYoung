@@ -36,21 +36,4 @@ export const MODAL_SIZES = {
 }
 
 
-// 버튼 크기
-export const BUTTON_SIZES = {
-  sm: {
-    padding: '0.5rem 1rem',
-    fontSize: '0.875rem',
-    height: '2rem',
-  },
-  md: {
-    padding: '0.75rem 1.5rem', 
-    fontSize: '1rem',
-    height: '2.75rem',
-  },
-  lg: {
-    padding: '1rem 2rem',
-    fontSize: '1.125rem', 
-    height: '3rem',
-  },
-}
+// BUTTON_SIZES는 CONFIG로 이동됨 (중복 제거)

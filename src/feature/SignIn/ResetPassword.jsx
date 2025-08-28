@@ -1,6 +1,7 @@
 import { useResetPassword } from "./hooks/useResetPassword";
 import { SIGNIN_CONSTANTS } from "./constants";
 import { authStyles } from "./styles/authStyles";
+import { MESSAGES } from "../../constants/messages.js";
 import Button from "../../ui/Button.jsx";
 import FormInput from "../../ui/FormInput";
 
@@ -26,7 +27,7 @@ export default function ResetPassword() {
   return (
     <div className={authStyles.layout.flexColumn}>
       <div className="text-center mb-6 md:mb-8">
-        <h3 className={authStyles.typography.subheading}>새 비밀번호 설정</h3>
+        <h3 className={authStyles.typography.subheading}>{MESSAGES.UI.NEW_PASSWORD_SETUP}</h3>
         <p className={authStyles.typography.description}>
           {email}으로 새로운 비밀번호를 설정해주세요
         </p>

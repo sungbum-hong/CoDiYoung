@@ -2,11 +2,11 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import Header from "../components/Header.jsx";
+import { AUTH_ROUTES } from "../constants/routes.js";
+import { CONFIG } from "../constants/config.js";
 
 export default function AppLayout() {
   const { pathname } = useLocation();
-
-  const AUTH_ROUTES = ["/signin", "/findpassword", "/resetpassword", "/successresetpassword"];
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
 
   const hideHeaderOnUser = pathname.startsWith("/user/");
@@ -26,11 +26,10 @@ export default function AppLayout() {
     }
   }, [isAuthRoute]);
 
-  // Header 실제 높이 보정: h-16(64) + pt-3(12) + mb-5(20) = 96px
-   const base = "relative z-0 mx-auto px-4 sm:px-6 lg:px-6"; // ← z-0 추가
-  const authLayout =
-    "max-w-[1120px] min-h-[calc(100dvh-96px)] grid place-items-center overflow-hidden";
-  const normalLayout = "max-w-[1240px]";
+  // 레이아웃 스타일 정의 (매직 넘버 제거)
+  const base = "relative z-0 mx-auto px-4 sm:px-6 lg:px-6";
+  const authLayout = `max-w-[${CONFIG.LAYOUT.AUTH_MAX_WIDTH}px] min-h-[calc(100dvh-${CONFIG.LAYOUT.HEADER_TOTAL_HEIGHT}px)] grid place-items-center overflow-hidden`;
+  const normalLayout = `max-w-[${CONFIG.LAYOUT.MAX_CONTENT_WIDTH}px]`;
 
   return (
     <div className="min-h-screen overflow-x-hidden">

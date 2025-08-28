@@ -1,7 +1,9 @@
+import { COLORS } from "../../utils/colors.js";
+
 export default function AttendanceSection({ attendanceFilledCount = 2 }) {
   return (
     <section className="mt-8">
-      <h2 className="text-gray-800 font-medium mb-4">출석체크</h2>
+      <h2 className="font-medium mb-4" style={{ color: COLORS.GRAY_800 }}>출석체크</h2>
       <AttendanceGrid total={30} filled={attendanceFilledCount} />
     </section>
   );
@@ -24,7 +26,7 @@ function StarIcon({ filled = false }) {
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       className={
-        "w-7 h-7 " + (filled ? "text-blue-900" : "text-gray-300")
+        "w-7 h-7 " + (filled ? "text-[var(--color-blue-900)]" : "text-[var(--color-gray-300)]")
       }
       fill="currentColor"
       aria-hidden="true"

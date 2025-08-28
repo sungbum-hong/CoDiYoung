@@ -1,5 +1,4 @@
 import { COLOR_VARIANTS, COLORS } from '../utils/colors.js';
-import { BUTTON_SIZES } from '../constants/sizes.js';
 import { CONFIG } from '../constants/config.js';
 
 export default function Button({
@@ -42,7 +41,7 @@ export default function Button({
   };
 
   // 버튼 크기별 스타일
-  const sizeConfig = BUTTON_SIZES[size];
+  const sizeConfig = CONFIG.BUTTON_SIZES[size];
   const getSizeStyle = () => ({
     padding: sizeConfig.padding,
     fontSize: sizeConfig.fontSize,

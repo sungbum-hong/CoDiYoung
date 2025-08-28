@@ -1,3 +1,5 @@
+import { COLORS } from "../../../utils/colors.js";
+
 export default function StudyModal({
   isOpen,
   onClose,
@@ -34,7 +36,10 @@ export default function StudyModal({
         {/* 이전 버튼 */}
         <button
           onClick={handlePrevious}
-          className="absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white rounded-full shadow-md hover:shadow-lg flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all z-10"
+          className="absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white rounded-full shadow-md hover:shadow-lg flex items-center justify-center transition-all z-10"
+          style={{ color: COLORS.GRAY_600 }}
+          onMouseEnter={(e) => e.target.style.color = COLORS.GRAY_800}
+          onMouseLeave={(e) => e.target.style.color = COLORS.GRAY_600}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
@@ -44,7 +49,10 @@ export default function StudyModal({
         {/* 다음 버튼 */}
         <button
           onClick={handleNext}
-          className="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white rounded-full shadow-md hover:shadow-lg flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all z-10"
+          className="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white rounded-full shadow-md hover:shadow-lg flex items-center justify-center transition-all z-10"
+          style={{ color: COLORS.GRAY_600 }}
+          onMouseEnter={(e) => e.target.style.color = COLORS.GRAY_800}
+          onMouseLeave={(e) => e.target.style.color = COLORS.GRAY_600}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
@@ -67,7 +75,7 @@ export default function StudyModal({
           {/* 버튼 영역 */}
           <button
             onClick={onClose}
-            className="absolute bottom-20 left-1/2 transform -translate-x-1/2 border border-[var(--color-primary)] px-8 py-2.5 rounded-lg hover:bg-[var(--color-primary)] hover:text-[#FFFFFF] transition-colors font-medium z-20 cursor-pointer"
+            className="absolute bottom-20 left-1/2 transform -translate-x-1/2 border border-[var(--color-primary)] px-8 py-2.5 rounded-lg hover:bg-[var(--color-primary)] hover:text-white transition-colors font-medium z-20 cursor-pointer"
           >
             확인
           </button>

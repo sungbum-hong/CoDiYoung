@@ -9,6 +9,7 @@ export default function ProjectSection({ title = MESSAGES.SECTIONS.PROJECT_LIST,
   const scrollRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleProjectClick = (index) => {
     setSelectedProjectIndex(index);
@@ -24,11 +25,42 @@ export default function ProjectSection({ title = MESSAGES.SECTIONS.PROJECT_LIST,
       const cardWidth = CONFIG.CARD.PROJECT.WIDTH;
       const gap = CONFIG.CARD.PROJECT.GAP;
       const scrollAmount = cardWidth + gap;
+      const container = scrollRef.current;
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      const itemsPerView = CONFIG.LAYOUT.GRID.PROJECT_COLUMNS;
+      const totalPages = Math.ceil(itemCount / itemsPerView);
       
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
+      if (direction === "left") {
+        // 맨 왼쪽에서 왼쪽 화살표 클릭 시 맨 오른쪽으로 이동 (무한순환)
+        if (container.scrollLeft <= 0) {
+          container.scrollTo({
+            left: maxScroll,
+            behavior: "smooth",
+          });
+          setCurrentPage(totalPages);
+        } else {
+          container.scrollBy({
+            left: -scrollAmount,
+            behavior: "smooth",
+          });
+          setCurrentPage(prev => Math.max(1, prev - 1));
+        }
+      } else {
+        // 맨 오른쪽에서 오른쪽 화살표 클릭 시 맨 왼쪽으로 이동 (무한순환)
+        if (container.scrollLeft >= maxScroll) {
+          container.scrollTo({
+            left: 0,
+            behavior: "smooth",
+          });
+          setCurrentPage(1);
+        } else {
+          container.scrollBy({
+            left: scrollAmount,
+            behavior: "smooth",
+          });
+          setCurrentPage(prev => Math.min(totalPages, prev + 1));
+        }
+      }
     }
   };
 
@@ -67,20 +99,30 @@ export default function ProjectSection({ title = MESSAGES.SECTIONS.PROJECT_LIST,
         }}
       >
         {Array.from({ length: itemCount }).map((_, i) => (
-          <div
-            key={i}
-            className="flex-shrink-0 flex items-center justify-center transition-colors cursor-pointer"
-            style={{
-              width: CONFIG.CARD.PROJECT.WIDTH,
-              height: CONFIG.CARD.PROJECT.HEIGHT,
-              borderRadius: CONFIG.BORDER_RADIUS.MEDIUM,
-              backgroundColor: COLORS.GRAY_300,
-              ':hover': {
-                backgroundColor: COLORS.GRAY_400
-              }
-            }}
-            onClick={() => handleProjectClick(i)}
-          >
+          <div key={i} className="flex-shrink-0 flex flex-col items-center">
+            <div
+              className="flex items-center justify-center transition-colors cursor-pointer"
+              style={{
+                width: CONFIG.CARD.PROJECT.WIDTH,
+                height: CONFIG.CARD.PROJECT.HEIGHT,
+                borderRadius: CONFIG.BORDER_RADIUS.MEDIUM,
+                backgroundColor: COLORS.GRAY_300,
+                ':hover': {
+                  backgroundColor: COLORS.GRAY_400
+                }
+              }}
+              onClick={() => handleProjectClick(i)}
+              onMouseEnter={(e) => e.target.style.backgroundColor = COLORS.GRAY_400}
+              onMouseLeave={(e) => e.target.style.backgroundColor = COLORS.GRAY_300}
+            >
+            </div>
+            {/* 프로젝트 번호 */}
+            <span 
+              className="text-sm font-medium mt-2"
+              style={{ color: COLORS.GRAY_600 }}
+            >
+              {i + 1}
+            </span>
           </div>
         ))}
       </div>
