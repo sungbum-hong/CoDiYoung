@@ -1,15 +1,11 @@
 import { useAuth as useAuthContext } from '../contexts/AuthContext';
+import { CONFIG } from '../constants/config.js';
 
 export function useAuthActions() {
   const { setUser, logout, resetState } = useAuthContext();
 
   const loginWithTestData = () => {
-    const testUser = {
-      name: "김지호",
-      email: "test@example.com",
-      avatar: null
-    };
-    setUser(testUser);
+    setUser(CONFIG.TEST_USER);
   };
 
   const handleLogout = () => {

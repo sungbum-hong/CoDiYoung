@@ -12,8 +12,9 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
   return (
     <aside className="w-full md:w-1/3 bg-white shadow-sm min-h-screen flex flex-col items-center justify-start pt-8 px-4">
       <div 
-        className="rounded-full bg-gray-300 flex items-center justify-center font-semibold text-lg mb-16"
+        className="rounded-full flex items-center justify-center font-semibold text-lg mb-8"
         style={{
+          backgroundColor: COLORS.GRAY_300,
           width: 'min(20vw, 180px)',
           height: 'min(20vw, 180px)',
           aspectRatio: '1/1'
@@ -34,7 +35,7 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
               width: 'min(65%, 160px)',
               height: 'min(6vh, 48px)'
             }}
-            className="rounded-md border text-center transition-all duration-200 hover:bg-blue-500 hover:text-white active:bg-blue-600 text-sm md:text-base"
+            className="rounded-md border text-center transition-all duration-200 hover:bg-[var(--color-primary)] hover:text-white active:bg-[var(--color-blue-600)] text-sm md:text-base"
             onMouseEnter={(e) => {
               if (activeSection !== item) {
                 e.target.style.backgroundColor = COLORS.PRIMARY;

@@ -34,11 +34,19 @@ export default function ProjectCard({ project = defaultProject }) {
 
         <div className="flex flex-col justify-between h-56 items-center md:items-start text-center md:text-left">
           <h2 className="text-lg md:text-xl font-medium">{name}</h2>
-          <p className="text-base md:text-lg text-gray-700">{slogan}</p>
+          <p className="text-base md:text-lg" style={{ color: COLORS.GRAY_700 }}>{slogan}</p>
 
           <Button variant="secondary"
             onClick={handleApply}
             className="w-32 h-8"
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = COLORS.PRIMARY;
+              e.target.style.color = "white";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = "transparent";
+              e.target.style.color = COLORS.PRIMARY;
+            }}
           >
             신청하기
           </Button>
@@ -51,7 +59,7 @@ export default function ProjectCard({ project = defaultProject }) {
           <h3 className="text-sm mb-4">팀원</h3>
           <div className="flex items-center gap-4">
             {members.map((m, idx) => (
-              <div key={idx} className="w-12 h-12 rounded-full bg-gray-200" />
+              <div key={idx} className="w-12 h-12 rounded-full" style={{ backgroundColor: COLORS.GRAY_200 }} />
             ))}
           </div>
         </div>
@@ -60,7 +68,7 @@ export default function ProjectCard({ project = defaultProject }) {
           <h3 className="text-sm mb-4">기술</h3>
           <div className="flex items-center gap-6">
             {tech.map((t, idx) => (
-              <div key={idx} className="w-12 h-12 rounded-full bg-gray-200" />
+              <div key={idx} className="w-12 h-12 rounded-full" style={{ backgroundColor: COLORS.GRAY_200 }} />
             ))}
           </div>
         </div>
@@ -69,7 +77,7 @@ export default function ProjectCard({ project = defaultProject }) {
       {/* Big description / image box */}
       <div className="mt-10 relative">
         <div className="border-2 rounded-2xl p-8 h-96 flex items-center justify-center mt-12" style={{ borderColor: COLORS.BORDER }}>
-          <p className="text-center text-lg text-gray-700">{description}</p>
+          <p className="text-center text-lg" style={{ color: COLORS.GRAY_700 }}>{description}</p>
         </div>
         
         {/* ApplicationModal */}

@@ -6,7 +6,7 @@ import HomePage from "./feature/MainHome/HomePage.jsx"
 import LoadingFallback from "./components/LoadingFallback.jsx"
 
 // Lazy loaded components
-const SignInPage = lazy(() => import("./feature/Auth/SignInPage.jsx"))
+const SignInPage = lazy(() => import("./feature/SignIn/SignInPage.jsx"))
 const FindPassword = lazy(() => import("./feature/SignIn/FindPassword.jsx"))
 const ResetPassword = lazy(() => import("./feature/SignIn/ResetPassword.jsx"))
 const SuccessResetPassword = lazy(() => import("./feature/SignIn/SuccessResetPassword.jsx"))

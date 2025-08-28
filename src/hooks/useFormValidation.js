@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { validateEmail, validateVerificationCode, validatePassword, validatePasswordConfirmation } from '../utils/validation';
+import { MESSAGES } from '../constants/messages.js';
 
 export function useFormValidation() {
   const [touched, setTouched] = useState({});
@@ -28,12 +29,12 @@ export function useEmailValidation(initialValue = '') {
     const value = e.target.value;
     setEmail(value);
     if (!touched.email) setFieldTouched('email');
-    setError(value ? validateEmail(value) : '이메일을 입력해 주세요.');
+    setError(value ? validateEmail(value) : MESSAGES.VALIDATION.EMAIL_REQUIRED_INPUT);
   }, [touched.email, setFieldTouched]);
 
   const handleBlur = useCallback(() => {
     setFieldTouched('email');
-    setError(email ? validateEmail(email) : '이메일을 입력해 주세요.');
+    setError(email ? validateEmail(email) : MESSAGES.VALIDATION.EMAIL_REQUIRED_INPUT);
   }, [email, setFieldTouched]);
 
   const reset = useCallback(() => {

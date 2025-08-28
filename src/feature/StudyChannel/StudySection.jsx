@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { COLORS } from "../../utils/colors.js";
 import StudyModal from "./Modal/StudyModal.jsx";
 
 export default function StudySection({ studyCount = 12 }) {
@@ -25,7 +26,7 @@ export default function StudySection({ studyCount = 12 }) {
 
   return (
     <section className="mt-10">
-      <h2 className="text-gray-800 font-medium mb-4">스터디</h2>
+      <h2 className="font-medium mb-4" style={{ color: COLORS.GRAY_800 }}>스터디</h2>
 
       <div className="relative">
         {/* 왼쪽 화살표 */}
@@ -85,7 +86,10 @@ function StudyCard({ onClick }) {
   return (
     <div
       onClick={onClick}
-      className="size-[100px] rounded-2xl bg-gray-300 cursor-pointer hover:bg-gray-400 transition-colors"
+      className="size-[100px] rounded-2xl cursor-pointer transition-colors"
+      style={{ backgroundColor: COLORS.GRAY_300 }}
+      onMouseEnter={(e) => e.target.style.backgroundColor = COLORS.GRAY_400}
+      onMouseLeave={(e) => e.target.style.backgroundColor = COLORS.GRAY_300}
     />
   );
 }

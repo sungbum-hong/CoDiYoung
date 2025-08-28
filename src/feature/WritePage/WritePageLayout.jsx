@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import RecordModal from './components/RecordModal';
 import Button from '../../ui/Button.jsx';
 import BaseModal from '../../ui/BaseModal';
+import { COLORS } from '../../utils/colors.js';
+import { MESSAGES } from '../../constants/messages.js';
 
 export default function WritePageLayout({ children }) {
   const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
@@ -46,7 +48,7 @@ export default function WritePageLayout({ children }) {
     console.log(`아이템 ${id} 삭제 완료`);
     // TODO: 삭제 API 호출
     setIsDeleteModalOpen(false);
-    setCompleteMessage('삭제 완료');
+    setCompleteMessage(MESSAGES.UI.DELETE_COMPLETE);
     setIsCompleteModalOpen(true);
   };
 
@@ -54,7 +56,7 @@ export default function WritePageLayout({ children }) {
     console.log(`아이템 ${id} 수정 완료`);
     // TODO: 수정 API 호출
     setIsEditModalOpen(false);
-    setCompleteMessage('수정 완료');
+    setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
     setIsCompleteModalOpen(true);
   };
 
@@ -62,16 +64,50 @@ export default function WritePageLayout({ children }) {
     <div className="min-h-screen">
       <div className="max-w-6xl py-4 px-4">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold" style={{ color: COLORS.GRAY_900 }}>
             {isEditMode ? `스터디 수정 - 아이템 ${id}` : '스터디'}
           </h1>
           {isEditMode ? (
             <div className="flex space-x-3">
-              <Button variant="secondary" className='w-32 h-8' onClick={handleDeleteClick}>삭제</Button>
-              <Button variant="outline" className='w-32 h-8' onClick={handleEditClick}>수정</Button>
+              <Button 
+                variant="secondary" 
+                className='w-32 h-8' 
+                onClick={handleDeleteClick}
+              >
+                삭제
+              </Button>
+              <Button 
+                variant="outline" 
+                className='w-32 h-8' 
+                onClick={handleEditClick}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = COLORS.PRIMARY;
+                  e.target.style.color = "white";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = "transparent";
+                  e.target.style.color = COLORS.PRIMARY;
+                }}
+              >
+                수정
+              </Button>
             </div>
           ) : (
-            <Button variant="secondary" className='w-32 h-8' onClick={handleRecordClick}>기록하기</Button>
+            <Button 
+              variant="secondary" 
+              className='w-32 h-8' 
+              onClick={handleRecordClick}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = COLORS.PRIMARY;
+                e.target.style.color = "white";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "transparent";
+                e.target.style.color = COLORS.PRIMARY;
+              }}
+            >
+              기록하기
+            </Button>
           )}
         </div>
         

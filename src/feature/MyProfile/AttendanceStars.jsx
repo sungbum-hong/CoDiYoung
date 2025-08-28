@@ -14,7 +14,7 @@ export default function AttendanceStars() {
               <span
                 key={colIndex}
                 className={`text-xl cursor-pointer ${
-                  isAttended ? "text-blue-600" : "text-gray-300"
+                  isAttended ? "text-[var(--color-blue-600)]" : "text-[var(--color-gray-300)]"
                 }`}
                 title={`Day ${starIndex + 1}`}
               >

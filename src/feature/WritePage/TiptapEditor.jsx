@@ -28,13 +28,20 @@ export default function TiptapEditor({ content, onChange }) {
   const [isAlignDropdownOpen, setIsAlignDropdownOpen] = useState(false);
   const alignDropdownRef = useRef(null);
 
+  // Helper function for button hover effects
+  const buttonHoverHandlers = {
+    onMouseEnter: (e) => e.target.style.backgroundColor = COLORS.GRAY_200,
+    onMouseLeave: (e) => e.target.style.backgroundColor = 'transparent'
+  };
+
   const editor = useEditor({
     extensions: [
       StarterKit,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-blue-600 underline cursor-pointer',
+          class: 'underline cursor-pointer',
+          style: `color: ${COLORS.BLUE_600}`,
         },
       }),
       Image.configure({
@@ -141,9 +148,10 @@ export default function TiptapEditor({ content, onChange }) {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+          className={`p-2 rounded transition-colors ${
             editor.isActive('bulletList') ? 'bg-gray-300' : ''
           }`}
+          {...buttonHoverHandlers}
           title="글머리 기호"
         >
           <ListBulletIcon className="w-5 h-5" />
@@ -153,7 +161,7 @@ export default function TiptapEditor({ content, onChange }) {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+          className={`p-2 rounded  transition-colors ${
             editor.isActive('orderedList') ? 'bg-gray-300' : ''
           }`}
           title="번호 매기기"
@@ -168,7 +176,7 @@ export default function TiptapEditor({ content, onChange }) {
           <button
             type="button"
             onClick={() => setIsAlignDropdownOpen(!isAlignDropdownOpen)}
-            className="p-2 rounded hover:bg-gray-200 transition-colors"
+            className="p-2 rounded  transition-colors"
             title="텍스트 정렬"
           >
             <Bars3Icon className="w-5 h-5" />
@@ -216,7 +224,7 @@ export default function TiptapEditor({ content, onChange }) {
         <button
           type="button"
           onClick={insertTable}
-          className="p-2 rounded hover:bg-gray-200 transition-colors"
+          className="p-2 rounded  transition-colors"
           title="표 삽입"
         >
           <TableCellsIcon className="w-5 h-5" />
@@ -228,7 +236,7 @@ export default function TiptapEditor({ content, onChange }) {
         <button
           type="button"
           onClick={setLink}
-          className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+          className={`p-2 rounded  transition-colors ${
             editor.isActive('link') ? 'bg-gray-300' : ''
           }`}
           title="링크"
@@ -240,7 +248,7 @@ export default function TiptapEditor({ content, onChange }) {
         <button
           type="button"
           onClick={addImage}
-          className="p-2 rounded hover:bg-gray-200 transition-colors"
+          className="p-2 rounded  transition-colors"
           title="이미지"
         >
           <PhotoIcon className="w-5 h-5" />
@@ -250,7 +258,7 @@ export default function TiptapEditor({ content, onChange }) {
         <button
           type="button"
           onClick={addVideo}
-          className="p-2 rounded hover:bg-gray-200 transition-colors"
+          className="p-2 rounded  transition-colors"
           title="비디오"
         >
           <PlayIcon className="w-5 h-5" />
@@ -262,7 +270,7 @@ export default function TiptapEditor({ content, onChange }) {
         <button
           type="button"
           onClick={() => setIsFullscreen(!isFullscreen)}
-          className="p-2 rounded hover:bg-gray-200 transition-colors"
+          className="p-2 rounded  transition-colors"
           title="전체화면"
         >
           <ArrowsPointingOutIcon className="w-5 h-5" />
@@ -272,7 +280,7 @@ export default function TiptapEditor({ content, onChange }) {
         <button
           type="button"
           onClick={insertCode}
-          className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+          className={`p-2 rounded  transition-colors ${
             editor.isActive('codeBlock') ? 'bg-gray-300' : ''
           }`}
           title="코드 블록"
@@ -284,7 +292,7 @@ export default function TiptapEditor({ content, onChange }) {
         <button
           type="button"
           onClick={showHelp}
-          className="p-2 rounded hover:bg-gray-200 transition-colors"
+          className="p-2 rounded  transition-colors"
           title="도움말"
         >
           <QuestionMarkCircleIcon className="w-5 h-5" />

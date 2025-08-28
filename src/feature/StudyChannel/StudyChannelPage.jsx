@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { CONFIG } from "../../constants/config.js";
 import ProfileSection from "./ProfileSection";
 import AttendanceSection from "./AttendanceSection";
 import StudySection from "./StudySection";
@@ -9,12 +10,7 @@ export default function StudyChannelPage() {
   const attendanceFilledCount = 2;
 
   const getCategoryTitle = (category) => {
-    const categoryMap = {
-      coding: "코딩",
-      design: "디자인", 
-      video: "영상"
-    };
-    return categoryMap[category] || "코딩";
+    return CONFIG.STUDY_CATEGORIES[category] || CONFIG.STUDY_CATEGORIES.coding;
   };
 
   return (

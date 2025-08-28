@@ -23,19 +23,19 @@ export const validatePassword = (password) => {
     return MESSAGES.VALIDATION.PASSWORD_MIN_LENGTH;
   }
   
-  if (!/(?=.*[a-z])/.test(password)) {
+  if (!CONFIG.VALIDATION.PASSWORD_PATTERNS.LOWERCASE.test(password)) {
     return MESSAGES.VALIDATION.PASSWORD_NEED_LOWERCASE;
   }
   
-  if (!/(?=.*[A-Z])/.test(password)) {
+  if (!CONFIG.VALIDATION.PASSWORD_PATTERNS.UPPERCASE.test(password)) {
     return MESSAGES.VALIDATION.PASSWORD_NEED_UPPERCASE;
   }
   
-  if (!/(?=.*\d)/.test(password)) {
+  if (!CONFIG.VALIDATION.PASSWORD_PATTERNS.NUMBER.test(password)) {
     return MESSAGES.VALIDATION.PASSWORD_NEED_NUMBER;
   }
   
-  if (!/(?=.*[!@#$%^&*])/.test(password)) {
+  if (!CONFIG.VALIDATION.PASSWORD_PATTERNS.SPECIAL.test(password)) {
     return MESSAGES.VALIDATION.PASSWORD_NEED_SPECIAL;
   }
   

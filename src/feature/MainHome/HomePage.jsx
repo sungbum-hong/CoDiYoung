@@ -2,13 +2,14 @@ import StudyCategory from "./StudyCategory";
 import ProjectSection from "./ProjectSection";
 import Partners from "./Partners";
 import Footer from "../../components/Footer";
+import { COLORS } from "../../utils/colors.js";
 
 export default function HomePage() {
   return (
-    <div className="text-gray-800">
+    <div style={{ color: COLORS.GRAY_800 }}>
       {/* 메인 배너 섹션 */}
       <section className="mb-21">
-        <div className="bg-gray-300 h-75 rounded flex items-center justify-center">
+        <div className="h-75 rounded flex items-center justify-center" style={{ backgroundColor: COLORS.GRAY_300 }}>
           <div className="text-center">
           </div>
         </div>

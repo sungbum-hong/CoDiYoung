@@ -4,6 +4,7 @@ import ProfileContent from './ProfileContent';
 import StudyContent from './StudyContent';
 import ProjectContent from './ProjectContent';
 import { MESSAGES } from '../../constants/messages';
+import { CONFIG } from '../../constants/config';
 
 export default function MyProfileLayout() {
   const [activeSection, setActiveSection] = useState(MESSAGES.SECTIONS.PROFILE_INFO);
@@ -28,7 +29,7 @@ export default function MyProfileLayout() {
   return (
     <div className="flex flex-col md:flex-row w-full min-h-screen justify-center">
       {/* Wrapper 중앙 정렬, max-width 적용 */}
-      <div className="flex w-full max-w-[1200px]">
+      <div className={`flex w-full max-w-[${CONFIG.LAYOUT.MAX_CONTENT_WIDTH}px]`}>
         <ProfileSidebar 
           activeSection={activeSection} 
           onSectionChange={handleSectionChange} 

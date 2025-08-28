@@ -1,15 +1,14 @@
 // src/components/Header.jsx
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useUI } from "../contexts/UIContext";
-import { ROUTES } from "../constants/routes";
+import { ROUTES, AUTH_ROUTES } from "../constants/routes";
+import { COLORS } from "../utils/colors.js";
 
 export default function Header() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useUI();
 
-  // 로그인/인증 관련 경로
-  const AUTH_ROUTES = ["/signin", "/findpassword", "/resetpassword", "/successresetpassword"];
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
 
   const handleLogoClick = () => {
@@ -36,16 +35,15 @@ export default function Header() {
   return (
     <header className="relative z-[1000]">
       <div className="mx-auto w-full max-w-7xl h-16 px-4 sm:px-6 lg:px-11 pt-3 mb-5 flex items-center justify-between">
-        
         {/* 로고 → 홈 */}
-        <button
-          type="button"
-          onClick={handleLogoClick}
-          className="font-extrabold text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          aria-label="메인으로 이동"
+        <Link
+          to="/"
+          className="font-extrabold focus:outline-none focus:ring-2
+          focus:ring-offset-2"
+          style={{ color: COLORS.GRAY_900, focusRingColor: COLORS.PRIMARY }}
         >
           CoDiYoung
-        </button>
+        </Link>
 
         {/* 인증 상태에 따른 우측 메뉴 */}
         {!isAuthRoute && (
@@ -53,33 +51,42 @@ export default function Header() {
             {isAuthenticated ? (
               // 로그인된 상태 - hover 드롭다운 프로필 메뉴
               <div className="relative group">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold cursor-pointer hover:bg-blue-600 transition-colors">
-                  {user?.nickname?.charAt(0) || 'U'}
+                <div 
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold cursor-pointer transition-colors"
+                  style={{ 
+                    backgroundColor: COLORS.PRIMARY, 
+                    color: COLORS.WHITE 
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = COLORS.BLUE_600;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = COLORS.PRIMARY;
+                  }}
+                >
+                  {user?.nickname?.charAt(0) || "U"}
                 </div>
 
                 {/* 호버 드롭다운 메뉴 */}
-                <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 flex flex-col">
-                  <button
-                    onClick={handleProfileClick}
-                    className="btn-dropdown"
-                  >
+                <div 
+                  className="absolute right-0 mt-2 w-32 rounded-lg shadow-lg border py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 flex flex-col"
+                  style={{ 
+                    backgroundColor: COLORS.WHITE, 
+                    borderColor: COLORS.GRAY_200 
+                  }}
+                >
+                  <button onClick={handleProfileClick} className="btn-dropdown">
                     내 프로필
                   </button>
-                  
-                  <button
-                    onClick={handleLogout}
-                    className="btn-dropdown"
-                  >
+
+                  <button onClick={handleLogout} className="btn-dropdown">
                     로그아웃
                   </button>
                 </div>
               </div>
             ) : (
               // 로그인하지 않은 상태
-              <Link
-                to="/signin"
-                className="btn-base"
-              >
+              <Link to="/signin" className="btn-base">
                 로그인
               </Link>
             )}

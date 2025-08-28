@@ -1,7 +1,7 @@
 import { useAuthModal } from '../hooks/useAuthModal';
 import { useAuthState, useAuthActions } from '../hooks/useAuth';
 import UserProfile from './UserProfile';
-import LoginButtons from './LoginButtons';
+import LoginButton from './LoginButton';
 import AuthModal from './AuthModal';
 
 export default function AuthModalManager() {
@@ -29,7 +29,7 @@ export default function AuthModalManager() {
           {isAuthenticated ? (
             <UserProfile />
           ) : (
-            <LoginButtons onLoginClick={openSignIn} />
+            <LoginButton onLoginClick={openSignIn} />
           )}
         </nav>
       )}

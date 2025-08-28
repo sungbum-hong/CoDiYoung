@@ -6,6 +6,12 @@ export const CONFIG = {
   VALIDATION: {
     PASSWORD_MIN_LENGTH: 8,
     EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    PASSWORD_PATTERNS: {
+      LOWERCASE: /(?=.*[a-z])/,
+      UPPERCASE: /(?=.*[A-Z])/,
+      NUMBER: /(?=.*\d)/,
+      SPECIAL: /(?=.*[!@#$%^&*])/,
+    },
   },
 
 
@@ -23,21 +29,21 @@ export const CONFIG = {
       DEFAULT_ROWS: 3,
       DEFAULT_COLS: 3,
       DEFAULT_HTML: `
-        <table style="width: 100%; border-collapse: collapse;">
+        <table class="editor-table">
           <tr>
-            <th style="border: 1px solid ${COLORS.TABLE_BORDER}; padding: 8px;">헤더 1</th>
-            <th style="border: 1px solid ${COLORS.TABLE_BORDER}; padding: 8px;">헤더 2</th>
-            <th style="border: 1px solid ${COLORS.TABLE_BORDER}; padding: 8px;">헤더 3</th>
+            <th>헤더 1</th>
+            <th>헤더 2</th>
+            <th>헤더 3</th>
           </tr>
           <tr>
-            <td style="border: 1px solid ${COLORS.TABLE_BORDER}; padding: 8px;">데이터 1</td>
-            <td style="border: 1px solid ${COLORS.TABLE_BORDER}; padding: 8px;">데이터 2</td>
-            <td style="border: 1px solid ${COLORS.TABLE_BORDER}; padding: 8px;">데이터 3</td>
+            <td>데이터 1</td>
+            <td>데이터 2</td>
+            <td>데이터 3</td>
           </tr>
           <tr>
-            <td style="border: 1px solid ${COLORS.TABLE_BORDER}; padding: 8px;">데이터 4</td>
-            <td style="border: 1px solid ${COLORS.TABLE_BORDER}; padding: 8px;">데이터 5</td>
-            <td style="border: 1px solid ${COLORS.TABLE_BORDER}; padding: 8px;">데이터 6</td>
+            <td>데이터 4</td>
+            <td>데이터 5</td>
+            <td>데이터 6</td>
           </tr>
         </table>
       `
@@ -47,7 +53,9 @@ export const CONFIG = {
   // 레이아웃 설정
   LAYOUT: {
     HEADER_HEIGHT: 64, // 4rem
+    HEADER_TOTAL_HEIGHT: 96, // Header 실제 높이: h-16(64) + pt-3(12) + mb-5(20)
     MAX_CONTENT_WIDTH: 1240,
+    AUTH_MAX_WIDTH: 1120,
     CONTAINER_PADDING: {
       MOBILE: 16, // 1rem
       TABLET: 24, // 1.5rem  
@@ -104,6 +112,92 @@ export const CONFIG = {
     MEDIUM: 15,
     LARGE: 20,
     EXTRA_LARGE: 25,
+  },
+
+  // 버튼 크기 설정 (sizes.js에서 이동)
+  BUTTON_SIZES: {
+    sm: {
+      padding: '0.5rem 1rem',
+      fontSize: '0.875rem',
+      height: '2rem',
+    },
+    md: {
+      padding: '0.75rem 1.5rem', 
+      fontSize: '1rem',
+      height: '2.75rem',
+    },
+    lg: {
+      padding: '1rem 2rem',
+      fontSize: '1.125rem', 
+      height: '3rem',
+    },
+  },
+
+  // API 엔드포인트 설정
+  API: {
+    AUTH: {
+      LOGIN: '/api/auth/login',
+      LOGOUT: '/api/auth/logout',
+      PROFILE: '/api/auth/profile',
+    },
+  },
+
+  // Z-Index 설정
+  Z_INDEX: {
+    MODAL_BACKDROP: 1100,
+    MODAL_CONTENT: 1101,
+    MODAL_TITLE: 1200,
+  },
+
+  // Input 크기 설정
+  INPUT_SIZES: {
+    sm: "h-10 text-sm px-3",
+    md: "h-12 text-base px-4",
+    lg: "h-14 text-lg px-5",
+    xl: "h-16 text-xl px-6",
+  },
+
+  // 모달 크기 설정
+  MODAL_SIZES: {
+    DEFAULT: {
+      width: 1316,
+      height: 939,
+      ratio: 939 / 1316,
+    },
+    PROJECT_DETAIL: {
+      width: 704,
+      height: 574,
+      ratio: 574 / 704,
+      startX: 416,
+      startY: 1520,
+      buttonWidth: 240,
+      buttonHeight: 108,
+    },
+    SMALL: {
+      width: 400,
+      height: 300,
+    },
+  },
+
+  // 아바타 크기 설정
+  AVATAR_SIZES: {
+    sm: 'w-10 h-10',
+    md: 'w-12 h-12', 
+    lg: 'w-56 h-56',
+  },
+
+  // 스터디 카테고리 설정
+  STUDY_CATEGORIES: {
+    coding: "코딩",
+    design: "디자인", 
+    video: "영상"
+  },
+
+  // 테스트 사용자 데이터
+  TEST_USER: {
+    name: "김지호",
+    email: "test@example.com",
+    avatar: null
   },
 
 }

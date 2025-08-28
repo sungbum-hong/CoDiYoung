@@ -13,6 +13,7 @@ export const MESSAGES = {
     PASSWORD_CONFIRM_REQUIRED: "비밀번호 확인을 입력해주세요.",
     PASSWORD_NOT_MATCH: "비밀번호가 일치하지 않습니다.",
     VERIFICATION_CODE_REQUIRED: "인증번호를 입력해주세요.",
+    EMAIL_REQUIRED_INPUT: "이메일을 입력해 주세요.",
   },
 
   // UI 메시지
@@ -43,6 +44,22 @@ export const MESSAGES = {
     CHANGE_IMAGE: "이미지 찾기",
     PASSWORD_RESET_COMPLETE: "비밀번호 변경 완료!!",
     MY_PROFILE: "내 프로필",
+    LOGGING_IN: "로그인 중...",
+    NEW_PASSWORD_SETUP: "새 비밀번호 설정",
+    EDIT_COMPLETE: "수정 완료",
+    WRITE_COMPLETE: "새 글 작성 완료", 
+    DELETE_COMPLETE: "삭제 완료",
+    DELETE_CONFIRM: "를 삭제하시겠습니까?",
+  },
+
+  // 에러 메시지
+  ERRORS: {
+    LOGIN_FAILED: "로그인에 실패했습니다.",
+    NETWORK_ERROR: "서버에 연결할 수 없습니다. 네트워크를 확인해주세요.",
+    LOGIN_REQUIRED: "로그인이 필요합니다.",
+    PROFILE_API_NOT_IMPLEMENTED: "프로필 API가 구현되지 않았습니다.",
+    API_INTEGRATION_REQUIRED: "API 연동이 필요합니다.",
+    GET_CURRENT_USER_FAILED: "Failed to get current user:",
   },
 
   // 모달 제목
