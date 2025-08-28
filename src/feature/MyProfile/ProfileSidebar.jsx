@@ -23,7 +23,7 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
         U1
       </div>
 
-      <nav className="flex flex-col items-center w-full space-y-6">
+      <nav className="flex flex-col items-center w-full space-y-8">
         {menuItems.map((item) => (
           <button
             key={item}
@@ -32,8 +32,8 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
               backgroundColor: activeSection === item ? COLORS.PRIMARY : "transparent",
               color: activeSection === item ? "white" : COLORS.PRIMARY,
               borderColor: COLORS.PRIMARY,
-              width: 'min(70%, 200px)',
-              height: 'min(8vh, 60px)'
+              width: 'min(65%, 160px)',
+              height: 'min(6vh, 48px)'
             }}
             className="rounded-md border text-center transition-all duration-200 hover:bg-[var(--color-primary)] hover:text-white active:bg-[var(--color-blue-600)] text-sm md:text-base"
             onMouseEnter={(e) => {

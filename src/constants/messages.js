@@ -78,12 +78,12 @@ export const MESSAGES = {
   SECTIONS: {
     PARTNERS_SUPPORTERS: "파트너 & 서포터",
     ATTENDANCE_CHECK: "출석체크",
-    STUDY_LIST: "스터디 목록",
-    PROJECT_LIST: "프로젝트 목록",
+    STUDY_LIST: "스터디",
+    PROJECT_LIST: "프로젝트",
     TEAM_MEMBERS: "팀원",
     TECH_STACK: "기술 스택",
     PROJECT_DESCRIPTION: "프로젝트 설명",
-    PROFILE_INFO: "프로필 정보",
+    PROFILE_INFO: "프로필",
   },
 
 

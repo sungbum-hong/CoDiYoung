@@ -34,7 +34,7 @@ export default function MyProfileLayout() {
           activeSection={activeSection} 
           onSectionChange={handleSectionChange} 
         />
-        <main className="flex-1 p-6 md:pl-[6.9%]">
+        <main className="flex-1 py-15 px-5">
           {renderContent()}
         </main>
       </div>
