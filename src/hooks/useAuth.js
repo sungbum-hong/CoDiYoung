@@ -1,15 +1,15 @@
-import { useAuth as useAuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { CONFIG } from '../constants/config.js';
 
 export function useAuthActions() {
-  const { setUser, logout, resetState } = useAuthContext();
+  const { setUser, logout, resetState } = useAuth();
 
   const loginWithTestData = () => {
     setUser(CONFIG.TEST_USER);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
   };
 
   const resetAuthState = () => {
@@ -24,7 +24,7 @@ export function useAuthActions() {
 }
 
 export function useAuthState() {
-  const { isAuthenticated, user, isLoading, error } = useAuthContext();
+  const { isAuthenticated, user, isLoading, error } = useAuth();
 
   return {
     isAuthenticated,

@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 import { useAuthState, useAuthActions } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { ROUTES } from '../constants/routes.js';
 import { MESSAGES } from '../constants/messages.js';
 
@@ -10,14 +11,16 @@ export default function UserProfile() {
   const navigate = useNavigate();
   const { user } = useAuthState();
   const { handleLogout } = useAuthActions();
+  const { resetState } = useAuth();
 
-  const onLogout = () => {
-    handleLogout();
+  const onLogout = async () => {
+    await handleLogout();
+    resetState(); // 폼 상태 초기화 (이메일, 비밀번호 등)
     navigate(ROUTES.HOME);
   };
 
   const onProfileClick = () => {
-    navigate(ROUTES.MY_PROFILE);
+    navigate(ROUTES.PROFILE);
   };
 
   return (

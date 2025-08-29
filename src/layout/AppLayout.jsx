@@ -27,9 +27,9 @@ export default function AppLayout() {
   }, [isAuthRoute]);
 
   // 레이아웃 스타일 정의 (매직 넘버 제거)
-  const base = "relative z-0 mx-auto px-4 sm:px-6 lg:px-6";
-  const authLayout = `max-w-[${CONFIG.LAYOUT.AUTH_MAX_WIDTH}px] min-h-[calc(100dvh-${CONFIG.LAYOUT.HEADER_TOTAL_HEIGHT}px)] grid place-items-center overflow-hidden`;
-  const normalLayout = `max-w-[${CONFIG.LAYOUT.MAX_CONTENT_WIDTH}px]`;
+  const base = "relative z-0";
+  const authLayout = `min-h-[calc(100dvh-${CONFIG.LAYOUT.HEADER_TOTAL_HEIGHT}px)] grid place-items-center overflow-hidden`;
+  const normalLayout = `max-w-[${CONFIG.LAYOUT.MAX_CONTENT_WIDTH}px] mx-8 px-4 sm:px-6 lg:px-6`;
 
   return (
     <div className="min-h-screen overflow-x-hidden">

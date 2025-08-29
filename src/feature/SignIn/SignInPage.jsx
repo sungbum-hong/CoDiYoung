@@ -65,32 +65,28 @@ export default function SignInPage({ onClose }) {
   };
 
   return (
-    <div className={`min-h-[calc(100dvh-${CONFIG.LAYOUT.HEADER_TOTAL_HEIGHT}px)] grid place-items-center overflow-hidden`}>
-      <div className={`w-full max-w-[${CONFIG.LAYOUT.AUTH_MAX_WIDTH}px]`}>
-        <h2 className="text-2xl font-bold mb-[48px] text-center">
-          {MESSAGES.UI.LOGIN}
-        </h2>
+    <div className="w-full flex flex-col items-center">
+      <h2 className="text-2xl font-bold mb-12 text-center">
+        {MESSAGES.UI.LOGIN}
+      </h2>
 
-
-        <form
-          onSubmit={onSubmit}
-          className="
-            mx-auto 
-            w-[360px] md:w-[560px] lg:w-[660px]   /* 가로 폭 */
-            border-2 rounded-2xl shadow-sm
-            px-10 md:px-12 py-10
-            flex flex-col justify-between gap-5
-            min-h-[360px] md:min-h-[460px]                    /* 최소 높이 보장 */
-            h-[min(86dvh,46px)]                               /* 화면 대비 최대 높이 */
-          "
-          style={{ borderColor: COLORS.PRIMARY }}
-        >
+      <form
+        onSubmit={onSubmit}
+        className="
+          w-[360px] md:w-[560px] lg:w-[660px]
+          border-2 rounded-2xl shadow-sm
+          px-10 md:px-12 py-10
+          flex flex-col justify-between gap-5
+          min-h-[360px] md:min-h-[460px]
+          max-h-[80vh]
+        "
+        style={{ borderColor: COLORS.PRIMARY }}
+      >
           {/* 입력 영역 */}
           <div className="
-          grid gap-13            /* 인풋들 세로 간격 */
-          min-h-[230px]         /* 입력 영역 최소 높이 (원하면 숫자 바꿔도 됨) */
-          [&_input]:h-13        /* 모든 FormInput 내부 input 높이 56px */
-          md:[&_input]:h-12    /* md 이상 64px */
+          grid gap-6
+          min-h-[230px]
+          [&_input]:h-12 md:[&_input]:h-14
           [&_input]:text-lg
         ">
             <FormInput
@@ -155,6 +151,14 @@ export default function SignInPage({ onClose }) {
               type="submit"
               disabled={isLoading}
               className="w-64 py-3 font-semibold cursor-pointer"
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = COLORS.PRIMARY;
+                e.target.style.color = "white";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "transparent";
+                e.target.style.color = COLORS.PRIMARY;
+              }}
               style={{
                 color: isLoading ? COLORS.GRAY_400 : COLORS.PRIMARY,
                 transition: "all 0.2s",
@@ -166,6 +170,5 @@ export default function SignInPage({ onClose }) {
           </div>
         </form>
       </div>
-    </div>
   );
 }

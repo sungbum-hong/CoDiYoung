@@ -52,7 +52,9 @@ const uiReducer = (state, action) => {
       return { 
         ...state, 
         isAuthenticated: false, 
-        user: null 
+        user: null,
+        isLoading: false,
+        error: null
       };
 
     case 'RESET_UI':
@@ -105,6 +107,7 @@ export function UIProvider({ children }) {
         return { success: true };
       } catch (error) {
         dispatch({ type: 'SET_ERROR', payload: error.message });
+        dispatch({ type: 'SET_LOADING', payload: false });
         return { success: false, error: error.message };
       }
     },
