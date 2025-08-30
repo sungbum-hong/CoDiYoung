@@ -1,13 +1,16 @@
-import { COLORS } from '../../utils/colors';
+import { COLORS } from '../../../utils/colors';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BaseModal from '../../ui/BaseModal';
-import Button from '../../ui/Button';
+import BaseModal from '../../../ui/BaseModal';
+import Button from '../../../ui/Button';
+import { CalendarIcon } from '@heroicons/react/24/outline';
+import DatePickerModal from './DatePickerModal';
 
 export default function StudyContent() {
   const totalItems = 24;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleItemClick = (index) => {
@@ -18,6 +21,14 @@ export default function StudyContent() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedItem(null);
+  };
+
+  const handleCalendarClick = () => {
+    setIsDatePickerOpen(true);
+  };
+
+  const closeDatePicker = () => {
+    setIsDatePickerOpen(false);
   };
 
   const handleEdit = () => {
@@ -31,6 +42,30 @@ export default function StudyContent() {
   return (
     <main className="flex-1 p-4 md:p-6 overflow-auto">
       <div className="w-full h-full">
+        {/* 상단 달력 아이콘 */}
+        <div className="flex justify-end mb-4">
+          <button 
+            onClick={handleCalendarClick}
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200"
+            style={{
+              backgroundColor: COLORS.WHITE,
+              border: `2px solid ${COLORS.PRIMARY}`,
+              color: COLORS.PRIMARY
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = COLORS.PRIMARY;
+              e.target.style.color = COLORS.WHITE;
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = COLORS.WHITE;
+              e.target.style.color = COLORS.PRIMARY;
+            }}
+            title="달력"
+          >
+            <CalendarIcon className="w-5 h-5" />
+          </button>
+        </div>
+        
         <div 
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 h-full"
           style={{
@@ -98,6 +133,12 @@ export default function StudyContent() {
           </div>
         </div>
       </BaseModal>
+
+      {/* 달력 모달 */}
+      <DatePickerModal 
+        isOpen={isDatePickerOpen}
+        onClose={closeDatePicker}
+      />
     </main>
   );
 }

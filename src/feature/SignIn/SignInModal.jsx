@@ -16,14 +16,12 @@ export default function SignInModal({ onClose }) {
   const handleEmailChange = (e) => {
     const v = e.target.value;
     setEmail(v);
-    if (v) setEmailError(validateEmail(v));
     if (error) clearError();
   };
 
   const handlePasswordChange = (e) => {
     const v = e.target.value;
     setPassword(v);
-    if (v) setPasswordError(validatePassword(v));
     if (error) clearError();
   };
 

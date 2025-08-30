@@ -12,7 +12,7 @@ import { CONFIG } from "../../constants/config.js";
 
 export default function SignInPage({ onClose }) {
   const navigate = useNavigate();
-  const { login, isLoading, error, clearError } = useUI();
+  const { login, isLoading, error, clearError, setError } = useUI();
   const {
     email, password, emailError, passwordError,
     setEmail, setPassword, setEmailError, setPasswordError, resetErrors
@@ -21,27 +21,21 @@ export default function SignInPage({ onClose }) {
   const handleEmailChange = (e) => {
     const v = e.target.value;
     setEmail(v);
-    if (v) setEmailError(validateEmail(v));
     if (error) clearError(); // 입력 시 에러 메시지 클리어
   };
 
   const handlePasswordChange = (e) => {
     const v = e.target.value;
     setPassword(v);
-    if (v) setPasswordError(validatePassword(v));
     if (error) clearError(); // 입력 시 에러 메시지 클리어
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
     
-    // 클라이언트 측 검증
-    const eErr = validateEmail(email);
-    const pErr = validatePassword(password);
-    setEmailError(eErr);
-    setPasswordError(pErr);
-    
-    if (eErr || pErr) {
+    // 클라이언트 측 검증 (빈값만 체크)
+    if (!email || !password) {
+      setError("아이디와 비밀번호를 입력해주세요.");
       return;
     }
 
@@ -94,7 +88,6 @@ export default function SignInPage({ onClose }) {
               placeholder={MESSAGES.PLACEHOLDERS.EMAIL}
               value={email}
               onChange={handleEmailChange}
-              error={emailError}
               required
               variant="signin"
               size="lg"
@@ -106,7 +99,6 @@ export default function SignInPage({ onClose }) {
               placeholder={MESSAGES.PLACEHOLDERS.PASSWORD}
               value={password}
               onChange={handlePasswordChange}
-              error={passwordError}
               required
               variant="signin"
               size="lg"

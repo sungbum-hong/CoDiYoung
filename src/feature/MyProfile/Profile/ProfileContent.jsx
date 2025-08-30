@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { useUI } from '../../contexts/UIContext';
-import { COLORS } from '../../utils/colors.js';
+import { useUI } from '../../../contexts/UIContext';
+import { COLORS } from '../../../utils/colors.js';
 import ProfileField from './ProfileField';
 import ProfileImageSection from './ProfileImageSection';
-import AttendanceStars from './AttendanceStars';
+import AttendanceStars from '../AttendanceStars';
 
 export default function ProfileContent() {
   const { user, isLoading, error, loadProfile } = useUI();
