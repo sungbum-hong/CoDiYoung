@@ -48,7 +48,7 @@ export default function WriteForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6">
+    <form onSubmit={handleSubmit}>
       <div className="space-y-6">
         <div>
           <TiptapEditor

@@ -48,29 +48,9 @@ export default function ProjectSection({ projectCount = 8 }) {
     <section className="mt-12">
       <h2 className="font-medium mb-4" style={{ color: COLORS.GRAY_800 }}>참여 프로젝트</h2>
       <div className="rounded-2xl border-2 p-6 h-[360px] relative" style={{ borderColor: COLORS.BLUE_900 }}>
-        {/* 화살표 버튼 */}
-        <button
-          onClick={handlePrevious}
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-colors z-10"
-          style={{ backgroundColor: COLORS.WHITE, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = COLORS.GRAY_100}
-          onMouseLeave={(e) => e.target.style.backgroundColor = COLORS.WHITE}
-        >
-          <ChevronLeftIcon className="w-5 h-5" style={{ color: COLORS.GRAY_600 }} />
-        </button>
-
-        <button
-          onClick={handleNext}
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-colors z-10"
-          style={{ backgroundColor: COLORS.WHITE, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = COLORS.GRAY_100}
-          onMouseLeave={(e) => e.target.style.backgroundColor = COLORS.WHITE}
-        >
-          <ChevronRightIcon className="w-5 h-5" style={{ color: COLORS.GRAY_600 }} />
-        </button>
 
         {/* 프로젝트 아바타들 */}
-        <div className="flex items-center justify-center gap-6 h-full">
+        <div className="flex gap-6 h-full">
           {visibleProjects.map((_, idx) => {
             const actualIndex = scrollIndex * itemsPerPage + idx;
             return (
@@ -79,12 +59,6 @@ export default function ProjectSection({ projectCount = 8 }) {
           })}
         </div>
 
-        {/* 페이지 인디케이터 */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2">
-          <span className="text-sm" style={{ color: COLORS.GRAY_600 }}>
-            {currentPage} / {totalPages}
-          </span>
-        </div>
       </div>
       
       <ProjectGalleryModal 

@@ -62,20 +62,14 @@ export default function WritePageLayout({ children }) {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-6xl py-4 px-4">
+      <div className="py-4 px-4">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold" style={{ color: COLORS.GRAY_900 }}>
             {isEditMode ? `스터디 수정 - 아이템 ${id}` : '스터디'}
           </h1>
           {isEditMode ? (
             <div className="flex space-x-3">
-              <Button 
-                variant="secondary" 
-                className='w-32 h-8' 
-                onClick={handleDeleteClick}
-              >
-                삭제
-              </Button>
+              
               <Button 
                 variant="outline" 
                 className='w-32 h-8' 
@@ -90,6 +84,13 @@ export default function WritePageLayout({ children }) {
                 }}
               >
                 수정
+              </Button>
+              <Button 
+                variant="secondary" 
+                className='w-32 h-8' 
+                onClick={handleDeleteClick}
+              >
+                삭제
               </Button>
             </div>
           ) : (
@@ -127,7 +128,6 @@ export default function WritePageLayout({ children }) {
       <BaseModal
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}
-        title={`아이템 ${id} 삭제`}
         size="CUSTOM"
         style={{
           width: '500px',
@@ -147,6 +147,14 @@ export default function WritePageLayout({ children }) {
               style={{
                 width: '120px',
                 height: '40px'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = COLORS.PRIMARY;
+                e.target.style.color = "white";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "transparent";
+                e.target.style.color = COLORS.PRIMARY;
               }}
             >
               삭제
@@ -168,7 +176,6 @@ export default function WritePageLayout({ children }) {
       <BaseModal
         isOpen={isEditModalOpen}
         onClose={closeEditModal}
-        title={`아이템 ${id} 수정`}
         size="CUSTOM"
         style={{
           width: '500px',
@@ -188,6 +195,14 @@ export default function WritePageLayout({ children }) {
               style={{
                 width: '120px',
                 height: '40px'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = COLORS.PRIMARY;
+                e.target.style.color = "white";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "transparent";
+                e.target.style.color = COLORS.PRIMARY;
               }}
             >
               수정

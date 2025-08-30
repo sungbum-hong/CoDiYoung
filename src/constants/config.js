@@ -72,7 +72,7 @@ export const CONFIG = {
   CARD: {
     PROJECT: {
       WIDTH: 192,
-      GAP: 20,
+      GAP: 70,
       HEIGHT: 256,
     },
     STUDY: {
