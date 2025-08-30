@@ -16,9 +16,8 @@ export default function AttendanceContent() {
   };
 
   return (
-    <div className="bg-white shadow-sm rounded-md p-6 min-h-[300px]">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">출석체크</h2>
+    <div className="bg-white py-6 px-24 min-h-[500px]">
+      <div className="flex justify-end mb-12">
         
         {/* 달력 아이콘 */}
         <button 

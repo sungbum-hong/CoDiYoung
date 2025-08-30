@@ -8,9 +8,13 @@ import { COLORS } from '../../../utils/colors';
 
 export default function DatePickerModal({ isOpen, onClose }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  // ✅ 현재 화면에 보이는 달을 추적
+  const [viewDate, setViewDate] = useState(new Date());
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
+    // 선택 시 화면 달도 그 날짜가 포함된 달로 맞춤 (원치 않으면 이 줄 제거)
+    setViewDate(date);
   };
 
   const handleConfirm = () => {
@@ -29,11 +33,11 @@ export default function DatePickerModal({ isOpen, onClose }) {
         height: 'auto',
         maxWidth: '90vw',
         border: 'none',
-        boxShadow: 'none'
+        boxShadow: 'none',
       }}
     >
       <div className="p-2 flex flex-col items-center gap-4">
-        {/* DatePicker 컴포넌트 */}
+        {/* DatePicker */}
         <div className="datepicker-wrapper">
           <DatePicker
             selected={selectedDate}
@@ -42,21 +46,31 @@ export default function DatePickerModal({ isOpen, onClose }) {
             locale={ko}
             calendarClassName="custom-calendar"
             formatWeekDay={(nameOfDay) => nameOfDay.charAt(0)}
-            renderCustomHeader={({ date, changeYear, changeMonth, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled }) => (
+            fixedHeight={true}
+
+            // 보이는 달 변경 추적
+            onMonthChange={(d) => setViewDate(d)}
+            onYearChange={(d) => setViewDate(d)}
+
+            renderCustomHeader={({
+              date,
+              decreaseMonth,
+              increaseMonth,
+              prevMonthButtonDisabled,
+              nextMonthButtonDisabled,
+            }) => (
               <div className="custom-header flex items-center justify-between px-4 py-2">
                 <button
                   onClick={decreaseMonth}
                   disabled={prevMonthButtonDisabled}
                   className="nav-button"
                 >
-                  {"<"}
+                  {'<'}
                 </button>
                 <div className="month-year text-white font-semibold">
                   {date.toLocaleDateString('ko-KR', {
                     year: 'numeric',
                     month: 'long',
-                    day: 'numeric',
-                    weekday: 'long'
                   })}
                 </div>
                 <button
@@ -64,36 +78,25 @@ export default function DatePickerModal({ isOpen, onClose }) {
                   disabled={nextMonthButtonDisabled}
                   className="nav-button"
                 >
-                  {">"}
+                  {'>'}
                 </button>
               </div>
             )}
-            dayClassName={(date) => 
-              date.getTime() === selectedDate?.getTime() 
-                ? "selected-day" 
-                : "regular-day"
-            }
+
+            /* ✅ 보이는 달(viewDate) 기준으로 클래스 구분 */
+            dayClassName={(date) => {
+              const sameMonth =
+                date.getMonth() === viewDate.getMonth() &&
+                date.getFullYear() === viewDate.getFullYear();
+              return sameMonth ? 'regular-day' : 'outside-day';
+            }}
           />
         </div>
 
         {/* 버튼 영역 */}
-        <div className="flex gap-2 justify-end w-full">
-          <Button 
-            variant="outline" 
-            onClick={onClose}
-            style={{
-              width: '60px',
-              height: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '0'
-            }}
-          >
-            취소
-          </Button>
-          <Button 
-            variant="outline" 
+        <div className="flex gap-2 justify-end w-full px-10">
+          <Button
+            variant="outline"
             onClick={handleConfirm}
             style={{
               width: '60px',
@@ -101,15 +104,15 @@ export default function DatePickerModal({ isOpen, onClose }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '0'
+              padding: '0 12px',
             }}
             onMouseEnter={(e) => {
-              e.target.style.backgroundColor = COLORS.PRIMARY;
-              e.target.style.color = "white";
+              e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
+              e.currentTarget.style.color = 'white';
             }}
             onMouseLeave={(e) => {
-              e.target.style.backgroundColor = "transparent";
-              e.target.style.color = COLORS.PRIMARY;
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = COLORS.PRIMARY;
             }}
           >
             확인
@@ -119,26 +122,25 @@ export default function DatePickerModal({ isOpen, onClose }) {
 
       {/* DatePicker 커스텀 스타일 */}
       <style jsx global>{`
+        :root {
+          --calendar-height: 400px;
+        }
+
         .custom-calendar {
           border: none;
           border-radius: 12px;
           font-family: inherit;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          min-height: var(--calendar-height);
         }
-        
+
         .custom-calendar .react-datepicker__header {
           background-color: ${COLORS.PRIMARY};
           border-bottom: 1px solid ${COLORS.PRIMARY};
           border-radius: 12px 12px 0 0;
           padding: 16px 8px;
         }
-        
-        .custom-calendar .react-datepicker__current-month,
-        .custom-calendar .react-datepicker__navigation {
-          color: white;
-          font-size: 18px;
-        }
-        
+
         .custom-calendar .react-datepicker__day-name {
           color: white;
           font-weight: 600;
@@ -147,7 +149,7 @@ export default function DatePickerModal({ isOpen, onClose }) {
           line-height: 32px;
           font-size: 14px;
         }
-        
+
         .custom-calendar .react-datepicker__day {
           width: 40px;
           height: 40px;
@@ -159,32 +161,43 @@ export default function DatePickerModal({ isOpen, onClose }) {
           transition: all 0.2s ease;
           font-size: 16px;
         }
-        
-        .custom-calendar .react-datepicker__day--selected,
-        .custom-calendar .react-datepicker__day--keyboard-selected {
+
+        /* 현재 보이는 달 날짜(진하게) */
+        .custom-calendar .regular-day {
+          color: #111827; /* gray-900 */
+        }
+
+        /* 다른 달 날짜(흐릿) */
+        .custom-calendar .outside-day {
+          color: #9ca3af; /* gray-400 */
+          opacity: 0.5;
+        }
+
+        /* ✅ 다른 달 날짜가 선택/포커스되어도 하이라이트 제거 */
+        .custom-calendar .outside-day.react-datepicker__day--selected,
+        .custom-calendar .outside-day.react-datepicker__day--keyboard-selected {
+          background: transparent !important;
+          color: #9ca3af !important;
+          font-weight: normal !important;
+          outline: none !important;
+        }
+
+        /* hover도 흐릿 유지 */
+        .custom-calendar .outside-day:hover {
+          background: transparent;
+          color: #9ca3af;
+          opacity: 0.6;
+        }
+
+        /* 보이는 달에서 선택/포커스된 날짜 */
+        .custom-calendar .react-datepicker__day--selected:not(.outside-day),
+        .custom-calendar .react-datepicker__day--keyboard-selected:not(.outside-day) {
           background-color: ${COLORS.PRIMARY};
           color: white;
           border-radius: 50%;
           font-weight: bold;
         }
-        
-        .custom-calendar .react-datepicker__day:hover:not(.react-datepicker__day--disabled) {
-          background-color: ${COLORS.PRIMARY};
-          color: white;
-          border-radius: 50%;
-          opacity: 0.8;
-        }
-        
-        .custom-calendar .react-datepicker__navigation--previous,
-        .custom-calendar .react-datepicker__navigation--next {
-          border-color: white transparent;
-        }
-        
-        .custom-calendar .react-datepicker__navigation--previous:hover,
-        .custom-calendar .react-datepicker__navigation--next:hover {
-          border-color: rgba(255, 255, 255, 0.8) transparent;
-        }
-        
+
         .custom-header .nav-button {
           background: none;
           border: none;
@@ -195,11 +208,11 @@ export default function DatePickerModal({ isOpen, onClose }) {
           border-radius: 4px;
           transition: background-color 0.2s;
         }
-        
+
         .custom-header .nav-button:hover {
           background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         .custom-header .nav-button:disabled {
           opacity: 0.5;
           cursor: not-allowed;
