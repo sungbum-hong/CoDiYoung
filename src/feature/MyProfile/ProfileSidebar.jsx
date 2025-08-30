@@ -10,9 +10,9 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
   ];
 
   return (
-    <aside className="w-full md:w-1/3 bg-white shadow-sm min-h-screen flex flex-col items-center justify-start pt-8 px-4">
+    <aside className="w-full md:w-1/3 bg-white shadow-sm min-h-screen flex flex-col items-center justify-start pt-22 px-4">
       <div 
-        className="rounded-full flex items-center justify-center font-semibold text-lg mb-8"
+        className="rounded-full flex items-center justify-center font-semibold text-lg mb-12"
         style={{
           backgroundColor: COLORS.GRAY_300,
           width: 'min(20vw, 180px)',
@@ -23,7 +23,7 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
         U1
       </div>
 
-      <nav className="flex flex-col items-center w-full space-y-8">
+      <nav className="flex flex-col items-center w-full space-y-14">
         {menuItems.map((item) => (
           <button
             key={item}

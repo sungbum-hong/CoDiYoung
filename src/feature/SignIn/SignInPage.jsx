@@ -12,7 +12,7 @@ import { CONFIG } from "../../constants/config.js";
 
 export default function SignInPage({ onClose }) {
   const navigate = useNavigate();
-  const { login, isLoading, error, clearError, setError } = useUI();
+  const { login, isLoading, error, clearError } = useUI();
   const {
     email, password, emailError, passwordError,
     setEmail, setPassword, setEmailError, setPasswordError, resetErrors
@@ -21,21 +21,27 @@ export default function SignInPage({ onClose }) {
   const handleEmailChange = (e) => {
     const v = e.target.value;
     setEmail(v);
+    if (v) setEmailError(validateEmail(v));
     if (error) clearError(); // 입력 시 에러 메시지 클리어
   };
 
   const handlePasswordChange = (e) => {
     const v = e.target.value;
     setPassword(v);
+    if (v) setPasswordError(validatePassword(v));
     if (error) clearError(); // 입력 시 에러 메시지 클리어
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
     
-    // 클라이언트 측 검증 (빈값만 체크)
-    if (!email || !password) {
-      setError("아이디와 비밀번호를 입력해주세요.");
+    // 클라이언트 측 검증
+    const eErr = validateEmail(email);
+    const pErr = validatePassword(password);
+    setEmailError(eErr);
+    setPasswordError(pErr);
+    
+    if (eErr || pErr) {
       return;
     }
 
@@ -59,28 +65,32 @@ export default function SignInPage({ onClose }) {
   };
 
   return (
-    <div className="w-full flex flex-col items-center">
-      <h2 className="text-2xl font-bold mb-12 text-center">
-        {MESSAGES.UI.LOGIN}
-      </h2>
+    <div className={`min-h-[calc(100dvh-${CONFIG.LAYOUT.HEADER_TOTAL_HEIGHT}px)] grid place-items-center overflow-hidden`}>
+      <div className={`w-full max-w-[${CONFIG.LAYOUT.AUTH_MAX_WIDTH}px]`}>
+        <h2 className="text-2xl font-bold mb-[48px] text-center">
+          {MESSAGES.UI.LOGIN}
+        </h2>
 
-      <form
-        onSubmit={onSubmit}
-        className="
-          w-[360px] md:w-[560px] lg:w-[660px]
-          border-2 rounded-2xl shadow-sm
-          px-10 md:px-12 py-10
-          flex flex-col justify-between gap-5
-          min-h-[360px] md:min-h-[460px]
-          max-h-[80vh]
-        "
-        style={{ borderColor: COLORS.PRIMARY }}
-      >
+
+        <form
+          onSubmit={onSubmit}
+          className="
+            mx-auto 
+            w-[360px] md:w-[560px] lg:w-[660px]   /* 가로 폭 */
+            border-2 rounded-2xl shadow-sm
+            px-10 md:px-12 py-10
+            flex flex-col justify-between gap-5
+            min-h-[360px] md:min-h-[450px]                    /* 최소 높이 보장 */
+            h-[min(86dvh,46px)]                               /* 화면 대비 최대 높이 */
+          "
+          style={{ borderColor: COLORS.PRIMARY }}
+        >
           {/* 입력 영역 */}
           <div className="
-          grid gap-6
-          min-h-[230px]
-          [&_input]:h-12 md:[&_input]:h-14
+          grid gap-13            /* 인풋들 세로 간격 */
+          min-h-[230px]         /* 입력 영역 최소 높이 (원하면 숫자 바꿔도 됨) */
+          [&_input]:h-13        /* 모든 FormInput 내부 input 높이 56px */
+          md:[&_input]:h-12    /* md 이상 64px */
           [&_input]:text-lg
         ">
             <FormInput
@@ -88,6 +98,7 @@ export default function SignInPage({ onClose }) {
               placeholder={MESSAGES.PLACEHOLDERS.EMAIL}
               value={email}
               onChange={handleEmailChange}
+              error={emailError}
               required
               variant="signin"
               size="lg"
@@ -99,6 +110,7 @@ export default function SignInPage({ onClose }) {
               placeholder={MESSAGES.PLACEHOLDERS.PASSWORD}
               value={password}
               onChange={handlePasswordChange}
+              error={passwordError}
               required
               variant="signin"
               size="lg"
@@ -143,14 +155,6 @@ export default function SignInPage({ onClose }) {
               type="submit"
               disabled={isLoading}
               className="w-64 py-3 font-semibold cursor-pointer"
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = COLORS.PRIMARY;
-                e.target.style.color = "white";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "transparent";
-                e.target.style.color = COLORS.PRIMARY;
-              }}
               style={{
                 color: isLoading ? COLORS.GRAY_400 : COLORS.PRIMARY,
                 transition: "all 0.2s",
@@ -162,5 +166,6 @@ export default function SignInPage({ onClose }) {
           </div>
         </form>
       </div>
+    </div>
   );
 }
