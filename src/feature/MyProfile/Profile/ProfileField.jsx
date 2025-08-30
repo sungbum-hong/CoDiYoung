@@ -1,8 +1,8 @@
 import { useState } from "react";
-import Button from "../../ui/Button.jsx";
-import { COLORS } from "../../utils/colors";
-import { MESSAGES } from "../../constants/messages";
-import { CONFIG } from "../../constants/config";
+import Button from "../../../ui/Button.jsx";
+import { COLORS } from "../../../utils/colors";
+import { MESSAGES } from "../../../constants/messages";
+import { CONFIG } from "../../../constants/config";
 
 export default function ProfileField({ label, value }) {
   const [isEditing, setIsEditing] = useState(false);

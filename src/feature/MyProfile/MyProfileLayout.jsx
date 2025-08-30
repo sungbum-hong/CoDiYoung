@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import ProfileSidebar from './ProfileSidebar';
-import ProfileContent from './ProfileContent';
-import StudyContent from './StudyContent';
-import ProjectContent from './ProjectContent';
+import ProfileContent from './Profile/ProfileContent';
+import StudyContent from './Study/StudyContent';
+import ProjectContent from './Project/ProjectContent';
+import AttendanceContent from './AttendanceContent';
 import { MESSAGES } from '../../constants/messages';
 import { CONFIG } from '../../constants/config';
 
@@ -20,7 +21,7 @@ export default function MyProfileLayout() {
       case MESSAGES.SECTIONS.PROJECT_LIST:
         return <ProjectContent />;
       case MESSAGES.SECTIONS.ATTENDANCE_CHECK:
-        return <div className="bg-white shadow-sm rounded-md p-6 min-h-[300px]">출석체크 (구현 예정)</div>;
+        return <AttendanceContent />;
       default:
         return <ProfileContent />;
     }

@@ -29,12 +29,10 @@ export function useEmailValidation(initialValue = '') {
     const value = e.target.value;
     setEmail(value);
     if (!touched.email) setFieldTouched('email');
-    setError(value ? validateEmail(value) : MESSAGES.VALIDATION.EMAIL_REQUIRED_INPUT);
+    // 실시간 검증 제거 - blurr 시에만 검증
   }, [touched.email, setFieldTouched]);
 
   const handleBlur = useCallback(() => {
-    setFieldTouched('email');
-    setError(email ? validateEmail(email) : MESSAGES.VALIDATION.EMAIL_REQUIRED_INPUT);
   }, [email, setFieldTouched]);
 
   const reset = useCallback(() => {
@@ -63,12 +61,10 @@ export function useVerificationCodeValidation(initialValue = '') {
     const value = e.target.value;
     setCode(value);
     if (!touched.code) setFieldTouched('code');
-    setError(value ? validateVerificationCode(value) : '인증번호를 입력해 주세요.');
+    // 실시간 검증 제거 - blur 시에만 검증
   }, [touched.code, setFieldTouched]);
 
   const handleBlur = useCallback(() => {
-    setFieldTouched('code');
-    setError(code ? validateVerificationCode(code) : '인증번호를 입력해 주세요.');
   }, [code, setFieldTouched]);
 
   const reset = useCallback(() => {
@@ -97,8 +93,11 @@ export function usePasswordValidation(initialValue = '') {
     const value = e.target.value;
     setPassword(value);
     if (!touched.password) setFieldTouched('password');
-    setError(validatePassword(value));
+    // 실시간 검증 제거 - blur 시에만 검증
   }, [touched.password, setFieldTouched]);
+
+  const handleBlur = useCallback(() => {
+  }, [password, setFieldTouched]);
 
   const reset = useCallback(() => {
     setPassword('');
@@ -109,6 +108,7 @@ export function usePasswordValidation(initialValue = '') {
     password,
     error: touched.password ? error : '',
     handleChange,
+    handleBlur,
     setPassword,
     setError,
     reset,
@@ -126,8 +126,11 @@ export function usePasswordConfirmValidation(originalPassword, initialValue = ''
     const value = e.target.value;
     setConfirmPassword(value);
     if (!touched.confirmPassword) setFieldTouched('confirmPassword');
-    setError(validatePasswordConfirmation(originalPassword, value));
+    // 실시간 검증 제거 - blur 시에만 검증
   }, [originalPassword, touched.confirmPassword, setFieldTouched]);
+
+  const handleBlur = useCallback(() => {
+  }, [originalPassword, confirmPassword, setFieldTouched]);
 
   const updateError = useCallback((newOriginalPassword) => {
     if (touched.confirmPassword) {
@@ -144,6 +147,7 @@ export function usePasswordConfirmValidation(originalPassword, initialValue = ''
     confirmPassword,
     error: touched.confirmPassword ? error : '',
     handleChange,
+    handleBlur,
     updateError,
     setConfirmPassword,
     setError,

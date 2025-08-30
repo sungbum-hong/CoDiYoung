@@ -39,6 +39,7 @@ export default function ResetPassword() {
           placeholder="새 비밀번호 (8자 이상, 대소문자, 숫자, 특수문자 포함)"
           value={passwordValidation.password}
           onChange={handlePasswordChange}
+          onBlur={passwordValidation.handleBlur}
           error={passwordValidation.error}
           required
           className={authStyles.input.base}
@@ -49,6 +50,7 @@ export default function ResetPassword() {
           placeholder="새 비밀번호 확인"
           value={confirmPasswordValidation.confirmPassword}
           onChange={confirmPasswordValidation.handleChange}
+          onBlur={confirmPasswordValidation.handleBlur}
           error={confirmPasswordValidation.error}
           required
           className={authStyles.input.base}

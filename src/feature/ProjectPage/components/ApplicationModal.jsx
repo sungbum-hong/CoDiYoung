@@ -131,6 +131,14 @@ export default function ApplicationModal({ onClose, projectName = "프로젝트"
               variant="secondary"
               disabled={isSubmitting}
               className="flex-1 py-3"
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = COLORS.PRIMARY;
+                e.target.style.color = "white";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "transparent";
+                e.target.style.color = COLORS.PRIMARY;
+              }}
             >
               {isSubmitting ? "신청 중..." : "신청하기"}
             </Button>

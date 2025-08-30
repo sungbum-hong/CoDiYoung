@@ -12,10 +12,10 @@ const initialState = {
 const authFormReducer = (state, action) => {
   switch (action.type) {
     case 'SET_EMAIL':
-      return { ...state, email: action.payload, emailError: '' };
+      return { ...state, email: action.payload };
     
     case 'SET_PASSWORD':
-      return { ...state, password: action.payload, passwordError: '' };
+      return { ...state, password: action.payload };
     
     case 'SET_EMAIL_ERROR':
       return { ...state, emailError: action.payload };

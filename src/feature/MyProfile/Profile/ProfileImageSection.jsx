@@ -1,7 +1,7 @@
 import { useState } from "react";
-import Button from "../../ui/Button.jsx";
-import { COLORS } from "../../utils/colors.js";
-import { MESSAGES } from "../../constants/messages.js";
+import Button from "../../../ui/Button.jsx";
+import { COLORS } from "../../../utils/colors.js";
+import { MESSAGES } from "../../../constants/messages.js";
 
 export default function ProfileImageSection() {
   const [isEditing, setIsEditing] = useState(false);
