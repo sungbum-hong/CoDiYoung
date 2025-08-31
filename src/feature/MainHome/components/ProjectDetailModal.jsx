@@ -57,14 +57,17 @@ export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
               e.currentTarget.style.backgroundColor = 'transparent';
               e.currentTarget.style.color = COLORS.PRIMARY;
             }}
+            
+    
+
           >
             구경하기
           </Button>
-
           {/* ✅ 취소(닫기): WritePageLayout과 같은 닫기 동작 */}
           <Button
             variant="outline"
             onClick={onClose}
+
             className="font-medium h-10 w-[150px]"
             style={{ ...btnStyle, width: 150, height: 40 }}
           >

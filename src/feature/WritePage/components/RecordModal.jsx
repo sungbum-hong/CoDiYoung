@@ -1,13 +1,23 @@
 import { useNavigate } from 'react-router-dom';
 import Button from '../../../ui/Button.jsx';
 
-export default function RecordModal({ isOpen, onClose, message = "오늘도 수고했어!!" }) {
+export default function RecordModal({ isOpen, onClose, message = "오늘도 수고했어!!", redirectTo = "/", onComplete, onCompleteRedirect, isLoading = false }) {
   const navigate = useNavigate();
 
   if (!isOpen) return null;
 
-  const handleHomeClick = () => {
-    navigate('/');
+  const handleConfirmClick = () => {
+    if (isLoading) {
+      return;
+    }
+    
+    if (onComplete) {
+      onComplete();
+    } else if (onCompleteRedirect) {
+      onCompleteRedirect();
+    } else {
+      navigate(redirectTo);
+    }
   };
 
   return (
@@ -19,10 +29,11 @@ export default function RecordModal({ isOpen, onClose, message = "오늘도 수�
         </h1>
         <Button
           variant="primary"
-          onClick={handleHomeClick}
+          onClick={handleConfirmClick}
+          disabled={isLoading}
           className="w-[300px] h-14 text-lg"
         >
-          확인
+          {isLoading ? "저장 중..." : "확인"}
         </Button>
       </div>
     </div>

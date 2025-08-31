@@ -145,7 +145,7 @@ export default function SignInPage({ onClose }) {
           {/* 액션 영역 */}
           <div className="flex justify-center pt-2">
             <Button
-              variant="secondary"
+              variant="outline "
               type="submit"
               disabled={isLoading}
               className="w-64 py-3 font-semibold cursor-pointer"
@@ -201,7 +201,6 @@ function ErrorModal({ open, message, onClose, onFindPassword, primary }) {
   </p>
 </div>
       </div>
-    </div>,
-    document.body
+    </div>
   );
 }

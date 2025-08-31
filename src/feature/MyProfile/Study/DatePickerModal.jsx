@@ -96,7 +96,7 @@ export default function DatePickerModal({ isOpen, onClose }) {
         {/* 버튼 영역 */}
         <div className="flex gap-2 justify-end w-full px-10">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={handleConfirm}
             style={{
               width: '60px',
@@ -105,14 +105,6 @@ export default function DatePickerModal({ isOpen, onClose }) {
               alignItems: 'center',
               justifyContent: 'center',
               padding: '0 12px',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
-              e.currentTarget.style.color = 'white';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = COLORS.PRIMARY;
             }}
           >
             확인

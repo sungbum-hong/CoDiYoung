@@ -39,14 +39,6 @@ export default function ProjectCard({ project = defaultProject }) {
           <Button variant="secondary"
             onClick={handleApply}
             className="w-32 h-8"
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = COLORS.PRIMARY;
-              e.target.style.color = "white";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = "transparent";
-              e.target.style.color = COLORS.PRIMARY;
-            }}
           >
             신청하기
           </Button>
