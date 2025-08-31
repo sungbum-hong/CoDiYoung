@@ -259,17 +259,9 @@ export default function ProjectCreateForm({ onBack }) {
         {/* 버튼 영역 */}
         <div className="flex justify-between w-full mt-4 gap-2">
           <Button 
-            variant="outline"
+            variant="secondary"
             onClick={() => console.log('Form data:', formData)}
             className="flex-1"
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = COLORS.PRIMARY;
-              e.target.style.color = "white";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = "transparent";
-              e.target.style.color = COLORS.PRIMARY;
-            }}
           >
             개설
           </Button>
