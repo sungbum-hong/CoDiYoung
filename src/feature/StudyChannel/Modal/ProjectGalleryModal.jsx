@@ -1,21 +1,33 @@
 import { COLORS } from "../../../utils/colors.js";
 
-export default function ProjectGalleryModal({ isOpen, onClose, currentIndex = 0, totalItems = 1, onIndexChange }) {
+export default function ProjectGalleryModal({
+  isOpen,
+  onClose,
+  currentIndex = 0,
+  totalItems = 1,
+  onIndexChange,
+  // ✅ 원하는 크기로 손쉽게 조절
+  circleSize = 500,   // 원형(이미지) 지름
+  buttonSize = 48,    // 좌우 화살표 버튼 지름
+  gap = 24,           // 원형과 버튼 사이 간격
+}) {
   if (!isOpen) return null;
 
-  const handlePrevious = () => {
+  const handlePrevious = (e) => {
+    e?.stopPropagation();
     const newIndex = (currentIndex - 1 + totalItems) % totalItems;
     onIndexChange?.(newIndex);
   };
 
-  const handleNext = () => {
+  const handleNext = (e) => {
+    e?.stopPropagation();
     const newIndex = (currentIndex + 1) % totalItems;
     onIndexChange?.(newIndex);
   };
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/40"
+      className="fixed inset-0 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       {/* 모달 박스 */}
@@ -23,46 +35,95 @@ export default function ProjectGalleryModal({ isOpen, onClose, currentIndex = 0,
         className="relative flex flex-col items-center"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 원형 이미지 영역 */}
-        <div className="relative">
-          {/* 이전 버튼 */}
+        {/* === 원형 이미지 영역 (컨테이너) === */}
+        <div className="relative" style={{ width: circleSize, height: circleSize }}>
+          {/* 왼쪽 버튼 — 원형 바깥쪽에 위치 */}
           <button
             onClick={handlePrevious}
-            className="absolute left-8 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-md hover:shadow-lg flex items-center justify-center transition-all z-20"
-            style={{ color: COLORS.GRAY_600 }}
-            onMouseEnter={(e) => e.target.style.color = COLORS.GRAY_800}
-            onMouseLeave={(e) => e.target.style.color = COLORS.GRAY_600}
+            aria-label="이전"
+            className="absolute top-1/2 -translate-y-1/2 grid place-items-center rounded-full border shadow transition focus:outline-none"
+            style={{
+              left: `-${gap + buttonSize}px`,
+              width: `${buttonSize}px`,
+              height: `${buttonSize}px`,
+              backgroundColor: "#fff",
+              borderColor: COLORS.PRIMARY,
+              color: COLORS.PRIMARY,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
+              e.currentTarget.style.color = "#fff";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#fff";
+              e.currentTarget.style.color = COLORS.PRIMARY;
+            }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+            {/* 왼쪽 화살표 아이콘 */}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
             </svg>
           </button>
 
-          {/* 다음 버튼 */}
+          {/* 오른쪽 버튼 — 원형 바깥쪽에 위치 */}
           <button
             onClick={handleNext}
-            className="absolute right-8 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-md hover:shadow-lg flex items-center justify-center transition-all z-20"
-            style={{ color: COLORS.GRAY_600 }}
-            onMouseEnter={(e) => e.target.style.color = COLORS.GRAY_800}
-            onMouseLeave={(e) => e.target.style.color = COLORS.GRAY_600}
+            aria-label="다음"
+            className="absolute top-1/2 -translate-y-1/2 grid place-items-center rounded-full border shadow transition focus:outline-none"
+            style={{
+              right: `-${gap + buttonSize}px`,
+              width: `${buttonSize}px`,
+              height: `${buttonSize}px`,
+              backgroundColor: "#fff",
+              borderColor: COLORS.PRIMARY,
+              color: COLORS.PRIMARY,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
+              e.currentTarget.style.color = "#fff";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#fff";
+              e.currentTarget.style.color = COLORS.PRIMARY;
+            }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+            {/* 오른쪽 화살표 아이콘 */}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
             </svg>
           </button>
 
-          {/* 원형 테두리와 이미지 */}
-          <div className="w-[650px] h-[650px] rounded-full flex items-center justify-center p-32 relative">
-            {/* 이미지 영역 */}
-            <div className="w-full h-full bg-white rounded-full flex items-center justify-center shadow-inner">
+          {/* === 원형 테두리 + 이미지 === */}
+          <div
+            className="rounded-full flex items-center justify-center p-32 relative shadow-inner"
+            style={{ width: circleSize, height: circleSize, backgroundColor: "#fff" }}
+          >
+            {/* 실제 이미지가 들어갈 자리 */}
+            <div className="w-full h-full rounded-full flex items-center justify-center">
               <span className="text-gray-500 text-lg">이미지 {currentIndex + 1}</span>
             </div>
-            
-            {/* 확인 버튼 */}
+
+            {/* 확인 버튼 (원형 하단 안쪽) — 필요시 유지/제거 */}
             <button
               onClick={onClose}
-              className="absolute bottom-40 left-1/2 transform -translate-x-1/2 border border-[var(--color-primary)] px-8 py-2.5 rounded-full hover:bg-[var(--color-primary)] hover:text-white transition-colors font-medium z-20 cursor-pointer"
-              >
+              className="absolute bottom-20 left-1/2 -translate-x-1/2 rounded-full font-medium cursor-pointer transition-colors"
+              style={{
+                width: 100,
+                height: 40,
+               
+                backgroundColor: "transparent",
+                color: COLORS.PRIMARY,
+                border: `2px solid ${COLORS.PRIMARY}`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
+                e.currentTarget.style.color = "#fff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = COLORS.PRIMARY;
+              }}
+            >
               확인
             </button>
           </div>
