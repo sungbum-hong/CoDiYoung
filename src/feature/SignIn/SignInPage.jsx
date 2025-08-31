@@ -1,5 +1,6 @@
 // src/feature/Auth/SignInPage.jsx
 import { useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";               // ⬅ 추가
 import { useAuth } from "../../contexts/AuthContext";
 import { useUI } from "../../contexts/UIContext";
 import { validateEmail, validatePassword } from "../../utils/validation";
@@ -22,40 +23,34 @@ export default function SignInPage({ onClose }) {
     const v = e.target.value;
     setEmail(v);
     if (v) setEmailError(validateEmail(v));
-    if (error) clearError(); // 입력 시 에러 메시지 클리어
+    if (error) clearError();
   };
 
   const handlePasswordChange = (e) => {
     const v = e.target.value;
     setPassword(v);
     if (v) setPasswordError(validatePassword(v));
-    if (error) clearError(); // 입력 시 에러 메시지 클리어
+    if (error) clearError();
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    
-    // 클라이언트 측 검증
+
     const eErr = validateEmail(email);
     const pErr = validatePassword(password);
     setEmailError(eErr);
     setPasswordError(pErr);
-    
-    if (eErr || pErr) {
-      return;
-    }
 
-    // 서버 측 로그인 시도
+    if (eErr || pErr) return;
+
     try {
       const result = await login(email, password);
-      
       if (result.success) {
-        // 로그인 성공 시 홈으로 이동
         navigate(ROUTES.HOME);
-        onClose?.(); // 모달이 있다면 닫기
+        onClose?.();
       }
     } catch (error) {
-      // 에러는 UI Context에서 처리됨
+      // handled in UI context
     }
   };
 
@@ -71,28 +66,27 @@ export default function SignInPage({ onClose }) {
           {MESSAGES.UI.LOGIN}
         </h2>
 
-
         <form
           onSubmit={onSubmit}
           className="
             mx-auto 
-            w-[360px] md:w-[560px] lg:w-[660px]   /* 가로 폭 */
+            w-[360px] md:w-[560px] lg:w-[660px]
             border-2 rounded-2xl shadow-sm
             px-10 md:px-12 py-10
             flex flex-col justify-between gap-5
-            min-h-[360px] md:min-h-[450px]                    /* 최소 높이 보장 */
-            h-[min(86dvh,46px)]                               /* 화면 대비 최대 높이 */
+            min-h-[360px] md:min-h-[450px]
+            h-[min(86dvh,46px)]
           "
           style={{ borderColor: COLORS.PRIMARY }}
         >
           {/* 입력 영역 */}
           <div className="
-          grid gap-13            /* 인풋들 세로 간격 */
-          min-h-[230px]         /* 입력 영역 최소 높이 (원하면 숫자 바꿔도 됨) */
-          [&_input]:h-13        /* 모든 FormInput 내부 input 높이 56px */
-          md:[&_input]:h-12    /* md 이상 64px */
-          [&_input]:text-lg
-        ">
+            grid gap-13
+            min-h-[230px]
+            [&_input]:h-13
+            md:[&_input]:h-12
+            [&_input]:text-lg
+          ">
             <FormInput
               type="email"
               placeholder={MESSAGES.PLACEHOLDERS.EMAIL}
@@ -117,8 +111,8 @@ export default function SignInPage({ onClose }) {
               disabled={isLoading}
             />
 
-            {/* 서버 에러 메시지 */}
-            {error && (
+            {/* ⬇ 인라인 에러 제거, 대신 모달로 표출 */}
+            {false && error && (
               <div className="text-red-600 text-sm text-center p-2 bg-red-50 rounded border border-red-200">
                 {error}
               </div>
@@ -166,6 +160,48 @@ export default function SignInPage({ onClose }) {
           </div>
         </form>
       </div>
+
+      {/* 에러 모달 (포털) */}
+      <ErrorModal
+        open={!!error}
+        message={error}
+        primary={COLORS.PRIMARY}
+        onClose={clearError}
+        onFindPassword={() => {
+          clearError();
+          handleFindPassword();
+        }}
+      />
     </div>
+  );
+}
+
+/* ---- lightweight ErrorModal (no deps) ---- */
+function ErrorModal({ open, message, onClose, onFindPassword, primary }) {
+  if (!open) return null;
+  return createPortal(
+    <div className="fixed inset-0 z-[100]">
+      {/* overlay */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
+        onClick={onClose}
+      />
+      {/* dialog */}
+      <div
+        role="alertdialog"
+        aria-labelledby="signin-error-title"
+        aria-describedby="signin-error-desc"
+        className="absolute left-1/2 top-[40%] -translate-x-1/2
+                   w-[90%] max-w-[420px] rounded-2xl bg-white shadow-2xl
+                   border border-red-200 p-5"
+      >
+<div className="fixed inset-0 grid place-items-center z-50">
+  <p id="signin-error-desc" className="text-center text-sm text-red-700">
+    {message}
+  </p>
+</div>
+      </div>
+    </div>,
+    document.body
   );
 }
