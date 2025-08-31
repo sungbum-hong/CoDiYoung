@@ -16,7 +16,7 @@ export default function AttendanceContent() {
   };
 
   return (
-    <div className="bg-white py-6 px-24 min-h-[500px]">
+    <div className="bg-white py-6 px-7 min-h-[500px]">
       <div className="flex justify-end mb-12">
         
         {/* 달력 아이콘 */}
