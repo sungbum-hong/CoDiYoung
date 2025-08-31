@@ -192,9 +192,9 @@ export default function StudyContent() {
             }}>수정
             </Button>
             <Button
-              variant="secondary"
-              onClick={handleEdit}
-              style={{ width: "120px", height: "40px" }}
+              variant="outline"
+              onClick={closeModal}
+              style={{ width: '120px', height: '40px' }}
             >
               닫기
             </Button>
