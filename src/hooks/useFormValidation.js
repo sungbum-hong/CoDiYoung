@@ -1,6 +1,4 @@
 import { useState, useCallback } from 'react';
-import { validateEmail, validateVerificationCode, validatePassword, validatePasswordConfirmation } from '../utils/validation';
-import { MESSAGES } from '../constants/messages.js';
 
 export function useFormValidation() {
   const [touched, setTouched] = useState({});

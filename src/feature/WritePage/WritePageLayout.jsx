@@ -12,9 +12,16 @@ export default function WritePageLayout({ children }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [completeMessage, setCompleteMessage] = useState('');
+  const [redirectTo, setRedirectTo] = useState('/');
+  const [recordModalStep, setRecordModalStep] = useState('record'); // 'record' | 'complete' | 'saving'
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditMode = !!id;
+
+  // 새 ID 생성 함수 (테스트용)
+  const generateNewId = () => {
+    return Math.floor(Math.random() * 1000) + 1;
+  };
 
   const handleRecordClick = () => {
     setIsRecordModalOpen(true);
@@ -28,8 +35,38 @@ export default function WritePageLayout({ children }) {
     setIsEditModalOpen(true);
   };
 
+  const handleRecordComplete = () => {
+    // 저장 중 상태로 변경
+    setRecordModalStep('saving');
+    
+    // 저장 시뮬레이션 (1.5초)
+    setTimeout(() => {
+      const newId = generateNewId();
+      const newPath = `/write/${newId}`;
+      
+      setRedirectTo(newPath);
+      setCompleteMessage(MESSAGES.UI.RECORD_COMPLETE || "오늘도 수고했어!!");
+      setRecordModalStep('complete');
+      
+      // 완료 메시지 2초 후 자동 이동
+      setTimeout(() => {
+        navigate(newPath);
+        setIsRecordModalOpen(false);
+        setRecordModalStep('record');
+      }, 2000);
+    }, 1500);
+  };
+
+  // 완료 모달에서 즉시 이동 (사용자가 빨리 클릭하고 싶을 때)
+  const handleImmediateRedirect = () => {
+    navigate(redirectTo);
+    setIsRecordModalOpen(false);
+    setRecordModalStep('record');
+  };
+
   const closeRecordModal = () => {
     setIsRecordModalOpen(false);
+    setRecordModalStep('record'); // 초기 상태로 리셋
   };
 
   const closeDeleteModal = () => {
@@ -44,18 +81,23 @@ export default function WritePageLayout({ children }) {
     setIsCompleteModalOpen(false);
   };
 
+  const handleCompleteConfirm = () => {
+    navigate(redirectTo);
+    setIsCompleteModalOpen(false);
+  };
+
   const handleDeleteConfirm = () => {
-    console.log(`아이템 ${id} 삭제 완료`);
     // TODO: 삭제 API 호출
     setIsDeleteModalOpen(false);
+    setRedirectTo('/'); // 삭제 후에는 홈으로
     setCompleteMessage(MESSAGES.UI.DELETE_COMPLETE);
     setIsCompleteModalOpen(true);
   };
 
   const handleEditConfirm = () => {
-    console.log(`아이템 ${id} 수정 완료`);
     // TODO: 수정 API 호출
     setIsEditModalOpen(false);
+    setRedirectTo(`/write/${id}`); // 수정 후에는 현재 페이지 유지
     setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
     setIsCompleteModalOpen(true);
   };
@@ -71,22 +113,14 @@ export default function WritePageLayout({ children }) {
             <div className="flex space-x-3">
               
               <Button 
-                variant="outline" 
+                variant="secondary" 
                 className='w-32 h-8' 
                 onClick={handleEditClick}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = COLORS.PRIMARY;
-                  e.target.style.color = "white";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = "transparent";
-                  e.target.style.color = COLORS.PRIMARY;
-                }}
               >
                 수정
               </Button>
               <Button 
-                variant="secondary" 
+                variant="outline" 
                 className='w-32 h-8' 
                 onClick={handleDeleteClick}
               >
@@ -98,14 +132,6 @@ export default function WritePageLayout({ children }) {
               variant="secondary" 
               className='w-32 h-8' 
               onClick={handleRecordClick}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = COLORS.PRIMARY;
-                e.target.style.color = "white";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "transparent";
-                e.target.style.color = COLORS.PRIMARY;
-              }}
             >
               기록하기
             </Button>
@@ -117,12 +143,26 @@ export default function WritePageLayout({ children }) {
         </div>
       </div>
       
-      <RecordModal isOpen={isRecordModalOpen} onClose={closeRecordModal} />
-      
+      <RecordModal 
+        isOpen={isRecordModalOpen} 
+        onClose={closeRecordModal}
+        onComplete={recordModalStep === 'record' ? handleRecordComplete : (recordModalStep === 'complete' ? handleImmediateRedirect : null)}
+        message={
+          recordModalStep === 'record' ? "오늘도 수고했어!!" : 
+          recordModalStep === 'saving' ? "저장 중..." : 
+          completeMessage
+        }
+        isLoading={recordModalStep === 'saving'}
+        redirectTo={redirectTo}
+      />
+
+      {/* 수정/삭제 완료 모달 */}
       <RecordModal 
         isOpen={isCompleteModalOpen} 
-        onClose={closeCompleteModal} 
+        onClose={closeCompleteModal}
+        onComplete={handleCompleteConfirm}
         message={completeMessage}
+        redirectTo={redirectTo}
       />
       
       <BaseModal
@@ -142,19 +182,11 @@ export default function WritePageLayout({ children }) {
           
           <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-4">
             <Button 
-              variant="outline" 
+              variant="secondary" 
               onClick={handleDeleteConfirm}
               style={{
                 width: '120px',
                 height: '40px'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = COLORS.PRIMARY;
-                e.target.style.color = "white";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "transparent";
-                e.target.style.color = COLORS.PRIMARY;
               }}
             >
               삭제
@@ -190,19 +222,11 @@ export default function WritePageLayout({ children }) {
           
           <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-4">
             <Button 
-              variant="outline" 
+              variant="secondary" 
               onClick={handleEditConfirm}
               style={{
                 width: '120px',
                 height: '40px'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = COLORS.PRIMARY;
-                e.target.style.color = "white";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "transparent";
-                e.target.style.color = COLORS.PRIMARY;
               }}
             >
               수정

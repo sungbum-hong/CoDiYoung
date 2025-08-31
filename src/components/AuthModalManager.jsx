@@ -2,7 +2,7 @@ import { useAuthModal } from '../hooks/useAuthModal';
 import { useAuthState, useAuthActions } from '../hooks/useAuth';
 import UserProfile from './UserProfile';
 import LoginButton from './LoginButton';
-import AuthModal from './AuthModal';
+// import AuthModal from './AuthModal';
 
 export default function AuthModalManager() {
   const { isAuthenticated } = useAuthState();
@@ -35,12 +35,12 @@ export default function AuthModalManager() {
       )}
 
       {/* 인증 모달 */}
-      <AuthModal
+      {/* <AuthModal
         isOpen={isSignInOpen}
         onClose={handleModalClose}
         title={getModalTitle()}
         currentPath={location.pathname}
-      />
+      /> */}
     </>
   );
 }

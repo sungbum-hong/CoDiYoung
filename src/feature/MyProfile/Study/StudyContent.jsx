@@ -1,11 +1,15 @@
-import { COLORS } from '../../../utils/colors';
-import { useState, useCallback, useEffect } from 'react';
-import { createPortal } from 'react-dom'; // ★ 추가
-import { useNavigate } from 'react-router-dom';
-import BaseModal from '../../../ui/BaseModal';
-import Button from '../../../ui/Button';
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-import DatePickerModal from './DatePickerModal';
+import { COLORS } from "../../../utils/colors";
+import { useState, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom"; // ★ 추가
+import { useNavigate } from "react-router-dom";
+import BaseModal from "../../../ui/BaseModal";
+import Button from "../../../ui/Button";
+import {
+  CalendarIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "@heroicons/react/24/outline";
+import DatePickerModal from "./DatePickerModal";
 
 export default function StudyContent() {
   const TOTAL_ITEMS = 30; // 30개 고정
@@ -45,7 +49,9 @@ export default function StudyContent() {
 
   // ★ 모달 내 아이템 좌/우 이동(루프)
   const goPrev = useCallback(() => {
-    setSelectedItem((i) => (i == null ? 0 : (i - 1 + TOTAL_ITEMS) % TOTAL_ITEMS));
+    setSelectedItem((i) =>
+      i == null ? 0 : (i - 1 + TOTAL_ITEMS) % TOTAL_ITEMS
+    );
   }, []);
   const goNext = useCallback(() => {
     setSelectedItem((i) => (i == null ? 0 : (i + 1) % TOTAL_ITEMS));
@@ -55,13 +61,20 @@ export default function StudyContent() {
   useEffect(() => {
     if (!isModalOpen) return;
     const onKey = (e) => {
-      const tag = (e.target?.tagName || '').toLowerCase();
-      if (tag === 'input' || tag === 'textarea' || e.target?.isContentEditable) return;
-      if (e.key === 'ArrowLeft') { e.preventDefault(); goPrev(); }
-      if (e.key === 'ArrowRight') { e.preventDefault(); goNext(); }
+      const tag = (e.target?.tagName || "").toLowerCase();
+      if (tag === "input" || tag === "textarea" || e.target?.isContentEditable)
+        return;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        goPrev();
+      }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        goNext();
+      }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [isModalOpen, goPrev, goNext]);
 
   const onCalendarEnter = (e) => {
@@ -76,7 +89,7 @@ export default function StudyContent() {
   };
 
   const onItemKeyDown = (e, index) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       handleItemClick(index);
     }
@@ -107,7 +120,7 @@ export default function StudyContent() {
         {/* 카드 그리드: 가로 5 × 세로 6 */}
         <div
           className="grid grid-cols-5 gap-x-2 gap-y-3"
-          style={{ gridTemplateRows: 'repeat(6, 1fr)' }}
+          style={{ gridTemplateRows: "repeat(6, 1fr)" }}
         >
           {Array.from({ length: TOTAL_ITEMS }).map((_, index) => (
             <div
@@ -135,51 +148,36 @@ export default function StudyContent() {
         onClose={closeModal}
         size="CUSTOM"
         style={{
-          width: 'min(90vw, 500px)',
-          height: 'min(80vh, 500px)',
-          maxWidth: '500px',
+          width: "min(90vw, 500px)",
+          height: "min(80vh, 500px)",
+          maxWidth: "500px",
         }}
       >
         {/* ⬇⬇⬇ 앵커 id + overflow-visible 추가 */}
-        <div id="study-modal-anchor" className="relative w-full h-full p-6 overflow-visible">
+        <div
+          id="study-modal-anchor"
+          className="relative w-full h-full p-6 overflow-visible"
+        >
           {/* TODO: 상세 내용 */}
           <div className="text-center mt-2 mb-16">
-            <h3 className="text-lg font-semibold">스터디 {(selectedItem ?? 0) + 1}</h3>
+            <h3 className="text-lg font-semibold">
+              스터디 {(selectedItem ?? 0) + 1}
+            </h3>
           </div>
 
           {/* 하단 버튼 */}
           <div className="absolute bottom-14 left-1/2 -translate-x-1/2 flex gap-24">
-          <Button
-            variant="outline"
-            onClick={handleEdit}
-            // ↓ hover 효과
-  onMouseEnter={(e) => {
-    e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
-    e.currentTarget.style.color = 'white';
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.backgroundColor = 'transparent';
-    e.currentTarget.style.color = COLORS.PRIMARY;
-  }}
-  // (선택) 키보드 포커스에도 동일 효과 주고 싶으면 아래 두 줄도 추가
-  // onFocus={(e) => { e.currentTarget.style.backgroundColor = COLORS.PRIMARY; e.currentTarget.style.color = 'white'; }}
-  // onBlur={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = COLORS.PRIMARY; }}
-
-  style={{
-    width: '120px',
-    height: '40px',
-    backgroundColor: 'transparent', // 기본 상태
-    color: COLORS.PRIMARY,           // 기본 텍스트 색
-    borderColor: COLORS.PRIMARY,     // 외곽선 색
-    transition: 'background-color .2s, color .2s',
-  }}
->
-  수정
-</Button>
+            <Button
+              variant="secondary"
+              onClick={handleEdit}
+              style={{ width: "120px", height: "40px" }}
+            >
+              수정
+            </Button>
             <Button
               variant="outline"
               onClick={closeModal}
-              style={{ width: '120px', height: '40px' }}
+              style={{ width: "120px", height: "40px" }}
             >
               닫기
             </Button>
@@ -193,8 +191,8 @@ export default function StudyContent() {
         onPrev={goPrev}
         onNext={goNext}
         color={COLORS.PRIMARY}
-        gap={48}   // ← 모달과 버튼 사이 간격(px). 0에 가까울 수록 간격 좁아짐, 숫자 늘어 날수록 간격 넓어짐
-        btn={40}  // ← 버튼 지름(px)
+        gap={48} // ← 모달과 버튼 사이 간격(px). 0에 가까울 수록 간격 좁아짐, 숫자 늘어 날수록 간격 넓어짐
+        btn={40} // ← 버튼 지름(px)
       />
 
       {/* 달력 모달 */}
@@ -204,14 +202,25 @@ export default function StudyContent() {
 }
 
 /** 모달 밖(전역)으로 포털해서 그리는 네비 버튼 */
-function OutsideNavButtons({ open, onPrev, onNext, color, gap = 12, btn = 40 }) {
-  const [pos, setPos] = useState({ left: 10, right: 10, top: window.innerHeight / 2 });
+function OutsideNavButtons({
+  open,
+  onPrev,
+  onNext,
+  color,
+  gap = 12,
+  btn = 40,
+}) {
+  const [pos, setPos] = useState({
+    left: 10,
+    right: 10,
+    top: window.innerHeight / 2,
+  });
 
   useEffect(() => {
     if (!open) return;
 
     const update = () => {
-      const el = document.getElementById('study-modal-anchor');
+      const el = document.getElementById("study-modal-anchor");
       if (!el) return;
 
       const rect = el.getBoundingClientRect();
@@ -228,12 +237,12 @@ function OutsideNavButtons({ open, onPrev, onNext, color, gap = 12, btn = 40 }) 
     // 애니메이션/레이아웃 지연 대비 한 번 더
     const raf = requestAnimationFrame(update);
 
-    window.addEventListener('resize', update);
-    window.addEventListener('scroll', update, true);
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener('resize', update);
-      window.removeEventListener('scroll', update, true);
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
     };
   }, [open, gap, btn]);
 
@@ -254,7 +263,7 @@ function OutsideNavButtons({ open, onPrev, onNext, color, gap = 12, btn = 40 }) 
                    hover:bg-[var(--c)] hover:text-white
                    focus:outline-none focus:ring-2 focus:ring-[var(--c)]/40"
         style={{
-          '--c': color,
+          "--c": color,
           left: `${pos.left}px`,
           top: `${pos.top}px`,
           zIndex: Z,
@@ -274,7 +283,7 @@ function OutsideNavButtons({ open, onPrev, onNext, color, gap = 12, btn = 40 }) 
                    hover:bg-[var(--c)] hover:text-white
                    focus:outline-none focus:ring-2 focus:ring-[var(--c)]/40"
         style={{
-          '--c': color,
+          "--c": color,
           right: `${pos.right}px`,
           top: `${pos.top}px`,
           zIndex: Z,

@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import BaseModal from "../../../ui/BaseModal.jsx";
 import Button from "../../../ui/Button.jsx";
-import { MODAL_SIZES } from '../../../constants/sizes.js';
-import { CONFIG } from '../../../constants/config.js';
+import { MODAL_SIZES } from "../../../constants/sizes.js";
+import { CONFIG } from "../../../constants/config.js";
 
 export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
   const navigate = useNavigate();
@@ -40,20 +40,17 @@ export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
           <Button
             variant="secondary"
             onClick={handleExplore}
-            className="font-medium cursor-pointer transition-colors
-             hover:!bg-[var(--color-primary)] hover:!text-white"
-            style={{ btnStyle, width:150,  height:50}}
-            >
+            className="font-medium cursor-pointer"
+            style={{ btnStyle, width: 150, height: 50 }}
+          >
             구경하기
           </Button>
 
           <Button
-            variant="secondary"
+            variant="outline"
             onClick={onClose}
-      className="font-medium cursor-pointer
-           bg-transparent text-black
-           hover:!bg-transparent hover:!text-black"
-            style={{ btnStyle, width:150,  height: 50  }}
+            className="font-medium cursor-pointer"
+            style={{ btnStyle, width: 150, height: 50 }}
           >
             닫기
           </Button>
