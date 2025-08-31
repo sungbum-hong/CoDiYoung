@@ -3,6 +3,7 @@ import BaseModal from "../../../ui/BaseModal.jsx";
 import Button from "../../../ui/Button.jsx";
 import { MODAL_SIZES } from '../../../constants/sizes.js';
 import { CONFIG } from '../../../constants/config.js';
+import { COLORS } from "../../../utils/colors.js";
 
 export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
   const navigate = useNavigate();
@@ -12,9 +13,8 @@ export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
     onClose();
   };
 
+  // 버튼 공통 사이즈(기존 로직 유지)
   const modalConfig = MODAL_SIZES.PROJECT_DETAIL;
-
-  // 버튼 공통 사이즈(기존 값 유지)
   const btnStyle = {
     width: `${modalConfig.buttonWidth || CONFIG.CARD.PROJECT.WIDTH}px`,
     height: `${modalConfig.buttonHeight || 70}px`,
@@ -24,38 +24,51 @@ export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      size="PROJECT_DETAIL"
-      showTitle={false}
-      className="w-[90%] max-w-[704px] mx-4"
+      size="CUSTOM" // ✅ WritePageLayout과 동일
+      style={{ width: '500px', height: '500px', maxWidth: '500px' }} // ✅ 동일 크기
     >
-      {/* 상대 위치 기준 래퍼 */}
-      <div className="relative">
-        {/* 프로젝트 이미지 */}
-        <div className="h-48 rounded-lg mb-4 flex items-center justify-center">
+      <div className="relative w-full h-full p-6">
+        {/* 이미지/프리뷰 영역 */}
+        <div className="h-48 rounded-lg mb-6 flex items-center justify-center">
           <p className="text-gray-500">프로젝트 이미지</p>
         </div>
 
-        {/* 버튼 그룹: 하단 중앙 고정 */}
-        <div className="absolute top-110 left-1/2 -translate-x-1/2 z-20 flex flex-col sm:flex-row gap-15">
+        {/* 하단 버튼 그룹 */}
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-24">
+          {/* ✅ 확인(구경하기): WritePageLayout처럼 hover 시 보라 배경 + 흰 글자 */}
           <Button
-            variant="secondary"
+            variant="outline"
             onClick={handleExplore}
-            className="font-medium cursor-pointer transition-colors
-             hover:!bg-[var(--color-primary)] hover:!text-white"
-            style={{ btnStyle, width:150,  height:50}}
-            >
+            className="font-medium h-10 w-[150px]"
+            style={{
+              ...btnStyle,
+              width: 150,
+              height: 40,
+              backgroundColor: 'transparent',
+              color: COLORS.PRIMARY,
+              borderColor: COLORS.PRIMARY,
+              transition: 'background-color .2s, color .2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
+              e.currentTarget.style.color = 'white';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = COLORS.PRIMARY;
+            }}
+          >
             구경하기
           </Button>
 
+          {/* ✅ 취소(닫기): WritePageLayout과 같은 닫기 동작 */}
           <Button
-            variant="secondary"
+            variant="outline"
             onClick={onClose}
-      className="font-medium cursor-pointer
-           bg-transparent text-black
-           hover:!bg-transparent hover:!text-black"
-            style={{ btnStyle, width:150,  height: 50  }}
+            className="font-medium h-10 w-[150px]"
+            style={{ ...btnStyle, width: 150, height: 40 }}
           >
-            닫기
+            취소
           </Button>
         </div>
       </div>

@@ -16,33 +16,14 @@ export default function WritePageLayout({ children }) {
   const navigate = useNavigate();
   const isEditMode = !!id;
 
-  const handleRecordClick = () => {
-    setIsRecordModalOpen(true);
-  };
+  const handleRecordClick = () => setIsRecordModalOpen(true);
+  const handleDeleteClick = () => setIsDeleteModalOpen(true);
+  const handleEditClick = () => setIsEditModalOpen(true);
 
-  const handleDeleteClick = () => {
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleEditClick = () => {
-    setIsEditModalOpen(true);
-  };
-
-  const closeRecordModal = () => {
-    setIsRecordModalOpen(false);
-  };
-
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-  };
-
-  const closeEditModal = () => {
-    setIsEditModalOpen(false);
-  };
-
-  const closeCompleteModal = () => {
-    setIsCompleteModalOpen(false);
-  };
+  const closeRecordModal = () => setIsRecordModalOpen(false);
+  const closeDeleteModal = () => setIsDeleteModalOpen(false);
+  const closeEditModal = () => setIsEditModalOpen(false);
+  const closeCompleteModal = () => setIsCompleteModalOpen(false);
 
   const handleDeleteConfirm = () => {
     console.log(`아이템 ${id} 삭제 완료`);
@@ -65,155 +46,158 @@ export default function WritePageLayout({ children }) {
       <div className="py-4 px-4">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold" style={{ color: COLORS.GRAY_900 }}>
-            {isEditMode ? `스터디 수정 - 아이템 ${id}` : '스터디'}
+            {isEditMode ? `스터디 ${id}` : '스터디'}
           </h1>
+
           {isEditMode ? (
             <div className="flex space-x-3">
-              
-              <Button 
-                variant="outline" 
-                className='w-32 h-8' 
+              {/* 수정 버튼 */}
+              <Button
+                variant="outline"
+                className="h-8 w-[88px] focus:outline-none focus:ring-2"
                 onClick={handleEditClick}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = COLORS.PRIMARY;
-                  e.target.style.color = "white";
+                  e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
+                  e.currentTarget.style.color = 'white';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = "transparent";
-                  e.target.style.color = COLORS.PRIMARY;
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = COLORS.PRIMARY;
+                }}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: COLORS.PRIMARY,
+                  borderColor: COLORS.PRIMARY,
+                  transition: 'background-color .2s, color .2s',
                 }}
               >
                 수정
               </Button>
-              <Button 
-                variant="secondary" 
-                className='w-32 h-8' 
+
+              {/* 삭제 버튼 */}
+              <Button
+                variant="secondary"
+                className="h-8 w-[88px]"
                 onClick={handleDeleteClick}
               >
                 삭제
               </Button>
             </div>
           ) : (
-            <Button 
-              variant="secondary" 
-              className='w-32 h-8' 
+            <Button
+              variant="secondary"
+              className="h-8 w-32"
               onClick={handleRecordClick}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = COLORS.PRIMARY;
-                e.target.style.color = "white";
+                e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
+                e.currentTarget.style.color = 'white';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "transparent";
-                e.target.style.color = COLORS.PRIMARY;
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = COLORS.PRIMARY;
+              }}
+              style={{
+                backgroundColor: 'transparent',
+                color: COLORS.PRIMARY,
+                borderColor: COLORS.PRIMARY,
+                transition: 'background-color .2s, color .2s',
               }}
             >
               기록하기
             </Button>
           )}
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-sm border">
           {children}
         </div>
       </div>
-      
+
+      {/* 기록 모달 */}
       <RecordModal isOpen={isRecordModalOpen} onClose={closeRecordModal} />
-      
-      <RecordModal 
-        isOpen={isCompleteModalOpen} 
-        onClose={closeCompleteModal} 
+
+      {/* 완료 모달 */}
+      <RecordModal
+        isOpen={isCompleteModalOpen}
+        onClose={closeCompleteModal}
         message={completeMessage}
       />
-      
+
+      {/* 삭제 모달 */}
       <BaseModal
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}
         size="CUSTOM"
-        style={{
-          width: '500px',
-          height: '300px',
-          maxWidth: '500px'
-        }}
+        style={{ width: '500px', height: '500px', maxWidth: '500px' }}
       >
         <div className="relative w-full h-full p-6">
-          <div className="mb-4 flex items-center justify-center h-32">
-            <p className="text-lg text-gray-700">삭제하시겠습니까?</p>
-          </div>
-          
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-4">
-            <Button 
-              variant="outline" 
+             <div className="absolute inset-x-0 top-[35%] -translate-y-1/2">
+            <p className="text-lg text-gray-700 text-center">
+              삭제하시겠습니까?
+            </p>
+        </div>
+
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-24">
+            <Button
+              variant="outline"
               onClick={handleDeleteConfirm}
-              style={{
-                width: '120px',
-                height: '40px'
-              }}
+              style={{ width: '120px', height: '40px', backgroundColor: 'transparent', color: COLORS.PRIMARY, borderColor: COLORS.PRIMARY, transition: 'background-color .2s, color .2s' }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = COLORS.PRIMARY;
-                e.target.style.color = "white";
+                e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
+                e.currentTarget.style.color = 'white';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "transparent";
-                e.target.style.color = COLORS.PRIMARY;
+                e.currentTarget.style.backgroundColor = 'transparent'; 
+                e.currentTarget.style.color = COLORS.PRIMARY;
               }}
             >
               삭제
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={closeDeleteModal}
-              style={{
-                width: '120px',
-                height: '40px'
-              }}
+              style={{ width: '120px', height: '40px' }}
             >
               닫기
             </Button>
           </div>
         </div>
       </BaseModal>
-                
+
+      {/* 수정 모달 */}
       <BaseModal
         isOpen={isEditModalOpen}
         onClose={closeEditModal}
         size="CUSTOM"
-        style={{
-          width: '500px',
-          height: '300px',
-          maxWidth: '500px'
-        }}
+        style={{ width: '500px', height: '500px', maxWidth: '500px' }}
       >
         <div className="relative w-full h-full p-6">
-          <div className="mb-4 flex items-center justify-center h-32">
-            <p className="text-lg text-gray-700">수정하시겠습니까?</p>
-          </div>
-          
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-4">
-            <Button 
-              variant="outline" 
+           <div className="absolute inset-x-0 top-[35%] -translate-y-1/2">
+            <p className="text-lg text-gray-700 text-center">
+              수정하시겠습니까?
+            </p>
+        </div>
+
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-24">
+            <Button
+              variant="outline"
               onClick={handleEditConfirm}
-              style={{
-                width: '120px',
-                height: '40px'
-              }}
+              style={{ width: '120px', height: '40px', backgroundColor: 'transparent', color: COLORS.PRIMARY, borderColor: COLORS.PRIMARY, transition: 'background-color .2s, color .2s' }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = COLORS.PRIMARY;
-                e.target.style.color = "white";
+                e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
+                e.currentTarget.style.color = 'white';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "transparent";
-                e.target.style.color = COLORS.PRIMARY;
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = COLORS.PRIMARY;
               }}
             >
               수정
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={closeEditModal}
-              style={{
-                width: '120px',
-                height: '40px'
-              }}
+              style={{ width: '120px', height: '40px' }}
             >
               닫기
             </Button>

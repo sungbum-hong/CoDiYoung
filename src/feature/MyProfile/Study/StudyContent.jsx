@@ -153,29 +153,26 @@ export default function StudyContent() {
             variant="outline"
             onClick={handleEdit}
             // ↓ hover 효과
-  onMouseEnter={(e) => {
-    e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
-    e.currentTarget.style.color = 'white';
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.backgroundColor = 'transparent';
-    e.currentTarget.style.color = COLORS.PRIMARY;
-  }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
+              e.currentTarget.style.color = 'white';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = COLORS.PRIMARY;
+            }}
   // (선택) 키보드 포커스에도 동일 효과 주고 싶으면 아래 두 줄도 추가
   // onFocus={(e) => { e.currentTarget.style.backgroundColor = COLORS.PRIMARY; e.currentTarget.style.color = 'white'; }}
   // onBlur={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = COLORS.PRIMARY; }}
-
-  style={{
-    width: '120px',
-    height: '40px',
-    backgroundColor: 'transparent', // 기본 상태
-    color: COLORS.PRIMARY,           // 기본 텍스트 색
-    borderColor: COLORS.PRIMARY,     // 외곽선 색
-    transition: 'background-color .2s, color .2s',
-  }}
->
-  수정
-</Button>
+            style={{
+              width: '120px',
+              height: '40px',
+              backgroundColor: 'transparent', // 기본 상태
+              color: COLORS.PRIMARY,           // 기본 텍스트 색
+              borderColor: COLORS.PRIMARY,     // 외곽선 색
+              transition: 'background-color .2s, color .2s',
+            }}>수정
+            </Button>
             <Button
               variant="outline"
               onClick={closeModal}
