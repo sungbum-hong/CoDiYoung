@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import Button from '../../../ui/Button.jsx';
 
-export default function RecordModal({ isOpen, onClose, message = "오늘도 수고했어!!", redirectTo = "/", onComplete, onCompleteRedirect, isLoading = false }) {
+export default function RecordModal({ isOpen, onClose, message = "오늘도 수고했어!!", redirectTo = "/", onComplete, onCompleteRedirect, isLoading = false, studyId }) {
   const navigate = useNavigate();
 
   if (!isOpen) return null;
@@ -15,7 +15,11 @@ export default function RecordModal({ isOpen, onClose, message = "오늘도 수�
       onComplete();
     } else if (onCompleteRedirect) {
       onCompleteRedirect();
+    } else if (studyId) {
+      onClose();
+      navigate(`/write/${studyId}`);
     } else {
+      onClose();
       navigate(redirectTo);
     }
   };

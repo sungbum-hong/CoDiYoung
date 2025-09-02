@@ -145,7 +145,7 @@ export default function SignInPage({ onClose }) {
           {/* 액션 영역 */}
           <div className="flex justify-center pt-2">
             <Button
-              variant="outline "
+              variant="secondary"
               type="submit"
               disabled={isLoading}
               className="w-64 py-3 font-semibold cursor-pointer"
@@ -195,12 +195,13 @@ function ErrorModal({ open, message, onClose, onFindPassword, primary }) {
                    w-[90%] max-w-[420px] rounded-2xl bg-white shadow-2xl
                    border border-red-200 p-5"
       >
-<div className="fixed inset-0 grid place-items-center z-50">
-  <p id="signin-error-desc" className="text-center text-sm text-red-700">
-    {message}
-  </p>
-</div>
+        <div className="grid place-items-center">
+          <p id="signin-error-desc" className="text-center text-sm text-red-700">
+            {message}
+          </p>
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

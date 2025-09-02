@@ -1,44 +1,31 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useRef } from 'react';
 import RecordModal from './components/RecordModal';
 import Button from '../../ui/Button.jsx';
 import BaseModal from '../../ui/BaseModal';
 import { COLORS } from '../../utils/colors.js';
-import { MESSAGES } from '../../constants/messages.js';
+import { useWritePage } from './hooks/useWritePage.js';
+import WriteForm from './WriteForm.jsx';
 
-export default function WritePageLayout({ children }) {
-  const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
-  const [completeMessage, setCompleteMessage] = useState('');
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const isEditMode = !!id;
+export default function WritePageLayout() {
+  console.log('🔄 WritePageLayout 렌더링됨');
+  
+  const writeFormRef = useRef(null);
+  const {
+    content,
+    setContent,
+    isLoading,
+    isEditMode,
+    savedStudyId,
+    modals,
+    completeMessage,
+    actions
+  } = useWritePage();
 
-  const handleRecordClick = () => setIsRecordModalOpen(true);
-  const handleDeleteClick = () => setIsDeleteModalOpen(true);
-  const handleEditClick = () => setIsEditModalOpen(true);
-
-  const closeRecordModal = () => setIsRecordModalOpen(false);
-  const closeDeleteModal = () => setIsDeleteModalOpen(false);
-  const closeEditModal = () => setIsEditModalOpen(false);
-  const closeCompleteModal = () => setIsCompleteModalOpen(false);
-
-  const handleDeleteConfirm = () => {
-    console.log(`아이템 ${id} 삭제 완료`);
-    // TODO: 삭제 API 호출
-    setIsDeleteModalOpen(false);
-    setCompleteMessage(MESSAGES.UI.DELETE_COMPLETE);
-    setIsCompleteModalOpen(true);
-  };
-
-  const handleEditConfirm = () => {
-    console.log(`아이템 ${id} 수정 완료`);
-    // TODO: 수정 API 호출
-    setIsEditModalOpen(false);
-    setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
-    setIsCompleteModalOpen(true);
+  // 저장 로직을 실행하고 성공 시 모달을 표시하는 함수
+  const handleRecordClick = () => {
+    console.log('📝 기록하기 버튼 클릭됨 - 저장 로직 실행');
+    // ref를 통해 직접 저장 함수 호출
+    writeFormRef.current?.handleSave();
   };
 
   return (
@@ -46,7 +33,7 @@ export default function WritePageLayout({ children }) {
       <div className="py-4 px-4">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold" style={{ color: COLORS.GRAY_900 }}>
-            {isEditMode ? `스터디 ${id}` : '스터디'}
+            {isEditMode ? `스터디` : '스터디'}
           </h1>
 
           {isEditMode ? (
@@ -55,7 +42,7 @@ export default function WritePageLayout({ children }) {
               <Button
                 variant="outline"
                 className="h-8 w-[88px] focus:outline-none focus:ring-2"
-                onClick={handleEditClick}
+                onClick={() => actions.openModal('edit')}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
                   e.currentTarget.style.color = 'white';
@@ -78,7 +65,7 @@ export default function WritePageLayout({ children }) {
               <Button
                 variant="secondary"
                 className="h-8 w-[88px]"
-                onClick={handleDeleteClick}
+                onClick={() => actions.openModal('delete')}
               >
                 삭제
               </Button>
@@ -109,24 +96,35 @@ export default function WritePageLayout({ children }) {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border">
-          {children}
+          <WriteForm 
+            ref={writeFormRef}
+            content={content}
+            setContent={setContent}
+            isLoading={isLoading}
+            onSave={actions.handleSave}
+          />
         </div>
       </div>
 
       {/* 기록 모달 */}
-      <RecordModal isOpen={isRecordModalOpen} onClose={closeRecordModal} />
+      <RecordModal 
+        isOpen={modals.record} 
+        onClose={() => actions.closeModal('record')} 
+        studyId={savedStudyId}
+      />
 
       {/* 완료 모달 */}
       <RecordModal
-        isOpen={isCompleteModalOpen}
-        onClose={closeCompleteModal}
+        isOpen={modals.complete}
+        onClose={() => actions.closeModal('complete')}
         message={completeMessage}
+        redirectTo="/"
       />
 
       {/* 삭제 모달 */}
       <BaseModal
-        isOpen={isDeleteModalOpen}
-        onClose={closeDeleteModal}
+        isOpen={modals.delete}
+        onClose={() => actions.closeModal('delete')}
         size="CUSTOM"
         style={{ width: '500px', height: '500px', maxWidth: '500px' }}
       >
@@ -140,7 +138,7 @@ export default function WritePageLayout({ children }) {
           <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-24">
             <Button
               variant="outline"
-              onClick={handleDeleteConfirm}
+              onClick={actions.handleDelete}
               style={{ width: '120px', height: '40px', backgroundColor: 'transparent', color: COLORS.PRIMARY, borderColor: COLORS.PRIMARY, transition: 'background-color .2s, color .2s' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
@@ -155,7 +153,7 @@ export default function WritePageLayout({ children }) {
             </Button>
             <Button
               variant="outline"
-              onClick={closeDeleteModal}
+              onClick={() => actions.closeModal('delete')}
               style={{ width: '120px', height: '40px' }}
             >
               닫기
@@ -166,8 +164,8 @@ export default function WritePageLayout({ children }) {
 
       {/* 수정 모달 */}
       <BaseModal
-        isOpen={isEditModalOpen}
-        onClose={closeEditModal}
+        isOpen={modals.edit}
+        onClose={() => actions.closeModal('edit')}
         size="CUSTOM"
         style={{ width: '500px', height: '500px', maxWidth: '500px' }}
       >
@@ -181,7 +179,7 @@ export default function WritePageLayout({ children }) {
           <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-24">
             <Button
               variant="outline"
-              onClick={handleEditConfirm}
+              onClick={actions.handleEdit}
               style={{ width: '120px', height: '40px', backgroundColor: 'transparent', color: COLORS.PRIMARY, borderColor: COLORS.PRIMARY, transition: 'background-color .2s, color .2s' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
@@ -196,7 +194,7 @@ export default function WritePageLayout({ children }) {
             </Button>
             <Button
               variant="outline"
-              onClick={closeEditModal}
+              onClick={() => actions.closeModal('edit')}
               style={{ width: '120px', height: '40px' }}
             >
               닫기
