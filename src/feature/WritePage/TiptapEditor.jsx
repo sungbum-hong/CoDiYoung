@@ -98,10 +98,31 @@ export default function TiptapEditor({ content, onChange }) {
   };
 
   const addImage = () => {
-    const url = window.prompt('이미지 URL을 입력하세요:');
-    if (url) {
-      editor?.chain().focus().setImage({ src: url }).run();
-    }
+    // 파일 입력 요소 생성
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    input.onchange = async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      
+      try {
+        // StudyService를 동적으로 import
+        const { StudyService } = await import('../../services/studyService.js');
+        
+        // 이미지 업로드
+        const imageData = await StudyService.uploadImage(file);
+        
+        // 에디터에 이미지 삽입
+        editor?.chain().focus().setImage({ src: imageData.url }).run();
+      } catch (error) {
+        console.error('이미지 업로드 실패:', error);
+        alert('이미지 업로드에 실패했습니다: ' + error.message);
+      }
+    };
+    
+    input.click();
   };
 
   const addVideo = () => {

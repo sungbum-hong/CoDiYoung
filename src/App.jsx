@@ -13,7 +13,6 @@ const SuccessResetPassword = lazy(() => import("./feature/SignIn/SuccessResetPas
 const StudyChannelPage = lazy(() => import("./feature/StudyChannel/StudyChannelPage.jsx"))
 const ProjectPageLayout = lazy(() => import("./feature/ProjectPage/ProjectPageLayout.jsx"))
 const WritePageLayout = lazy(() => import("./feature/WritePage/WritePageLayout.jsx"))
-const WriteForm = lazy(() => import("./feature/WritePage/WriteForm.jsx"))
 const MyProfileLayout = lazy(() => import("./feature/MyProfile/MyProfileLayout.jsx"))
 
 const router = createBrowserRouter([
@@ -25,8 +24,8 @@ const router = createBrowserRouter([
       { path: "/successresetpassword", element: <Suspense fallback={<LoadingFallback />}><SuccessResetPassword /></Suspense> },
       { path: "/study/:category", element: <Suspense fallback={<LoadingFallback />}><StudyChannelPage /></Suspense> },
       { path: "/project/:projectId", element: <Suspense fallback={<LoadingFallback />}><ProjectPageLayout /></Suspense> },
-      { path: "/write", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout><WriteForm /></WritePageLayout></Suspense> },
-      { path: "/write/:id", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout><WriteForm /></WritePageLayout></Suspense> },
+      { path: "/write", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout /></Suspense> },
+      { path: "/write/:id", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout /></Suspense> },
       { path: "/profile", element: <Suspense fallback={<LoadingFallback />}><MyProfileLayout /></Suspense> },
   ]},
 ])

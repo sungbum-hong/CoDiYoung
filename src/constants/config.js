@@ -135,10 +135,11 @@ export const CONFIG = {
 
   // API 엔드포인트 설정
   API: {
+    BASE_URL: 'http://15.164.125.28:8080',
     AUTH: {
-      LOGIN: '/api/auth/login',
-      LOGOUT: '/api/auth/logout',
-      PROFILE: '/api/auth/profile',
+      LOGIN: 'http://15.164.125.28:8080/api/auth/login',
+      LOGOUT: 'http://15.164.125.28:8080/api/auth/logout', 
+      PROFILE: 'http://15.164.125.28:8080/api/auth/profile',
     },
   },
 

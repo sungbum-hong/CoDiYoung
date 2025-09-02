@@ -1,51 +1,28 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import TiptapEditor from './TiptapEditor';
-import Button from '../../ui/Button';
-import { MESSAGES } from '../../constants/messages.js';
+import { forwardRef, useImperativeHandle } from 'react';
 
-export default function WriteForm() {
-  const [content, setContent] = useState('');
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const isEditMode = !!id;
+const WriteForm = forwardRef(({ content, setContent, isLoading, onSave }, ref) => {
+  console.log('🔄 WriteForm 컴포넌트 렌더링됨');
+  
+  console.log('📝 WriteForm 상태:', { content: content.length, isLoading });
 
-  useEffect(() => {
-    if (isEditMode && id) {
-      const mockContent = `<p>아이템 ${id}의 기존 내용입니다.</p>`;
-      setContent(mockContent);
-    }
-  }, [isEditMode, id]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!content.trim() || content === '<p></p>') {
-      return;
-    }
-
-    if (isEditMode) {
-      console.log(`아이템 ${id} ${MESSAGES.UI.EDIT_COMPLETE}:`, content);
-      // TODO: 수정 API 호출
-    } else {
-      console.log(`${MESSAGES.UI.WRITE_COMPLETE}:`, content);
-      // TODO: 작성 API 호출
-    }
-    
-    navigate('/');
+    await onSave();
   };
 
-  const handleCancel = () => {
-    navigate('/');
-  };
+  // 부모 컴포넌트에서 직접 호출할 수 있도록 ref 노출
+  useImperativeHandle(ref, () => ({
+    handleSave: onSave
+  }));
 
-  const handleDelete = () => {
-    if (window.confirm(`아이템 ${id}${MESSAGES.UI.DELETE_CONFIRM}`)) {
-      console.log(`아이템 ${id} ${MESSAGES.UI.DELETE_COMPLETE}`);
-      // TODO: 삭제 API 호출
-      navigate('/');
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-lg">로딩 중...</div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -56,9 +33,11 @@ export default function WriteForm() {
             onChange={setContent}
           />
         </div>
-
-
       </div>
     </form>
   );
-}
+});
+
+WriteForm.displayName = 'WriteForm';
+
+export default WriteForm;
