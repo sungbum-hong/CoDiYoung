@@ -45,8 +45,11 @@ export default function TiptapEditor({ content, onChange }) {
         },
       }),
       Image.configure({
+        inline: false,
+        allowBase64: true, // Base64 이미지 허용
         HTMLAttributes: {
           class: 'max-w-full h-auto rounded-lg',
+          style: 'display: block; margin: 1rem 0;' // 강제 표시
         },
       }),
       TextAlign.configure({
@@ -63,7 +66,60 @@ export default function TiptapEditor({ content, onChange }) {
         'data-placeholder': '내용을 입력하세요...',
       },
     },
+    onCreate: ({ editor }) => {
+      console.log('🎨 에디터 생성됨, 콘텐츠 길이:', editor.getHTML().length);
+      if (editor.getHTML().includes('<img')) {
+        console.log('🖼️ 에디터에 이미지 태그 있음');
+      }
+    },
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      console.log('📝 에디터 업데이트, 콘텐츠 길이:', html.length);
+      onChange?.(html);
+    }
   });
+
+  // content prop이 변경될 때 에디터에 설정
+  useEffect(() => {
+    if (editor && content !== undefined && content !== null) {
+      const currentContent = editor.getHTML();
+      if (currentContent !== content) {
+        console.log('🔄 에디터 콘텐츠 업데이트');
+        console.log('🔄 새로운 콘텐츠 길이:', content.length);
+        if (content.includes('<img')) {
+          console.log('🖼️ 새로운 콘텐츠에 이미지 태그 있음');
+          const imgMatches = content.match(/<img[^>]*src="([^"]*)"[^>]*>/g);
+          if (imgMatches) {
+            console.log('🖼️ 이미지 소스들:', imgMatches.map(img => {
+              const srcMatch = img.match(/src="([^"]*)"/);
+              return srcMatch ? srcMatch[1].substring(0, 50) + '...' : 'src not found';
+            }));
+          }
+        }
+        
+        // 콘텐츠 설정 후 DOM 확인
+        editor.commands.setContent(content);
+        
+        // DOM 업데이트 후 이미지 확인
+        setTimeout(() => {
+          const editorElement = document.querySelector('.ProseMirror');
+          if (editorElement) {
+            const images = editorElement.querySelectorAll('img');
+            console.log('🔍 에디터 내 이미지 개수:', images.length);
+            images.forEach((img, index) => {
+              console.log(`🔍 이미지 ${index + 1}:`, {
+                src: img.src ? img.src.substring(0, 50) + '...' : 'no src',
+                visible: img.offsetWidth > 0 && img.offsetHeight > 0,
+                display: window.getComputedStyle(img).display,
+                width: img.offsetWidth,
+                height: img.offsetHeight
+              });
+            });
+          }
+        }, 100);
+      }
+    }
+  }, [editor, content]);
 
   // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
@@ -107,18 +163,59 @@ export default function TiptapEditor({ content, onChange }) {
       const file = e.target.files?.[0];
       if (!file) return;
       
+      // 파일 크기 검증 (5MB 제한)
+      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+      if (file.size > MAX_FILE_SIZE) {
+        alert('파일 크기는 5MB 이하여야 합니다.');
+        return;
+      }
+      
+      // 파일 타입 검증
+      if (!file.type.startsWith('image/')) {
+        alert('이미지 파일만 업로드할 수 있습니다.');
+        return;
+      }
+      
       try {
-        // StudyService를 동적으로 import
+        // StudyService를 정적으로 import
         const { StudyService } = await import('../../services/studyService.js');
+        
+        // 로딩 상태 표시 (간단한 알림)
+        const loadingAlert = '이미지를 업로드 중입니다...';
+        console.log(loadingAlert);
         
         // 이미지 업로드
         const imageData = await StudyService.uploadImage(file);
         
         // 에디터에 이미지 삽입
-        editor?.chain().focus().setImage({ src: imageData.url }).run();
+        if (imageData && imageData.url) {
+          editor?.chain().focus().setImage({ 
+            src: imageData.url,
+            alt: file.name,
+            title: file.name
+          }).run();
+          console.log('이미지 업로드 성공:', imageData.url);
+        } else {
+          throw new Error('업로드된 이미지 URL을 받지 못했습니다.');
+        }
       } catch (error) {
         console.error('이미지 업로드 실패:', error);
-        alert('이미지 업로드에 실패했습니다: ' + error.message);
+        
+        // 더 구체적인 오류 메시지 제공
+        let errorMessage = '이미지 업로드에 실패했습니다.';
+        if (error.message.includes('Network')) {
+          errorMessage = '네트워크 오류로 이미지 업로드에 실패했습니다. 인터넷 연결을 확인해주세요.';
+        } else if (error.message.includes('401') || error.message.includes('인증')) {
+          errorMessage = '인증이 만료되었습니다. 다시 로그인해주세요.';
+        } else if (error.message.includes('403') || error.message.includes('권한')) {
+          errorMessage = '이미지 업로드 권한이 없습니다. 관리자에게 문의해주세요.';
+        } else if (error.message.includes('413') || error.message.includes('크기')) {
+          errorMessage = '파일이 너무 큽니다. 더 작은 이미지를 사용해주세요.';
+        } else if (error.message) {
+          errorMessage = `이미지 업로드 실패: ${error.message}`;
+        }
+        
+        alert(errorMessage);
       }
     };
     
@@ -329,7 +426,28 @@ export default function TiptapEditor({ content, onChange }) {
             className={`w-full ${isFullscreen ? 'h-full' : 'h-[300px]'} border-none p-4 font-mono text-sm resize-none`} 
           />
         ) : (
-          <EditorContent editor={editor} />
+          <div className="prose max-w-none">
+            <EditorContent 
+              editor={editor} 
+              style={{
+                minHeight: '400px',
+                padding: '1rem'
+              }}
+            />
+            <style jsx>{`
+              .ProseMirror img {
+                display: block !important;
+                max-width: 100% !important;
+                height: auto !important;
+                margin: 1rem 0 !important;
+                border-radius: 8px !important;
+              }
+              .ProseMirror {
+                outline: none !important;
+                padding: 1rem !important;
+              }
+            `}</style>
+          </div>
         )}
       </div>
     </div>
