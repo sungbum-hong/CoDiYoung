@@ -1,160 +1,159 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
-import {
-  ListBulletIcon,
-  NumberedListIcon,
-  Bars3BottomLeftIcon,
-  Bars3Icon,
-  Bars3BottomRightIcon,
-  TableCellsIcon,
-  LinkIcon,
-  PhotoIcon,
-  PlayIcon,
-  ArrowsPointingOutIcon,
-  CodeBracketIcon,
-  QuestionMarkCircleIcon
-} from '@heroicons/react/24/outline';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { createLowlight } from 'lowlight';
 
+// Table 확장들 (Tiptap v3 방식 - named exports)
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableHeader } from '@tiptap/extension-table-header';
+import { TableCell } from '@tiptap/extension-table-cell';
+
+// 분리된 컴포넌트들 import
+import YouTube from './extensions/YouTube.js';
+import NotionCodeBlock from './extensions/NotionCodeBlock.js';
+import EditorToolbar from './components/EditorToolbar.jsx';
+import LinkModal from './components/LinkModal.jsx';
+import VideoModal from './components/VideoModal.jsx';
+
+import { StudyService } from '../../services/studyService.js';
 import { COLORS } from '../../utils/colors.js';
-import { CONFIG } from '../../constants/config.js';
 
-export default function TiptapEditor({ content, onChange }) {
+// lowlight 인스턴스 생성 및 언어 등록
+const lowlight = createLowlight();
+
+// 기본 언어들 등록 (dynamic import 없이 간단하게)
+import javascript from 'highlight.js/lib/languages/javascript';
+import typescript from 'highlight.js/lib/languages/typescript';
+import python from 'highlight.js/lib/languages/python';
+import java from 'highlight.js/lib/languages/java';
+import cpp from 'highlight.js/lib/languages/cpp';
+import css from 'highlight.js/lib/languages/css';
+import xml from 'highlight.js/lib/languages/xml';
+import json from 'highlight.js/lib/languages/json';
+import bash from 'highlight.js/lib/languages/bash';
+
+lowlight.register('javascript', javascript);
+lowlight.register('js', javascript);
+lowlight.register('typescript', typescript);
+lowlight.register('ts', typescript);
+lowlight.register('python', python);
+lowlight.register('py', python);
+lowlight.register('java', java);
+lowlight.register('cpp', cpp);
+lowlight.register('c++', cpp);
+lowlight.register('css', css);
+lowlight.register('html', xml);
+lowlight.register('xml', xml);
+lowlight.register('json', json);
+lowlight.register('bash', bash);
+lowlight.register('sh', bash);
+
+export default function TiptapEditor({ content = '', onChange }) {
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [linkData, setLinkData] = useState({ text: '', url: '' });
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showHTML, setShowHTML] = useState(false);
-  const [isAlignDropdownOpen, setIsAlignDropdownOpen] = useState(false);
-  const alignDropdownRef = useRef(null);
-
-  // Helper function for button hover effects
-  const buttonHoverHandlers = {
-    onMouseEnter: (e) => e.target.style.backgroundColor = COLORS.GRAY_200,
-    onMouseLeave: (e) => e.target.style.backgroundColor = 'transparent'
-  };
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false, // 기본 CodeBlock 비활성화
+        link: false, // 기본 Link 비활성화 (중복 방지)
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
+      }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'underline cursor-pointer',
-          style: `color: ${COLORS.BLUE_600}`,
+          class: 'text-blue-600 underline hover:text-blue-800',
         },
       }),
-      Image.configure({
-        inline: false,
-        allowBase64: true, // Base64 이미지 허용
-        HTMLAttributes: {
-          class: 'max-w-full h-auto rounded-lg',
-          style: 'display: block; margin: 1rem 0;' // 강제 표시
-        },
-      }),
+      Image,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
+      YouTube,
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
-    content: content || '',
+    content: content && content.trim() !== '' ? content : '<p></p>',
     onUpdate: ({ editor }) => {
-      onChange?.(editor.getHTML());
+      const html = editor.getHTML();
+      onChange(html);
     },
     editorProps: {
       attributes: {
-        class: 'focus:outline-none',
-        'data-placeholder': '내용을 입력하세요...',
+        class: 'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[400px] p-4',
       },
     },
-    onCreate: ({ editor }) => {
-      console.log('🎨 에디터 생성됨, 콘텐츠 길이:', editor.getHTML().length);
-      if (editor.getHTML().includes('<img')) {
-        console.log('🖼️ 에디터에 이미지 태그 있음');
-      }
-    },
-    onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      console.log('📝 에디터 업데이트, 콘텐츠 길이:', html.length);
-      onChange?.(html);
-    }
   });
 
-  // content prop이 변경될 때 에디터에 설정
+  // content가 변경될 때 에디터 업데이트
   useEffect(() => {
-    if (editor && content !== undefined && content !== null) {
-      const currentContent = editor.getHTML();
-      if (currentContent !== content) {
-        console.log('🔄 에디터 콘텐츠 업데이트');
-        console.log('🔄 새로운 콘텐츠 길이:', content.length);
-        if (content.includes('<img')) {
-          console.log('🖼️ 새로운 콘텐츠에 이미지 태그 있음');
-          const imgMatches = content.match(/<img[^>]*src="([^"]*)"[^>]*>/g);
-          if (imgMatches) {
-            console.log('🖼️ 이미지 소스들:', imgMatches.map(img => {
-              const srcMatch = img.match(/src="([^"]*)"/);
-              return srcMatch ? srcMatch[1].substring(0, 50) + '...' : 'src not found';
-            }));
-          }
-        }
-        
-        // 콘텐츠 설정 후 DOM 확인
-        editor.commands.setContent(content);
-        
-        // DOM 업데이트 후 이미지 확인
-        setTimeout(() => {
-          const editorElement = document.querySelector('.ProseMirror');
-          if (editorElement) {
-            const images = editorElement.querySelectorAll('img');
-            console.log('🔍 에디터 내 이미지 개수:', images.length);
-            images.forEach((img, index) => {
-              console.log(`🔍 이미지 ${index + 1}:`, {
-                src: img.src ? img.src.substring(0, 50) + '...' : 'no src',
-                visible: img.offsetWidth > 0 && img.offsetHeight > 0,
-                display: window.getComputedStyle(img).display,
-                width: img.offsetWidth,
-                height: img.offsetHeight
-              });
-            });
-          }
-        }, 100);
+    if (editor && content !== editor.getHTML()) {
+      // content가 빈 문자열이면 에디터를 완전히 클리어
+      if (content === '' || content === null || content === undefined) {
+        editor.commands.clearContent();
+      } else {
+        editor.commands.setContent(content, false);
       }
     }
-  }, [editor, content]);
+  }, [content, editor]);
 
-  // 드롭다운 외부 클릭 시 닫기
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (alignDropdownRef.current && !alignDropdownRef.current.contains(event.target)) {
-        setIsAlignDropdownOpen(false);
-      }
-    }
+  // 링크 처리
+  const handleLinkClick = () => {
+    if (!editor) return;
 
-    if (isAlignDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
-  }, [isAlignDropdownOpen]);
-
-  const setLink = () => {
-    const previousUrl = editor?.getAttributes('link').href;
-    const url = window.prompt('링크 URL을 입력하세요:', previousUrl);
-
-    if (url === null) {
-      return;
-    }
-
-    if (url === '') {
-      editor?.chain().focus().extendMarkRange('link').unsetLink().run();
-      return;
-    }
-
-    editor?.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    const { from, to } = editor.state.selection;
+    const text = editor.state.doc.textBetween(from, to, '');
+    
+    setLinkData({ 
+      text: text, 
+      url: editor.getAttributes('link').href || '' 
+    });
+    setIsLinkModalOpen(true);
   };
 
-  const addImage = () => {
-    // 파일 입력 요소 생성
+  const handleLinkSubmit = (linkText, linkUrl) => {
+    if (!editor) return;
+
+    if (!linkUrl) {
+      // URL이 없으면 링크 제거
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+
+    // URL 형식 검증 및 자동 수정
+    let url = linkUrl;
+    if (!/^https?:\/\//i.test(url)) {
+      url = `https://${url}`;
+    }
+
+    const { from, to } = editor.state.selection;
+    const hasTextSelection = from !== to;
+
+    if (hasTextSelection) {
+      // 텍스트가 선택된 경우
+      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    } else {
+      // 텍스트가 선택되지 않은 경우
+      const text = linkText || url;
+      editor.chain().focus().insertContent(`<a href="${url}">${text}</a>`).run();
+    }
+  };
+
+  // 이미지 업로드 처리
+  const handleImageClick = async () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -162,294 +161,274 @@ export default function TiptapEditor({ content, onChange }) {
     input.onchange = async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      
-      // 파일 크기 검증 (5MB 제한)
-      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-      if (file.size > MAX_FILE_SIZE) {
-        alert('파일 크기는 5MB 이하여야 합니다.');
-        return;
-      }
-      
-      // 파일 타입 검증
-      if (!file.type.startsWith('image/')) {
-        alert('이미지 파일만 업로드할 수 있습니다.');
-        return;
-      }
-      
+
       try {
-        // StudyService를 정적으로 import
-        const { StudyService } = await import('../../services/studyService.js');
-        
-        // 로딩 상태 표시 (간단한 알림)
-        const loadingAlert = '이미지를 업로드 중입니다...';
-        console.log(loadingAlert);
-        
-        // 이미지 업로드
         const imageData = await StudyService.uploadImage(file);
-        
-        // 에디터에 이미지 삽입
-        if (imageData && imageData.url) {
-          editor?.chain().focus().setImage({ 
-            src: imageData.url,
-            alt: file.name,
-            title: file.name
-          }).run();
-          console.log('이미지 업로드 성공:', imageData.url);
-        } else {
-          throw new Error('업로드된 이미지 URL을 받지 못했습니다.');
+        if (imageData.url) {
+          editor.chain().focus().setImage({ src: imageData.url }).run();
         }
       } catch (error) {
-        console.error('이미지 업로드 실패:', error);
-        
-        // 더 구체적인 오류 메시지 제공
-        let errorMessage = '이미지 업로드에 실패했습니다.';
-        if (error.message.includes('Network')) {
-          errorMessage = '네트워크 오류로 이미지 업로드에 실패했습니다. 인터넷 연결을 확인해주세요.';
-        } else if (error.message.includes('401') || error.message.includes('인증')) {
-          errorMessage = '인증이 만료되었습니다. 다시 로그인해주세요.';
-        } else if (error.message.includes('403') || error.message.includes('권한')) {
-          errorMessage = '이미지 업로드 권한이 없습니다. 관리자에게 문의해주세요.';
-        } else if (error.message.includes('413') || error.message.includes('크기')) {
-          errorMessage = '파일이 너무 큽니다. 더 작은 이미지를 사용해주세요.';
-        } else if (error.message) {
-          errorMessage = `이미지 업로드 실패: ${error.message}`;
-        }
-        
-        alert(errorMessage);
+        alert('이미지 업로드에 실패했습니다: ' + error.message);
       }
     };
     
     input.click();
   };
 
-  const addVideo = () => {
-    const url = window.prompt('YouTube 또는 비디오 URL을 입력하세요:');
-    if (url) {
-      // 간단한 iframe 형태로 비디오 삽입
-      const videoHtml = `<div class="video-wrapper" style="margin: 1rem 0;"><iframe src="${url}" width="${CONFIG.EDITOR.VIDEO.DEFAULT_WIDTH}" height="${CONFIG.EDITOR.VIDEO.DEFAULT_HEIGHT}" frameborder="0" allowfullscreen></iframe></div>`;
-      editor?.chain().focus().insertContent(videoHtml).run();
+  // YouTube 비디오 처리
+  const handleVideoSubmit = (videoUrl) => {
+    if (!videoUrl) return;
+
+    // YouTube URL을 embed URL로 변환
+    const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/;
+    const match = videoUrl.match(youtubeRegex);
+    
+    if (match) {
+      const videoId = match[1];
+      const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      
+      editor.chain().focus().setYouTubeVideo({
+        src: embedUrl,
+        width: 560,
+        height: 315,
+      }).run();
+    } else {
+      alert('올바른 YouTube URL을 입력해주세요.');
     }
   };
 
-  const insertTable = () => {
-    // 간단한 HTML 테이블 삽입
-    const tableHtml = CONFIG.EDITOR.TABLE.DEFAULT_HTML;
-    editor?.chain().focus().insertContent(tableHtml).run();
+  // 테이블 삽입
+  const handleTableClick = () => {
+    if (!editor) return;
+
+    // 현재 커서가 테이블 안에 있는지 확인
+    if (editor.isActive('table')) {
+      // 이미 테이블 안에 있으면 알림만 표시하고 새 테이블 삽입 방지
+      alert('테이블 안에서는 새로운 테이블을 삽입할 수 없습니다.');
+      return;
+    }
+
+    // 테이블이 아닌 곳에서만 테이블 삽입
+    editor
+      .chain()
+      .focus()
+      .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+      .run();
   };
 
-  const insertCode = () => {
-    editor?.chain().focus().toggleCodeBlock().run();
+  // 전체화면 토글
+  const handleFullscreenToggle = () => {
+    setIsFullscreen(!isFullscreen);
   };
 
-  const showHelp = () => {
-    alert('에디터 사용법:\n- 텍스트를 드래그하여 선택\n- 툴바의 버튼들로 서식 적용\n- 이미지나 링크 URL 입력 가능');
-  };
 
   if (!editor) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div>에디터를 로딩중...</div>
+      </div>
+    );
   }
 
   return (
-    <div className={`tiptap-editor ${isFullscreen ? 'fixed inset-0 z-50 bg-white p-4' : ''} overflow-hidden`}
-      style={{
-        border: `1px solid ${COLORS.GRAY_300}`,
-        borderRadius: `${CONFIG.BORDER_RADIUS.MEDIUM}px`,
-        minHeight: `${CONFIG.EDITOR.MIN_HEIGHT}px`
-      }}
-    >
-      {/* 툴바 - 왼쪽부터: bullet list, number list, 정렬방식, 표만들기, 링크, 이미지, 영상, 전체화면, 코드, 물음표 */}
-      <div className="flex items-center gap-1 p-2 flex-wrap"
-        style={{ borderBottom: `1px solid ${COLORS.GRAY_200}`, backgroundColor: COLORS.GRAY_50 }}
-      >
-        
-        {/* 1. Bullet List */}
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`p-2 rounded transition-colors ${
-            editor.isActive('bulletList') ? 'bg-gray-300' : ''
-          }`}
-          {...buttonHoverHandlers}
-          title="글머리 기호"
-        >
-          <ListBulletIcon className="w-5 h-5" />
-        </button>
-
-        {/* 2. Number List */}
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={`p-2 rounded  transition-colors ${
-            editor.isActive('orderedList') ? 'bg-gray-300' : ''
-          }`}
-          title="번호 매기기"
-        >
-          <NumberedListIcon className="w-5 h-5" />
-        </button>
-
-        <div className="w-px h-6 bg-gray-300 mx-1" />
-
-        {/* 3. 정렬 방식 */}
-        <div className="relative" ref={alignDropdownRef}>
-          <button
-            type="button"
-            onClick={() => setIsAlignDropdownOpen(!isAlignDropdownOpen)}
-            className="p-2 rounded  transition-colors"
-            title="텍스트 정렬"
-          >
-            <Bars3Icon className="w-5 h-5" />
-          </button>
+    <div className={`border border-gray-300 rounded-lg overflow-hidden bg-white transition-all duration-300 ${
+      isFullscreen 
+        ? 'fixed inset-0 z-50 rounded-none' 
+        : ''
+    }`}>
+      <EditorToolbar
+        editor={editor}
+        onLinkClick={handleLinkClick}
+        onImageClick={handleImageClick}
+        onVideoClick={() => setIsVideoModalOpen(true)}
+        onTableClick={handleTableClick}
+        onFullscreenToggle={handleFullscreenToggle}
+      />
+      
+      <div className="editor-content">
+        <style>{`
+          .ProseMirror .tableWrapper {
+            margin: 1em 0;
+            overflow-x: auto;
+          }
           
-          {isAlignDropdownOpen && (
-            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-              <button
-                type="button"
-                onClick={() => {
-                  editor.chain().focus().setTextAlign('left').run();
-                  setIsAlignDropdownOpen(false);
-                }}
-                className="w-full flex items-center px-3 py-2 hover:bg-gray-100 first:rounded-t-lg"
-              >
-                <Bars3BottomLeftIcon className="w-4 h-4 mr-2" />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  editor.chain().focus().setTextAlign('center').run();
-                  setIsAlignDropdownOpen(false);
-                }}
-                className="w-full flex items-center px-3 py-2 hover:bg-gray-100"
-              >
-                <Bars3Icon className="w-4 h-4 mr-2" />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  editor.chain().focus().setTextAlign('right').run();
-                  setIsAlignDropdownOpen(false);
-                }}
-                className="w-full flex items-center px-3 py-2 hover:bg-gray-100 last:rounded-b-lg"
-              >
-                <Bars3BottomRightIcon className="w-4 h-4 mr-2" />
-              </button>
-            </div>
-          )}
-        </div>
+          .ProseMirror table {
+            border-collapse: collapse;
+            table-layout: fixed;
+            width: 100%;
+            margin: 0;
+            overflow: hidden;
+          }
 
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+          .ProseMirror td, .ProseMirror th {
+            min-width: 1em;
+            border: 2px solid #ced4da;
+            padding: 3px 5px;
+            vertical-align: top;
+            box-sizing: border-box;
+            position: relative;
+            background: white;
+          }
 
-        {/* 4. 표 만들기 */}
-        <button
-          type="button"
-          onClick={insertTable}
-          className="p-2 rounded  transition-colors"
-          title="표 삽입"
-        >
-          <TableCellsIcon className="w-5 h-5" />
-        </button>
+          .ProseMirror th {
+            font-weight: bold;
+            text-align: left;
+            background-color: #f1f3f4;
+          }
 
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+          .ProseMirror .selectedCell:after {
+            z-index: 2;
+            position: absolute;
+            content: "";
+            left: 0; right: 0; top: 0; bottom: 0;
+            background: rgba(200, 200, 255, 0.4);
+            pointer-events: none;
+          }
 
-        {/* 5. 링크 */}
-        <button
-          type="button"
-          onClick={setLink}
-          className={`p-2 rounded  transition-colors ${
-            editor.isActive('link') ? 'bg-gray-300' : ''
-          }`}
-          title="링크"
-        >
-          <LinkIcon className="w-5 h-5" />
-        </button>
+          .ProseMirror .column-resize-handle {
+            position: absolute;
+            right: -2px;
+            top: 0;
+            bottom: -2px;
+            width: 4px;
+            background-color: #adf;
+            pointer-events: none;
+          }
 
-        {/* 6. 이미지 */}
-        <button
-          type="button"
-          onClick={addImage}
-          className="p-2 rounded  transition-colors"
-          title="이미지"
-        >
-          <PhotoIcon className="w-5 h-5" />
-        </button>
+          .ProseMirror table .column-resize-handle {
+            pointer-events: all;
+            cursor: col-resize;
+          }
 
-        {/* 7. 영상 */}
-        <button
-          type="button"
-          onClick={addVideo}
-          className="p-2 rounded  transition-colors"
-          title="비디오"
-        >
-          <PlayIcon className="w-5 h-5" />
-        </button>
+          .ProseMirror p {
+            margin: 0;
+          }
 
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+          .ProseMirror pre {
+            background: #f8f9fa;
+            border-radius: 6px;
+            color: #2d2d2d;
+            font-family: 'SFMono-Regular', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            margin: 16px 0;
+            padding: 16px;
+            border: 1px solid #e9ecef;
+          }
 
-        {/* 8. 전체화면 */}
-        <button
-          type="button"
-          onClick={() => setIsFullscreen(!isFullscreen)}
-          className="p-2 rounded  transition-colors"
-          title="전체화면"
-        >
-          <ArrowsPointingOutIcon className="w-5 h-5" />
-        </button>
+          .ProseMirror pre code {
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+          }
 
-        {/* 9. 코드 */}
-        <button
-          type="button"
-          onClick={insertCode}
-          className={`p-2 rounded  transition-colors ${
-            editor.isActive('codeBlock') ? 'bg-gray-300' : ''
-          }`}
-          title="코드 블록"
-        >
-          <CodeBracketIcon className="w-5 h-5" />
-        </button>
+          .ProseMirror code {
+            background-color: #f8f9fa;
+            border-radius: 0.25rem;
+            color: #e83e8c;
+            font-family: 'JetBrainsMono', 'SFMono-Regular', 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+            font-size: 0.85em;
+            padding: 0.2rem 0.4rem;
+          }
 
-        {/* 10. 물음표 (도움말) */}
-        <button
-          type="button"
-          onClick={showHelp}
-          className="p-2 rounded  transition-colors"
-          title="도움말"
-        >
-          <QuestionMarkCircleIcon className="w-5 h-5" />
-        </button>
+          .ProseMirror pre code {
+            background: none;
+            color: inherit;
+            font-size: inherit;
+            padding: 0;
+            border-radius: 0;
+          }
+
+          /* 구문 하이라이팅 스타일 */
+          .ProseMirror .hljs-comment,
+          .ProseMirror .hljs-quote {
+            color: #6c757d;
+            font-style: italic;
+          }
+
+          .ProseMirror .hljs-keyword,
+          .ProseMirror .hljs-selector-tag,
+          .ProseMirror .hljs-subst {
+            color: #d73a49;
+            font-weight: bold;
+          }
+
+          .ProseMirror .hljs-number,
+          .ProseMirror .hljs-literal,
+          .ProseMirror .hljs-variable,
+          .ProseMirror .hljs-template-variable {
+            color: #005cc5;
+          }
+
+          .ProseMirror .hljs-string,
+          .ProseMirror .hljs-doctag {
+            color: #032f62;
+          }
+
+          .ProseMirror .hljs-title,
+          .ProseMirror .hljs-section,
+          .ProseMirror .hljs-selector-id {
+            color: #6f42c1;
+            font-weight: bold;
+          }
+
+          .ProseMirror .hljs-type,
+          .ProseMirror .hljs-class .hljs-title {
+            color: #d73a49;
+          }
+
+          .ProseMirror .hljs-tag,
+          .ProseMirror .hljs-name,
+          .ProseMirror .hljs-attribute {
+            color: #22863a;
+          }
+
+          .ProseMirror .hljs-regexp,
+          .ProseMirror .hljs-link {
+            color: #032f62;
+          }
+
+          .ProseMirror .hljs-symbol,
+          .ProseMirror .hljs-bullet {
+            color: #e36209;
+          }
+
+          .ProseMirror .hljs-built_in,
+          .ProseMirror .hljs-builtin-name {
+            color: #005cc5;
+          }
+
+          .ProseMirror .hljs-meta {
+            color: #6c757d;
+          }
+
+          .ProseMirror .hljs-deletion {
+            background: #ffeef0;
+          }
+
+          .ProseMirror .hljs-addition {
+            background: #f0fff4;
+          }
+        `}</style>
+        <EditorContent 
+          editor={editor} 
+          className={isFullscreen ? 'min-h-screen' : ''}
+        />
       </div>
 
-      {/* 에디터 영역 */}
-      <div className={`${isFullscreen ? 'h-full' : 'min-h-[550px]'} bg-white overflow-y-auto`}>
-        {showHTML ? (
-          <textarea 
-            value={editor.getHTML()} 
-            readOnly 
-            className={`w-full ${isFullscreen ? 'h-full' : 'h-[300px]'} border-none p-4 font-mono text-sm resize-none`} 
-          />
-        ) : (
-          <div className="prose max-w-none">
-            <EditorContent 
-              editor={editor} 
-              style={{
-                minHeight: '400px',
-                padding: '1rem'
-              }}
-            />
-            <style jsx>{`
-              .ProseMirror img {
-                display: block !important;
-                max-width: 100% !important;
-                height: auto !important;
-                margin: 1rem 0 !important;
-                border-radius: 8px !important;
-              }
-              .ProseMirror {
-                outline: none !important;
-                padding: 1rem !important;
-              }
-            `}</style>
-          </div>
-        )}
-      </div>
+      <LinkModal
+        isOpen={isLinkModalOpen}
+        onClose={() => setIsLinkModalOpen(false)}
+        onSubmit={handleLinkSubmit}
+        initialText={linkData.text}
+        initialUrl={linkData.url}
+      />
+
+      <VideoModal
+        isOpen={isVideoModalOpen}
+        onClose={() => setIsVideoModalOpen(false)}
+        onSubmit={handleVideoSubmit}
+      />
     </div>
   );
 }

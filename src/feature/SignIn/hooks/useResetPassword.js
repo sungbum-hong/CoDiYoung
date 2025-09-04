@@ -52,7 +52,6 @@ export function useResetPassword() {
       //     throw new Error("비밀번호 재설정에 실패했습니다.");
       //   }
       // } catch (error) {
-      //   console.error("Password reset failed:", error);
       //   return;
       // }
       
