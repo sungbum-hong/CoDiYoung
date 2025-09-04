@@ -7,8 +7,6 @@ import { useWritePage } from './hooks/useWritePage.js';
 import WriteForm from './WriteForm.jsx';
 
 export default function WritePageLayout() {
-  console.log('🔄 WritePageLayout 렌더링됨');
-  
   const writeFormRef = useRef(null);
   const {
     content,
@@ -23,7 +21,6 @@ export default function WritePageLayout() {
 
   // 저장 로직을 실행하고 성공 시 모달을 표시하는 함수
   const handleRecordClick = () => {
-    console.log('📝 기록하기 버튼 클릭됨 - 저장 로직 실행');
     // ref를 통해 직접 저장 함수 호출
     writeFormRef.current?.handleSave();
   };

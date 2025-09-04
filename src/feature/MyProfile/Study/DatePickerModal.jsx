@@ -18,7 +18,6 @@ export default function DatePickerModal({ isOpen, onClose }) {
   };
 
   const handleConfirm = () => {
-    console.log('Selected date:', selectedDate);
     onClose();
   };
 

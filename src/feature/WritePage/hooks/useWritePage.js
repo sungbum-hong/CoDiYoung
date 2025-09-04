@@ -35,7 +35,6 @@ export function useWritePage() {
       const studyData = await StudyService.getStudy(id);
       setContent(studyData.content || '');
     } catch (error) {
-      console.error('스터디 로드 실패:', error);
       alert('스터디를 불러오는데 실패했습니다: ' + error.message);
     } finally {
       setIsLoading(false);
@@ -44,35 +43,34 @@ export function useWritePage() {
 
   // 저장 처리
   const handleSave = async () => {
-    console.log('📝 글 작성 시도 시작');
-    
     if (!content.trim() || content === '<p></p>') {
-      console.warn('⚠️ 내용이 비어있음');
       alert('내용을 입력해주세요.');
       return;
     }
 
     try {
-      console.log('🔄 저장 프로세스 시작');
       setIsLoading(true);
       
       if (isEditMode) {
-        console.log(`✏️ 수정 모드 - 아이템 ${id} ${MESSAGES.UI.EDIT_COMPLETE}`);
         alert('수정이 완료되었습니다.');
       } else {
-        console.log('📝 신규 작성 모드');
         const result = await StudyService.createStudy(content);
-        console.log('📡 StudyService.createStudy 응답:', result);
         
         const studyId = result.id || result.studyId;
         setSavedStudyId(studyId);
+        
+        // 글 작성 성공 시 출석체크
+        try {
+          await StudyService.checkAttendance();
+        } catch (attendanceError) {
+          // 출석체크 실패해도 글 작성은 성공으로 처리
+        }
+        
         setModals(prev => ({ ...prev, record: true }));
       }
     } catch (error) {
-      console.error('❌ 저장 실패:', error);
       alert('저장에 실패했습니다: ' + error.message);
     } finally {
-      console.log('🔄 로딩 상태 해제');
       setIsLoading(false);
     }
   };
@@ -80,14 +78,11 @@ export function useWritePage() {
   // 삭제 처리
   const handleDelete = async () => {
     try {
-      console.log(`아이템 ${id} 삭제 시작`);
       await StudyService.deleteStudy(id);
-      console.log(`아이템 ${id} 삭제 완료`);
       setModals(prev => ({ ...prev, delete: false }));
       setCompleteMessage(MESSAGES.UI.DELETE_COMPLETE);
       setModals(prev => ({ ...prev, complete: true }));
     } catch (error) {
-      console.error('삭제 실패:', error);
       alert('삭제에 실패했습니다: ' + error.message);
       setModals(prev => ({ ...prev, delete: false }));
     }
@@ -95,7 +90,6 @@ export function useWritePage() {
 
   // 수정 처리
   const handleEdit = () => {
-    console.log(`아이템 ${id} 수정 완료`);
     setModals(prev => ({ ...prev, edit: false }));
     setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
     setModals(prev => ({ ...prev, complete: true }));

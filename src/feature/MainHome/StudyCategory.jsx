@@ -44,7 +44,7 @@ export default function StudyCategory({
         }
         setAvatars(newAvatars);
       } catch (error) {
-        console.error('아바타 생성 실패:', error);
+
         // 실패 시 빈 상태로 설정하여 무한 로딩 방지
         setAvatars({});
       }

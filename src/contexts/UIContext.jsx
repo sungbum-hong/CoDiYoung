@@ -22,8 +22,7 @@ const uiReducer = (state, action) => {
       return { ...state, error: null };
 
     case 'LOGIN_SUCCESS':
-      // 로그인 성공 시 사용자 정보 저장
-      AuthService.saveUserToStorage(action.payload);
+      // AuthService.login()에서 이미 스토리지 저장을 처리하므로 중복 호출 제거
       return { 
         ...state, 
         isAuthenticated: true, 
@@ -87,17 +86,17 @@ export function UIProvider({ children }) {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'CLEAR_ERROR' });
       
-      console.log('🔐 로그인 시도:', { email, password });
+
       
       try {
         const user = await AuthService.login(email, password);
-        console.log('✅ 로그인 성공:', user);
+
         dispatch({ type: 'LOGIN_SUCCESS', payload: user });
         return { success: true, user };
       } catch (error) {
-        console.error('❌ 로그인 실패:', error);
-        console.error('에러 메시지:', error.message);
-        console.error('에러 스택:', error.stack);
+
+
+
         dispatch({ type: 'LOGIN_FAILURE', payload: error.message });
         return { success: false, error: error.message };
       }

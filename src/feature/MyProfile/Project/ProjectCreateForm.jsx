@@ -260,7 +260,7 @@ export default function ProjectCreateForm({ onBack }) {
         <div className="flex justify-between w-full mt-4 gap-2">
           <Button 
             variant="secondary"
-            onClick={() => console.log('Form data:', formData)}
+            onClick={() => {/* TODO: 실제 프로젝트 생성 로직 */}}
             className="flex-1"
           >
             개설

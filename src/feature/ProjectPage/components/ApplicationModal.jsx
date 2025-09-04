@@ -219,7 +219,7 @@ export default function ApplicationModal({ onClose, projectName = "프로젝트"
     
     try {
       // TODO: 실제 API 호출
-      console.log("프로젝트 신청:", formData);
+
       
       // Mock API 호출 시뮬레이션
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -229,7 +229,7 @@ export default function ApplicationModal({ onClose, projectName = "프로젝트"
       setIsSubmitting(false);
       
     } catch (error) {
-      console.error("신청 중 오류:", error);
+
       alert("신청 중 오류가 발생했습니다. 다시 시도해주세요.");
       setIsSubmitting(false);
     }

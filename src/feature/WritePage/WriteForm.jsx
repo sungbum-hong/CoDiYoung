@@ -2,9 +2,6 @@ import TiptapEditor from './TiptapEditor';
 import { forwardRef, useImperativeHandle } from 'react';
 
 const WriteForm = forwardRef(({ content, setContent, isLoading, onSave }, ref) => {
-  console.log('🔄 WriteForm 컴포넌트 렌더링됨');
-  
-  console.log('📝 WriteForm 상태:', { content: content.length, isLoading });
 
   const handleSubmit = async (e) => {
     e.preventDefault();

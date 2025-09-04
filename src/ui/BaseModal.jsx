@@ -36,8 +36,8 @@ export default function BaseModal({
       if (e.key === 'Escape') onClose?.();
     };
     window.addEventListener('keydown', onKeyDown);
-    // 모달 첫 렌더 후 포커스
-    requestAnimationFrame(() => dialogRef.current?.focus());
+    // 모달 컨테이너에 포커스를 주는 대신 input에 autoFocus를 맡김
+    // requestAnimationFrame(() => dialogRef.current?.focus());
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [isOpen, onClose]);
 

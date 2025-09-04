@@ -17,7 +17,9 @@ export default function AttendanceContent() {
 
   return (
     <div className="bg-white py-6 px-7 min-h-[500px]">
-      <div className="flex justify-end mb-12">
+      {/* 헤더 영역 */}
+      <div className="flex justify-between items-center mb-12">
+        <h2 className="text-xl font-semibold text-gray-800">출석 현황</h2>
         
         {/* 달력 아이콘 */}
         <button 
@@ -36,12 +38,13 @@ export default function AttendanceContent() {
             e.target.style.backgroundColor = COLORS.WHITE;
             e.target.style.color = COLORS.PRIMARY;
           }}
-          title="달력"
+          title="달력 보기"
         >
           <CalendarIcon className="w-5 h-5" />
         </button>
       </div>
       
+      {/* 출석 별 표시 */}
       <AttendanceStars />
 
       {/* 달력 모달 */}
