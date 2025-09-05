@@ -5,7 +5,7 @@ export default function StudyGrid({
   isLoading, 
   onItemClick, 
   getFirstCharFromContent, 
-  getFirstImageFromContent 
+  getFirstImageFromContent,
 }) {
   const TOTAL_ITEMS = 30;
 
@@ -32,7 +32,7 @@ export default function StudyGrid({
       {Array.from({ length: TOTAL_ITEMS }).map((_, index) => {
         const hasStudy = studyData[index];
         const borderColor = COLORS.GRAY_300;
-        const backgroundColor = hasStudy ? COLORS.SUCCESS || '#10b981' : COLORS.WHITE;
+        const backgroundColor =  COLORS.WHITE;
         const firstChar = hasStudy ? getFirstCharFromContent(hasStudy.content) : '';
         const firstImage = hasStudy ? getFirstImageFromContent(hasStudy.content) : null;
         
@@ -62,7 +62,7 @@ export default function StudyGrid({
               />
             ) : hasStudy && firstChar ? (
               <div className="text-center">
-                <span className="text-2xl font-bold text-white">
+                <span className="text-6xl font-bold">
                   {firstChar}
                 </span>
               </div>

@@ -92,6 +92,7 @@ export function useWritePage() {
   const handleEdit = () => {
     setModals(prev => ({ ...prev, edit: false }));
     setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
+    setSavedStudyId(id); // 현재 수정중인 studyId 설정
     setModals(prev => ({ ...prev, complete: true }));
   };
 
@@ -102,11 +103,6 @@ export function useWritePage() {
 
   const closeModal = (modalName) => {
     setModals(prev => ({ ...prev, [modalName]: false }));
-    
-    // 삭제 완료 후 홈페이지로 이동
-    if (modalName === 'complete' && completeMessage === MESSAGES.UI.DELETE_COMPLETE) {
-      navigate('/');
-    }
   };
 
   // 취소 (홈으로 이동)

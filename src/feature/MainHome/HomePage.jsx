@@ -23,7 +23,7 @@ export default function HomePage() {
                 alt="메인 배너"
                 className="w-full h-56 sm:h-64 md:h-80 lg:h-96 object-cover transition-transform duration-300 hover:scale-[1.01] cursor-pointer"
                 loading="eager"
-                fetchpriority="high"
+                fetchPriority="high"
                 sizes="(min-width: 1280px) 1280px, 100vw"
               />
            </a>

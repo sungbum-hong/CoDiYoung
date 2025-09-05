@@ -8,7 +8,8 @@ export default function StudyModal({
   selectedItem, 
   selectedStudy, 
   onEdit,
-  getFirstImageFromContent 
+  getFirstImageFromContent,
+  getIntroductionFromContent
 }) {
   return (
     <BaseModal
@@ -40,8 +41,8 @@ export default function StudyModal({
                     className="max-w-full max-h-full object-contain rounded-lg"
                   />
                 ) : (
-                  <div className="text-center text-gray-500">
-                    <p>이미지 없음</p>
+                  <div className="text-gray-500">
+                    <p>{getIntroductionFromContent(selectedStudy.content)}</p>
                   </div>
                 )}
               </div>
@@ -60,16 +61,8 @@ export default function StudyModal({
         {/* 하단 버튼 */}
         <div className="absolute bottom-14 left-1/2 -translate-x-1/2 flex gap-24">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={onEdit}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
-              e.currentTarget.style.color = 'white';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = COLORS.PRIMARY;
-            }}
             style={{
               width: '120px',
               height: '40px',
