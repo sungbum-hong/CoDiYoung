@@ -83,18 +83,61 @@ export default function StudyContent() {
     }
   }, [selectedItem]);
 
-  // 모달 내 아이템 좌/우 이동(루프)
-  const goPrev = useCallback(() => {
-    setSelectedItem((i) =>
-      i == null ? 0 : (i - 1 + TOTAL_ITEMS) % TOTAL_ITEMS
-    );
-  }, []);
-  
-  const goNext = useCallback(() => {
-    setSelectedItem((i) => (i == null ? 0 : (i + 1) % TOTAL_ITEMS));
-  }, []);
+  // 데이터가 있는 다음/이전 슬롯 찾기
+  const findNextDataSlot = useCallback((currentIndex, direction) => {
+    let newIndex = currentIndex;
+    let attempts = 0;
+    
+    while (attempts < TOTAL_ITEMS) {
+      newIndex = direction === 'next' 
+        ? (newIndex + 1) % TOTAL_ITEMS 
+        : (newIndex - 1 + TOTAL_ITEMS) % TOTAL_ITEMS;
+      
+      if (studyData[newIndex]) {
+        return newIndex;
+      }
+      attempts++;
+    }
+    
+    return null; // 데이터가 있는 슬롯이 없음
+  }, [studyData]);
 
-  // 모달 열렸을 때 키보드 ←/→로 이동
+  // 모달 내 아이템 좌/우 이동(데이터가 있는 슬롯만)
+  const goPrev = useCallback(async () => {
+    const nextIndex = findNextDataSlot(selectedItem, 'prev');
+    if (nextIndex === null) return; // 데이터가 있는 슬롯이 없으면 이동하지 않음
+    
+    setSelectedItem(nextIndex);
+    
+    const study = studyData[nextIndex];
+    if (study) {
+      try {
+        const detailData = await StudyService.getStudyById(study.id);
+        setSelectedStudy(detailData);
+      } catch (error) {
+        setSelectedStudy(study);
+      }
+    }
+  }, [selectedItem, studyData, findNextDataSlot]);
+  
+  const goNext = useCallback(async () => {
+    const nextIndex = findNextDataSlot(selectedItem, 'next');
+    if (nextIndex === null) return; // 데이터가 있는 슬롯이 없으면 이동하지 않음
+    
+    setSelectedItem(nextIndex);
+    
+    const study = studyData[nextIndex];
+    if (study) {
+      try {
+        const detailData = await StudyService.getStudyById(study.id);
+        setSelectedStudy(detailData);
+      } catch (error) {
+        setSelectedStudy(study);
+      }
+    }
+  }, [selectedItem, studyData, findNextDataSlot]);
+
+  // 모달 열렸을 때 키보드 ←/→로 이동 (데이터가 있는 슬롯만)
   useEffect(() => {
     if (!isModalOpen) return;
     const onKey = (e) => {
@@ -151,6 +194,17 @@ export default function StudyContent() {
     el.style.color = COLORS.PRIMARY;
   };
 
+  const getIntroductionFromContent = (htmlContent) => {
+    if (!htmlContent) return '';
+    
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    const textContent = tempDiv.textContent || tempDiv.innerText || '';
+    
+    const introduction = textContent.trim().substring(0, 100);
+    return introduction;
+  };
+
   return (
     <main className="flex-1 py-6 px-24 overflow-auto">
       <div className="w-full h-full">
@@ -191,9 +245,10 @@ export default function StudyContent() {
         selectedStudy={selectedStudy}
         onEdit={handleEdit}
         getFirstImageFromContent={getFirstImageFromContent}
+        getIntroductionFromContent={getIntroductionFromContent}
       />
 
-      {/* 모달 밖 화살표 버튼들 */}
+      {/* 모달 밖 화살표 버튼들 (데이터가 있는 슬롯만 이동) */}
       <NavigationButtons
         open={isModalOpen}
         onPrev={goPrev}

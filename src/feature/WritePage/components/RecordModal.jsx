@@ -18,9 +18,13 @@ export default function RecordModal({ isOpen, onClose, message = "오늘도 수�
     } else if (studyId) {
       onClose();
       navigate(`/write/${studyId}`);
-    } else {
+    } else if (redirectTo === '/') {
+      // 홈으로만 이동하는 경우 (삭제 완료)
       onClose();
       navigate(redirectTo);
+    } else {
+      // 기본적으로는 모달만 닫기
+      onClose();
     }
   };
 

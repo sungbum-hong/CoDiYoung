@@ -37,17 +37,9 @@ export default function WritePageLayout() {
             <div className="flex space-x-3">
               {/* 수정 버튼 */}
               <Button
-                variant="outline"
+                variant="secondary"
                 className="h-8 w-[88px] focus:outline-none focus:ring-2"
                 onClick={() => actions.openModal('edit')}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = COLORS.PRIMARY;
-                }}
                 style={{
                   backgroundColor: 'transparent',
                   color: COLORS.PRIMARY,
@@ -72,14 +64,6 @@ export default function WritePageLayout() {
               variant="secondary"
               className="h-8 w-32"
               onClick={handleRecordClick}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
-                e.currentTarget.style.color = 'white';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = COLORS.PRIMARY;
-              }}
               style={{
                 backgroundColor: 'transparent',
                 color: COLORS.PRIMARY,
@@ -115,7 +99,8 @@ export default function WritePageLayout() {
         isOpen={modals.complete}
         onClose={() => actions.closeModal('complete')}
         message={completeMessage}
-        redirectTo="/"
+        studyId={completeMessage === '삭제 완료' ? null : savedStudyId}
+        redirectTo={completeMessage === '삭제 완료' ? '/' : undefined}
       />
 
       {/* 삭제 모달 */}
@@ -134,17 +119,9 @@ export default function WritePageLayout() {
 
           <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-24">
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={actions.handleDelete}
               style={{ width: '120px', height: '40px', backgroundColor: 'transparent', color: COLORS.PRIMARY, borderColor: COLORS.PRIMARY, transition: 'background-color .2s, color .2s' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
-                e.currentTarget.style.color = 'white';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent'; 
-                e.currentTarget.style.color = COLORS.PRIMARY;
-              }}
             >
               삭제
             </Button>
@@ -175,17 +152,9 @@ export default function WritePageLayout() {
 
           <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-24">
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={actions.handleEdit}
               style={{ width: '120px', height: '40px', backgroundColor: 'transparent', color: COLORS.PRIMARY, borderColor: COLORS.PRIMARY, transition: 'background-color .2s, color .2s' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
-                e.currentTarget.style.color = 'white';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = COLORS.PRIMARY;
-              }}
             >
               수정
             </Button>
