@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { COLORS } from "../../../utils/colors.js";
 import Button from "../../../ui/Button";
+import { ProjectService } from "../../../services/projectService.js";
+import { StudyService } from "../../../services/studyService.js";
+import { MockProjectService, USE_MOCK_DATA } from "../../../mock-logic/index.js";
 
 // 드롭다운 옵션 정의
 const PARTICIPANT_OPTIONS = [
@@ -177,16 +180,89 @@ export default function ProjectCreateForm({ onBack }) {
   const [formData, setFormData] = useState({
     projectName: '',
     participants: '',
-    position: '',
+    position: [], // 배열로 변경
     tech: [], // 배열로 변경
     slogan: '',
     motivation: '',
     openTalkLink: ''
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  const handleCreateProject = async () => {
+    if (!formData.projectName.trim()) {
+      alert('프로젝트 명을 입력해주세요.');
+      return;
+    }
+
+    const token = localStorage.getItem('auth_token');
+
+    if (!token) {
+      alert('로그인이 필요합니다. 다시 로그인해주세요.');
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const projectData = {
+        title: formData.projectName || "",
+        description: formData.motivation || "",
+        imageKey: "", // 빈 문자열로 변경
+        slogan: formData.slogan || "",
+        positions: formData.position || [],
+        techs: formData.tech || [],
+        questions: formData.slogan ? [formData.slogan] : [],
+        kakaoLink: formData.openTalkLink || "",
+        capacity: formData.participants || 1
+      };
+
+      console.log('전송할 프로젝트 데이터:', projectData);
+      console.log('포지션 데이터:', formData.position);
+      console.log('기술 데이터:', formData.tech);
+      console.log('Mock 데이터 사용 여부:', USE_MOCK_DATA);
+
+      // Mock 데이터 사용 여부에 따라 서비스 선택
+      const response = USE_MOCK_DATA 
+        ? await MockProjectService.createProject(projectData)
+        : await ProjectService.createProject(projectData);
+      
+      console.log('프로젝트 생성 응답:', response);
+      
+      setIsSuccess(true);
+      
+      // Mock 데이터 사용 시에는 새로고침 없이 폼만 초기화
+      setTimeout(() => {
+        if (USE_MOCK_DATA) {
+          // 폼 초기화
+          setFormData({
+            projectName: '',
+            participants: '',
+            position: [],
+            tech: [],
+            slogan: '',
+            motivation: '',
+            openTalkLink: ''
+          });
+          setIsSuccess(false);
+          onBack(); // 프로젝트 목록으로 돌아가기
+        } else {
+          window.location.reload();
+        }
+      }, 2000);
+      
+    } catch (error) {
+      alert('프로젝트 생성에 실패했습니다: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -217,11 +293,11 @@ export default function ProjectCreateForm({ onBack }) {
         />
         
         {/* 포지션 드롭다운 */}
-        <Dropdown
+        <MultiSelectDropdown
           options={POSITION_OPTIONS}
           value={formData.position}
           onChange={(value) => handleInputChange('position', value)}
-          placeholder="포지션을 선택해주세요"
+          placeholder="포지션을 선택해주세요 (다중선택 가능)"
           className="w-full"
         />
         
@@ -256,18 +332,28 @@ export default function ProjectCreateForm({ onBack }) {
           className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)]"
         />
 
+        {/* 성공 메시지 */}
+        {isSuccess && (
+          <div className="w-full text-center p-4 rounded-md" style={{ backgroundColor: `${COLORS.PRIMARY}20`, color: COLORS.PRIMARY }}>
+            프로젝트 생성 완료! 페이지를 새로고침합니다...
+          </div>
+        )}
+
+
         {/* 버튼 영역 */}
         <div className="flex justify-between w-full mt-4 gap-2">
           <Button 
             variant="secondary"
-            onClick={() => {/* TODO: 실제 프로젝트 생성 로직 */}}
+            onClick={handleCreateProject}
+            disabled={isLoading || isSuccess}
             className="flex-1"
           >
-            개설
+            {isLoading ? '생성 중...' : '개설'}
           </Button>
           <Button 
             variant="outline"
             onClick={onBack}
+            disabled={isLoading}
             className="flex-1"
           >
             취소

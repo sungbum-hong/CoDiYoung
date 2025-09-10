@@ -52,7 +52,10 @@ export function useWritePage() {
       setIsLoading(true);
       
       if (isEditMode) {
-        alert('수정이 완료되었습니다.');
+        await StudyService.updateStudy(id, content);
+        setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
+        setSavedStudyId(id);
+        setModals(prev => ({ ...prev, complete: true }));
       } else {
         const result = await StudyService.createStudy(content);
         
@@ -89,11 +92,27 @@ export function useWritePage() {
   };
 
   // 수정 처리
-  const handleEdit = () => {
-    setModals(prev => ({ ...prev, edit: false }));
-    setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
-    setSavedStudyId(id); // 현재 수정중인 studyId 설정
-    setModals(prev => ({ ...prev, complete: true }));
+  const handleEdit = async () => {
+    if (!content.trim() || content === '<p></p>') {
+      alert('내용을 입력해주세요.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setModals(prev => ({ ...prev, edit: false }));
+      
+      await StudyService.updateStudy(id, content);
+      
+      setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
+      setSavedStudyId(id); // 현재 수정중인 studyId 설정
+      setModals(prev => ({ ...prev, complete: true }));
+    } catch (error) {
+      alert('수정에 실패했습니다: ' + error.message);
+      setModals(prev => ({ ...prev, edit: false }));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // 모달 제어

@@ -1,9 +1,10 @@
-import { useRef, useState, useMemo, useCallback } from "react";
+import { useRef, useState, useMemo, useCallback, useEffect } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import ProjectDetailModal from "./components/ProjectDetailModal.jsx";
 import { CONFIG } from '../../constants/config.js';
 import { COLORS } from '../../utils/colors.js';
 import { MESSAGES } from '../../constants/messages.js';
+import { MockProjectService, USE_MOCK_DATA } from '../../mock-logic/index.js';
 
 export default function ProjectSection({
   title = MESSAGES.SECTIONS.PROJECT_LIST,
@@ -13,6 +14,25 @@ export default function ProjectSection({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [projects, setProjects] = useState([]);
+
+  // Mock 데이터 조회
+  useEffect(() => {
+    const fetchProjects = async () => {
+      if (!USE_MOCK_DATA) return;
+      
+      try {
+        const response = await MockProjectService.getAllProjects();
+        console.log('MainHome 프로젝트 데이터:', response);
+        setProjects(response || []);
+      } catch (error) {
+        console.error('프로젝트 조회 실패:', error);
+        setProjects([]);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const itemsPerView = CONFIG.LAYOUT.GRID.PROJECT_COLUMNS;
   const totalPages = Math.max(1, Math.ceil(itemCount / itemsPerView));
@@ -127,33 +147,49 @@ export default function ProjectSection({
           .scrollbar-hide::-webkit-scrollbar { display: none; height: 0; width: 0; }
         `}</style>
 
-        {Array.from({ length: itemCount }).map((_, i) => (
-          <div key={i} className="flex-shrink-0 flex flex-col items-center">
-            <div
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => onCardKeyDown(e, i)}
-              className="flex items-center justify-center cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
-              style={{
-                width: cardWidth,
-                height: CONFIG.CARD.PROJECT.HEIGHT,
-                borderRadius: CONFIG.BORDER_RADIUS.MEDIUM,
-                backgroundColor: COLORS.GRAY_300,
-              }}
-              onClick={() => handleProjectClick(i)}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = COLORS.GRAY_400)}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = COLORS.GRAY_300)}
-              aria-label={`프로젝트 ${i + 1} 상세 보기`}
-            />
-            {/* 프로젝트 번호 */}
-            <span
-              className="text-sm font-medium mt-2"
-              style={{ color: COLORS.GRAY_600 }}
-            >
-              {i + 1}
-            </span>
-          </div>
-        ))}
+        {Array.from({ length: itemCount }).map((_, i) => {
+          // Mock 데이터가 있으면 해당 인덱스의 프로젝트 정보 사용, 없으면 기본값
+          const project = USE_MOCK_DATA && projects[i] ? projects[i] : null;
+          
+          return (
+            <div key={i} className="flex-shrink-0 flex flex-col items-center">
+              <div
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => onCardKeyDown(e, i)}
+                className="flex flex-col items-center justify-center cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 p-4"
+                style={{
+                  width: cardWidth,
+                  height: CONFIG.CARD.PROJECT.HEIGHT,
+                  borderRadius: CONFIG.BORDER_RADIUS.MEDIUM,
+                  backgroundColor: COLORS.GRAY_300,
+                }}
+                onClick={() => handleProjectClick(i)}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = COLORS.GRAY_400)}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = COLORS.GRAY_300)}
+                aria-label={project ? `${project.title} 상세 보기` : `프로젝트 ${i + 1} 상세 보기`}
+              >
+                <div className="text-center">
+                  <div className="text-sm font-medium" style={{ color: COLORS.GRAY_600 }}>
+                    프로젝트 {i + 1}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Mock 데이터를 이미지 밑에 표시 */}
+              {project && (
+                <div className="text-center mt-2">
+                  <h3 className="text-sm font-bold mb-1" style={{ color: COLORS.GRAY_800 }}>
+                    {project.title}
+                  </h3>
+                  <p className="text-xs" style={{ color: COLORS.GRAY_600 }}>
+                    {project.slogan || "슬로건이 없습니다"}
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* 화살표 버튼 */}
