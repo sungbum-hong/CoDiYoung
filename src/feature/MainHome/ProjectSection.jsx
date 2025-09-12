@@ -1,20 +1,30 @@
 import { useRef, useState, useMemo, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
 import ProjectDetailModal from "./components/ProjectDetailModal.jsx";
 import { CONFIG } from '../../constants/config.js';
 import { COLORS } from '../../utils/colors.js';
 import { MESSAGES } from '../../constants/messages.js';
+import { ROUTES } from '../../constants/routes.js';
 import { MockProjectService, USE_MOCK_DATA } from '../../mock-logic/index.js';
+import { useBackgroundHover } from '../../hooks/useHoverStyle.js';
 
 export default function ProjectSection({
   title = MESSAGES.SECTIONS.PROJECT_LIST,
   itemCount = CONFIG.DEFAULTS.PROJECT_COUNT,
 }) {
+  const navigate = useNavigate();
   const scrollRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [projects, setProjects] = useState([]);
+  
+  // 호버 효과 훅들
+  const moreButtonHover = useBackgroundHover('transparent', COLORS.GRAY_100);
+  const projectCardHover = useBackgroundHover(COLORS.GRAY_300, COLORS.GRAY_400);
+  const arrowButtonHover = useBackgroundHover(COLORS.WHITE, COLORS.GRAY_100);
 
   // Mock 데이터 조회
   useEffect(() => {
@@ -46,6 +56,10 @@ export default function ProjectSection({
     setIsModalOpen(true);
   };
   const closeModal = () => setIsModalOpen(false);
+
+  const handleMoreClick = () => {
+    navigate(ROUTES.PROJECTS);
+  };
 
   const scroll = useCallback((direction) => {
     const container = scrollRef.current;
@@ -102,12 +116,7 @@ export default function ProjectSection({
           backgroundColor: COLORS.WHITE,
           opacity: disabled ? 0.4 : 1,
         }}
-        onMouseEnter={(e) => {
-          if (!disabled) e.currentTarget.style.backgroundColor = COLORS.GRAY_100;
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = COLORS.WHITE;
-        }}
+        {...(!disabled && arrowButtonHover)}
         aria-label={isLeft ? "이전 프로젝트 보기" : "다음 프로젝트 보기"}
         disabled={disabled}
       >
@@ -122,7 +131,18 @@ export default function ProjectSection({
 
   return (
     <section className="relative mb-21">
-      <h2 className="font-bold text-2xl mb-7">{title}</h2>
+      <div className="flex items-center justify-between mb-7">
+        <h2 className="font-bold text-2xl">{title}</h2>
+        <button
+          onClick={handleMoreClick}
+          className="p-2 rounded-full transition-colors"
+          style={{ backgroundColor: "transparent" }}
+          {...moreButtonHover}
+          aria-label="전체 프로젝트 보기"
+        >
+          <EllipsisHorizontalIcon className="w-5 h-5" style={{ color: COLORS.GRAY_600 }} />
+        </button>
+      </div>
 
       {/* 화살표 버튼 */}
       <ArrowButton side="left" />
@@ -165,8 +185,7 @@ export default function ProjectSection({
                   backgroundColor: COLORS.GRAY_300,
                 }}
                 onClick={() => handleProjectClick(i)}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = COLORS.GRAY_400)}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = COLORS.GRAY_300)}
+                {...projectCardHover}
                 aria-label={project ? `${project.title} 상세 보기` : `프로젝트 ${i + 1} 상세 보기`}
               >
                 <div className="text-center">

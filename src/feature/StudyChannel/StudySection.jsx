@@ -1,17 +1,20 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { COLORS } from "../../utils/colors.js";
+import useStudyChannelStore from "../../stores/studyChannelStore.js";
 import StudyModal from "./Modal/StudyModal.jsx";
 
-export default function StudySection({ studyCount = 12 }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentStudyIndex, setCurrentStudyIndex] = useState(0);
+export default function StudySection() {
   const railRef = useRef(null);
+  const { 
+    study: { count: studyCount },
+    modals: { study: isModalOpen },
+    openStudyModal,
+    closeModal 
+  } = useStudyChannelStore();
 
   const openModal = (index) => {
-    setCurrentStudyIndex(index);
-    setIsModalOpen(true);
+    openStudyModal(index);
   };
-  const closeModal = () => setIsModalOpen(false);
 
   // 화살표 클릭 시 화면에 보이는 카드 개수만큼 부드럽게 이동
   const scrollByCards = (dir = 1) => {
@@ -68,13 +71,7 @@ export default function StudySection({ studyCount = 12 }) {
         </button>
       </div>
 
-      <StudyModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        currentIndex={currentStudyIndex}
-        totalItems={studyCount}
-        onIndexChange={setCurrentStudyIndex}
-      >
+      <StudyModal>
         <h3 className="text-lg font-semibold mb-4">스터디 상세 정보</h3>
         <p>스터디에 대한 상세 정보가 여기에 표시됩니다.</p>
       </StudyModal>

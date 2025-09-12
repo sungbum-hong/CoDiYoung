@@ -1,20 +1,29 @@
 import BaseModal from '../../../../ui/BaseModal';
 import Button from '../../../../ui/Button';
 import { COLORS } from '../../../../utils/colors';
+import useStudyUIStore from '../../../../stores/studyUIStore.js';
+import { useStudies } from '../../../../hooks/useStudyQueries.js';
 
 export default function StudyModal({ 
-  isOpen, 
-  onClose, 
-  selectedItem, 
-  selectedStudy, 
-  onEdit,
-  getFirstImageFromContent,
-  getIntroductionFromContent
+  onEdit
 }) {
+  const { 
+    modals, 
+    selectedIndex, 
+    selectedStudyId, 
+    closeModal, 
+    getFirstImage, 
+    getIntroduction 
+  } = useStudyUIStore();
+  
+  const { data: studyData = [] } = useStudies({ size: 30 });
+  
+  const selectedStudy = studyData[selectedIndex] || null;
+  const isOpen = modals.study;
   return (
     <BaseModal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={() => closeModal('study')}
       size="CUSTOM"
       style={{
         width: "min(90vw, 500px)",
@@ -31,18 +40,18 @@ export default function StudyModal({
           {selectedStudy ? (
             <div>
               <h3 className="text-lg font-semibold mb-4">
-                스터디 {(selectedItem ?? 0) + 1}
+                스터디 {(selectedIndex ?? 0) + 1}
               </h3>
               <div className="flex justify-center items-center h-64">
-                {getFirstImageFromContent(selectedStudy.content) ? (
+                {getFirstImage(selectedStudy.content) ? (
                   <img 
-                    src={getFirstImageFromContent(selectedStudy.content)}
+                    src={getFirstImage(selectedStudy.content)}
                     alt="스터디 이미지"
                     className="max-w-full max-h-full object-contain rounded-lg"
                   />
                 ) : (
                   <div className="text-gray-500">
-                    <p>{getIntroductionFromContent(selectedStudy.content)}</p>
+                    <p>{getIntroduction(selectedStudy.content)}</p>
                   </div>
                 )}
               </div>
@@ -50,7 +59,7 @@ export default function StudyModal({
           ) : (
             <div>
               <h3 className="text-lg font-semibold mb-4">
-                빈 슬롯 {(selectedItem ?? 0) + 1}
+                빈 슬롯 {(selectedIndex ?? 0) + 1}
               </h3>
               <p className="text-gray-500">아직 작성된 글이 없습니다.</p>
               <p className="text-sm text-gray-400 mt-2">새 글을 작성해보세요!</p>
@@ -77,7 +86,7 @@ export default function StudyModal({
           
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={() => closeModal('study')}
             style={{ width: '120px', height: '40px' }}
           >
             닫기

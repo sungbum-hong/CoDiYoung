@@ -1,11 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { PencilIcon, CodeBracketIcon, PaintBrushIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
-import { createAvatar } from '@dicebear/core';
-import { pixelArt } from '@dicebear/collection';
-import { useState, useEffect } from 'react';
 import { ROUTES } from "../../constants/routes";
 import { COLORS } from "../../utils/colors";
 import { CONFIG } from "../../constants/config";
+import { useAvatarGeneration } from "../../hooks/useAvatarGeneration.js";
 
 export default function StudyCategory({
   title = "스터디 채널",
@@ -16,7 +14,9 @@ export default function StudyCategory({
   ],
 }) {
   const navigate = useNavigate();
-  const [avatars, setAvatars] = useState({});
+  
+  // 커스텀 훅을 사용한 아바타 생성
+  const { getAvatar, isLoading } = useAvatarGeneration(rows, { size: 96 });
 
   const handleCategoryClick = (category) => {
     navigate(`${ROUTES.STUDY_CATEGORY.replace(":category", category)}`);
@@ -25,36 +25,6 @@ export default function StudyCategory({
   const handleWriteClick = () => {
     navigate(ROUTES.WRITE);
   };
-
-  // 모든 아바타를 미리 생성
-  useEffect(() => {
-    const generateAvatars = async () => {
-      const newAvatars = {};
-      
-      try {
-        for (const row of rows) {
-          for (let i = 0; i < row.count; i++) {
-            const seed = `${row.label}-${i}`;
-            const avatar = createAvatar(pixelArt, {
-              seed: seed,
-              size: 96,
-            });
-            newAvatars[seed] = await avatar.toDataUri();
-          }
-        }
-        setAvatars(newAvatars);
-      } catch (error) {
-
-        // 실패 시 빈 상태로 설정하여 무한 로딩 방지
-        setAvatars({});
-      }
-    };
-
-    // 중복 실행 방지
-    if (Object.keys(avatars).length === 0) {
-      generateAvatars();
-    }
-  }, []); // 의존성 배열을 빈 배열로 변경하여 한 번만 실행
 
   const getCategoryConfig = (label) => {
     switch (label) {
@@ -125,8 +95,7 @@ export default function StudyCategory({
               className="flex gap-4 justify-between"
             >
             {Array.from({ length: r.count }).map((_, i) => {
-              const avatarSeed = `${r.label}-${i}`;
-              const avatarSrc = avatars[avatarSeed];
+              const avatarSrc = getAvatar(r.label, i);
               
               return (
                 <button
@@ -151,7 +120,7 @@ export default function StudyCategory({
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
-                      Loading...
+                      {isLoading ? 'Loading...' : 'Error'}
                     </div>
                   )}
                 </button>

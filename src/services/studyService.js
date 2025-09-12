@@ -280,6 +280,36 @@ export class StudyService {
     }
   }
 
+  // 내 스터디 조회 (작성자별)
+  static async getMyStudies(userId, page = 0, size = 30) {
+    try {
+      const url = `${BASE_URL}${ENDPOINTS.STUDY_GET_ALL}?author=${userId}&page=${page}&size=${size}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getCommonHeaders()
+      });
+
+      return await this.handleResponse(response, '내 스터디 조회 실패');
+    } catch (error) {
+      this.handleApiError(error);
+    }
+  }
+
+  // 카테고리별 스터디 조회
+  static async getStudiesByCategory(category, page = 0, size = 30) {
+    try {
+      const url = `${BASE_URL}${ENDPOINTS.STUDY_GET_ALL}?category=${category}&page=${page}&size=${size}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getCommonHeaders()
+      });
+
+      return await this.handleResponse(response, '카테고리별 스터디 조회 실패');
+    } catch (error) {
+      this.handleApiError(error);
+    }
+  }
+
   // === 출석 관련 메서드 ===
 
   // 출석체크

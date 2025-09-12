@@ -1,12 +1,12 @@
 import { COLORS } from '../../../../utils/colors';
+import useStudyUIStore from '../../../../stores/studyUIStore.js';
 
 export default function StudyGrid({ 
   studyData, 
   isLoading, 
-  onItemClick, 
-  getFirstCharFromContent, 
-  getFirstImageFromContent,
+  onItemClick
 }) {
+  const { getFirstChar, getFirstImage } = useStudyUIStore();
   const TOTAL_ITEMS = 30;
 
   const handleKeyDown = (e, index) => {
@@ -33,8 +33,8 @@ export default function StudyGrid({
         const hasStudy = studyData[index];
         const borderColor = COLORS.GRAY_300;
         const backgroundColor =  COLORS.WHITE;
-        const firstChar = hasStudy ? getFirstCharFromContent(hasStudy.content) : '';
-        const firstImage = hasStudy ? getFirstImageFromContent(hasStudy.content) : null;
+        const firstChar = hasStudy ? getFirstChar(hasStudy.content) : '';
+        const firstImage = hasStudy ? getFirstImage(hasStudy.content) : null;
         
         return (
           <div

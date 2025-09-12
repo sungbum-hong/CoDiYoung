@@ -1,39 +1,25 @@
-import { useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import ProjectGalleryModal from "./Modal/ProjectGalleryModal.jsx";
 import { COLORS } from "../../utils/colors.js";
+import useStudyChannelStore from "../../stores/studyChannelStore.js";
 
-export default function ProjectSection({ projectCount = 8 }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
-  const [scrollIndex, setScrollIndex] = useState(0);
-
-  const itemsPerPage = 4; // 한 번에 보여줄 항목 수
+export default function ProjectSection() {
+  const { 
+    project: { count: projectCount, scrollIndex, itemsPerPage },
+    openProjectModal,
+    navigateProjectScroll 
+  } = useStudyChannelStore();
 
   const openModal = (index) => {
-    setCurrentProjectIndex(index);
-    setIsModalOpen(true);
+    openProjectModal(index);
   };
-  const closeModal = () => setIsModalOpen(false);
 
   const handlePrevious = () => {
-    if (scrollIndex > 0) {
-      setScrollIndex(scrollIndex - 1);
-    } else {
-      // 무한 스크롤: 마지막 페이지로 이동
-      const maxPages = Math.ceil(projectCount / itemsPerPage);
-      setScrollIndex(maxPages - 1);
-    }
+    navigateProjectScroll('prev');
   };
 
   const handleNext = () => {
-    const maxPages = Math.ceil(projectCount / itemsPerPage);
-    if (scrollIndex < maxPages - 1) {
-      setScrollIndex(scrollIndex + 1);
-    } else {
-      // 무한 스크롤: 첫 페이지로 이동
-      setScrollIndex(0);
-    }
+    navigateProjectScroll('next');
   };
 
   const visibleProjects = Array.from({ length: projectCount }).slice(
@@ -61,13 +47,7 @@ export default function ProjectSection({ projectCount = 8 }) {
 
       </div>
       
-      <ProjectGalleryModal 
-        isOpen={isModalOpen} 
-        onClose={closeModal}
-        currentIndex={currentProjectIndex}
-        totalItems={projectCount}
-        onIndexChange={setCurrentProjectIndex}
-      />
+      <ProjectGalleryModal />
     </section>
   );
 }
