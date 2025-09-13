@@ -8,6 +8,7 @@ const ENDPOINTS = {
   PRESIGN: '/storage/presign',
   STUDY_CREATE: '/api/study/create',
   STUDY_GET: '/api/study',
+  STUDY_UPDATE: '/api/study',
   STUDY_DELETE: '/api/study/delete',
   STUDY_GET_ALL: '/api/study/getAll',
   ATTENDANCE_CHECK: '/api/attendance/check',
@@ -221,6 +222,21 @@ export class StudyService {
     }
   }
 
+  // 스터디 수정
+  static async updateStudy(studyId, content, images = []) {
+    try {
+      const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_UPDATE}/${studyId}`, {
+        method: 'PUT',
+        headers: this.getCommonHeaders(),
+        body: JSON.stringify({ content, images })
+      });
+
+      return await this.handleResponse(response, '스터디 수정 실패');
+    } catch (error) {
+      this.handleApiError(error);
+    }
+  }
+
   // 스터디 삭제
   static async deleteStudy(studyId) {
     try {
@@ -259,6 +275,36 @@ export class StudyService {
       });
 
       return await this.handleResponse(response, '스터디 상세 조회 실패');
+    } catch (error) {
+      this.handleApiError(error);
+    }
+  }
+
+  // 내 스터디 조회 (작성자별)
+  static async getMyStudies(userId, page = 0, size = 30) {
+    try {
+      const url = `${BASE_URL}${ENDPOINTS.STUDY_GET_ALL}?author=${userId}&page=${page}&size=${size}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getCommonHeaders()
+      });
+
+      return await this.handleResponse(response, '내 스터디 조회 실패');
+    } catch (error) {
+      this.handleApiError(error);
+    }
+  }
+
+  // 카테고리별 스터디 조회
+  static async getStudiesByCategory(category, page = 0, size = 30) {
+    try {
+      const url = `${BASE_URL}${ENDPOINTS.STUDY_GET_ALL}?category=${category}&page=${page}&size=${size}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getCommonHeaders()
+      });
+
+      return await this.handleResponse(response, '카테고리별 스터디 조회 실패');
     } catch (error) {
       this.handleApiError(error);
     }

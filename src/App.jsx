@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { Suspense, lazy } from "react"
 import { AuthProvider } from "./contexts/AuthContext.jsx"
+import QueryProvider from "./providers/QueryProvider.jsx"
 import AppLayout from "./layout/AppLayout.jsx"
 import HomePage from "./feature/MainHome/HomePage.jsx"
 import LoadingFallback from "./components/LoadingFallback.jsx"
@@ -12,6 +13,7 @@ const ResetPassword = lazy(() => import("./feature/SignIn/ResetPassword.jsx"))
 const SuccessResetPassword = lazy(() => import("./feature/SignIn/SuccessResetPassword.jsx"))
 const StudyChannelPage = lazy(() => import("./feature/StudyChannel/StudyChannelPage.jsx"))
 const ProjectPageLayout = lazy(() => import("./feature/ProjectPage/ProjectPageLayout.jsx"))
+const ProjectsPage = lazy(() => import("./feature/ProjectsPage/ProjectsPage.jsx"))
 const WritePageLayout = lazy(() => import("./feature/WritePage/WritePageLayout.jsx"))
 const MyProfileLayout = lazy(() => import("./feature/MyProfile/MyProfileLayout.jsx"))
 
@@ -23,6 +25,7 @@ const router = createBrowserRouter([
       { path: "/resetpassword", element: <Suspense fallback={<LoadingFallback />}><ResetPassword /></Suspense> },
       { path: "/successresetpassword", element: <Suspense fallback={<LoadingFallback />}><SuccessResetPassword /></Suspense> },
       { path: "/study/:category", element: <Suspense fallback={<LoadingFallback />}><StudyChannelPage /></Suspense> },
+      { path: "/projects", element: <Suspense fallback={<LoadingFallback />}><ProjectsPage /></Suspense> },
       { path: "/project/:projectId", element: <Suspense fallback={<LoadingFallback />}><ProjectPageLayout /></Suspense> },
       { path: "/write", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout /></Suspense> },
       { path: "/write/:id", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout /></Suspense> },
@@ -32,8 +35,10 @@ const router = createBrowserRouter([
 
 export default function App() {
   return (
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
+    <QueryProvider>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </QueryProvider>
   )
 }

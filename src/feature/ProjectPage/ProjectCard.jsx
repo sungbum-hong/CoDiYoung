@@ -13,7 +13,14 @@ const defaultProject = {
 };
 
 export default function ProjectCard({ project = defaultProject }) {
-  const { name, slogan, leadImage, members, tech, description } = project;
+  // API 응답 구조에 맞게 매핑
+  const name = project.title || project.name || '프로젝트 이름';
+  const slogan = project.questions?.[0] || project.slogan || '프로젝트 슬로건';
+  const leadImage = project.imageUrl || project.leadImage || '';
+  const members = project.memberBriefs || project.members || [];
+  const tech = project.techs || project.tech || [];
+  const description = project.description || '프로젝트 설명 또는 이미지가 들어갈 영역입니다.';
+  const projectId = project.id;
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
 
   const handleApply = () => {
@@ -50,18 +57,40 @@ export default function ProjectCard({ project = defaultProject }) {
         <div>
           <h3 className="text-sm mb-4">팀원</h3>
           <div className="flex items-center gap-4">
-            {members.map((m, idx) => (
-              <div key={idx} className="w-12 h-12 rounded-full" style={{ backgroundColor: COLORS.GRAY_200 }} />
-            ))}
+            {members && members.length > 0 ? (
+              members.map((member, idx) => (
+                <div 
+                  key={member.userId || idx} 
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold text-white" 
+                  style={{ backgroundColor: COLORS.PRIMARY }}
+                  title={member.name}
+                >
+                  {member.name ? member.name[0].toUpperCase() : '?'}
+                </div>
+              ))
+            ) : (
+              <div className="w-12 h-12 rounded-full" style={{ backgroundColor: COLORS.GRAY_200 }} />
+            )}
           </div>
         </div>
 
         <div>
           <h3 className="text-sm mb-4">기술</h3>
           <div className="flex items-center gap-6">
-            {tech.map((t, idx) => (
-              <div key={idx} className="w-12 h-12 rounded-full" style={{ backgroundColor: COLORS.GRAY_200 }} />
-            ))}
+            {tech && tech.length > 0 ? (
+              tech.map((techItem, idx) => (
+                <div 
+                  key={idx} 
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold text-white" 
+                  style={{ backgroundColor: COLORS.PRIMARY }}
+                  title={techItem}
+                >
+                  {typeof techItem === 'string' ? techItem.slice(0, 2).toUpperCase() : '?'}
+                </div>
+              ))
+            ) : (
+              <div className="w-12 h-12 rounded-full" style={{ backgroundColor: COLORS.GRAY_200 }} />
+            )}
           </div>
         </div>
       </div>
@@ -77,6 +106,7 @@ export default function ProjectCard({ project = defaultProject }) {
           <ApplicationModal 
             onClose={closeApplicationModal} 
             projectName={name}
+            projectId={projectId}
           />
         )}
       </div>

@@ -2,30 +2,29 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { COLORS } from "../../../utils/colors.js";
+import useStudyChannelStore from "../../../stores/studyChannelStore.js";
 
-export default function StudyModal({
-  isOpen,
-  onClose,
-  currentIndex = 0,
-  totalItems = 1,
-  onIndexChange,
-}) {
-  if (!isOpen) return null;
-
+export default function StudyModal({ children }) {
+  const { 
+    modals: { study: isOpen },
+    study: { currentIndex, count: totalItems },
+    closeModal,
+    navigateStudy 
+  } = useStudyChannelStore();
+  
   const boxRef = useRef(null);          // 모달 박스 ref
   const [pos, setPos] = useState(null); // {left, right, top}
+  
   const GAP = 40;   // 모달과 버튼 사이 간격(px) ← 여기만 조절하면 가로 위치 바뀜
   const BTN = 40;   // 버튼 지름(px)
 
   const handlePrevious = (e) => {
     e?.stopPropagation();
-    const newIndex = (currentIndex - 1 + totalItems) % totalItems;
-    onIndexChange?.(newIndex);
+    navigateStudy('prev');
   };
   const handleNext = (e) => {
     e?.stopPropagation();
-    const newIndex = (currentIndex + 1) % totalItems;
-    onIndexChange?.(newIndex);
+    navigateStudy('next');
   };
 
   // 모달 박스 위치를 읽어 화살표 위치 계산
@@ -54,10 +53,12 @@ export default function StudyModal({
     };
   }, [isOpen]);
 
+  if (!isOpen) return null;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={onClose}
+      onClick={() => closeModal('study')}
     >
       {/* 모달 상자 */}
       <div
@@ -78,7 +79,7 @@ export default function StudyModal({
         {/* 하단 버튼 (필요 시 유지) */}
         <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-12">
           <button
-            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            onClick={(e) => { e.stopPropagation(); closeModal('study'); }}
             style={{
               width: 120,
               height: 40,
@@ -99,6 +100,11 @@ export default function StudyModal({
           >
             확인
           </button>
+        </div>
+        
+        {/* children 렌더링 */}
+        <div className="absolute top-4 left-4 right-4">
+          {children}
         </div>
       </div>
 

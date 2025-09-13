@@ -3,6 +3,8 @@ import BaseModal from "../../../ui/BaseModal.jsx";
 import FormInput from "../../../ui/FormInput.jsx";
 import Button from "../../../ui/Button.jsx";
 import { COLORS } from "../../../utils/colors.js";
+import { MockProjectService, USE_MOCK_DATA } from "../../../mock-logic/index.js";
+// import { ProjectService } from "../../../services/projectService.js";
 
 // 드롭다운 옵션 정의
 const POSITION_OPTIONS = [
@@ -162,7 +164,7 @@ function MultiSelectDropdown({ options, value = [], onChange, placeholder, class
   );
 }
 
-export default function ApplicationModal({ onClose, projectName = "프로젝트" }) {
+export default function ApplicationModal({ onClose, projectName = "프로젝트", projectId }) {
   const [formData, setFormData] = useState({
     question: "",
     position: "",
@@ -205,7 +207,16 @@ export default function ApplicationModal({ onClose, projectName = "프로젝트"
   };
 
   const validateForm = () => {
-    return formData.question.trim() && formData.position && formData.tech.length > 0;
+    const errors = [];
+    if (!formData.question.trim()) errors.push("질문을 입력해주세요");
+    if (!formData.position) errors.push("포지션을 선택해주세요");
+    if (formData.tech.length === 0) errors.push("기술을 선택해주세요");
+    
+    if (errors.length > 0) {
+      alert(errors.join("\n"));
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
@@ -215,22 +226,64 @@ export default function ApplicationModal({ onClose, projectName = "프로젝트"
       return;
     }
 
+    if (!projectId) {
+      alert("프로젝트 ID가 없습니다.");
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      // TODO: 실제 API 호출
+      // API 스펙에 맞게 데이터 구성
+      const applicationData = {
+        answer: formData.question,
+        position: formData.position,
+        techs: formData.tech.join(", ") // 배열을 문자열로 변환
+      };
 
+      console.log('신청 데이터:', applicationData);
+      console.log('프로젝트 ID:', projectId);
+      console.log('Mock 데이터 사용 여부:', USE_MOCK_DATA);
       
-      // Mock API 호출 시뮬레이션
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = USE_MOCK_DATA 
+        ? await MockProjectService.applyToProject(projectId, applicationData)
+        : null; // 실제 API는 주석 처리됨
+      
+      // 실제 API 호출 코드 (주석 처리)
+      /*
+      const apiResponse = await fetch(`/api/projects/${projectId}/apply`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        },
+        body: JSON.stringify(applicationData)
+      });
+      
+      if (!apiResponse.ok) {
+        const errorText = await apiResponse.text();
+        throw new Error(`신청 실패: ${errorText}`);
+      }
+      
+      response = await apiResponse.json();
+      */
+      
+      console.log('신청 응답:', response);
       
       // 성공 처리 - 신청완료 모달 표시
       setIsCompleted(true);
       setIsSubmitting(false);
       
+      // 폼 초기화
+      setFormData({
+        question: "",
+        position: "",
+        tech: []
+      });
+      
     } catch (error) {
-
-      alert("신청 중 오류가 발생했습니다. 다시 시도해주세요.");
+      console.error('신청 실패:', error);
+      alert("신청 중 오류가 발생했습니다: " + error.message);
       setIsSubmitting(false);
     }
   };
@@ -355,9 +408,6 @@ export default function ApplicationModal({ onClose, projectName = "프로젝트"
           <h2 className="text-xl font-bold text-center mb-4" style={{ color: COLORS.PRIMARY }}>
             신청완료
           </h2>
-          <p className="text-center text-gray-600 mb-6">
-            프로젝트 신청이 완료되었습니다!
-          </p>
           <Button
             variant="secondary"
             onClick={handleCloseSuccess}

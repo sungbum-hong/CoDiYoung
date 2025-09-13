@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
@@ -58,6 +58,7 @@ export default function TiptapEditor({ content = '', onChange }) {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [linkData, setLinkData] = useState({ text: '', url: '' });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const isUpdatingFromProps = useRef(false);
 
   const editor = useEditor({
     extensions: [
@@ -88,6 +89,10 @@ export default function TiptapEditor({ content = '', onChange }) {
     ],
     content: content && content.trim() !== '' ? content : '<p></p>',
     onUpdate: ({ editor }) => {
+      // props에서 업데이트 중이면 onChange 호출하지 않음
+      if (isUpdatingFromProps.current) {
+        return;
+      }
       const html = editor.getHTML();
       onChange(html);
     },
@@ -98,16 +103,58 @@ export default function TiptapEditor({ content = '', onChange }) {
     },
   });
 
-  // content가 변경될 때 에디터 업데이트
-  useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      // content가 빈 문자열이면 에디터를 완전히 클리어
-      if (content === '' || content === null || content === undefined) {
-        editor.commands.clearContent();
-      } else {
-        editor.commands.setContent(content, false);
+  // Helper function: HTML 정규화 (공백과 빈 태그 제거)
+  const normalizeHTML = (html) => {
+    return html?.replace(/<p><\/p>/g, '').replace(/^\s+|\s+$/g, '') || '';
+  };
+
+  // Helper function: 빈 컨텐츠 여부 확인
+  const isEmptyContent = (content) => {
+    return !content || content.trim() === '' || content === '<p></p>';
+  };
+
+  // Helper function: 커서 위치 복원
+  const restoreCursorPosition = (selection) => {
+    if (!selection || selection.from > editor.state.doc.content.size) return;
+    
+    setTimeout(() => {
+      try {
+        editor.commands.setTextSelection(selection.from);
+      } catch (e) {
+        // 커서 복원 실패시 무시
       }
+    }, 0);
+  };
+
+  // content 변경시 에디터 업데이트 (외부 변경만 처리)
+  useEffect(() => {
+    if (!editor) return;
+
+    const currentHTML = editor.getHTML();
+    const normalizedContent = normalizeHTML(content);
+    const normalizedCurrent = normalizeHTML(currentHTML);
+
+    // 내용이 같으면 업데이트 불필요
+    if (normalizedContent === normalizedCurrent) return;
+
+    // 사용자가 타이핑 중이면 업데이트 금지 (커서 점프 방지)
+    if (editor.isFocused) return;
+
+    // 외부에서 변경된 경우만 업데이트
+    isUpdatingFromProps.current = true;
+    const currentSelection = editor.state.selection;
+
+    if (isEmptyContent(content)) {
+      editor.commands.clearContent();
+    } else {
+      editor.commands.setContent(content, false);
+      restoreCursorPosition(currentSelection);
     }
+
+    // 플래그 해제
+    setTimeout(() => {
+      isUpdatingFromProps.current = false;
+    }, 0);
   }, [content, editor]);
 
   // 링크 처리
@@ -231,19 +278,21 @@ export default function TiptapEditor({ content = '', onChange }) {
   }
 
   return (
-    <div className={`border border-gray-300 rounded-lg overflow-hidden bg-white transition-all duration-300 ${
+    <div className={`border border-gray-300 rounded-lg bg-white transition-all duration-300 ${
       isFullscreen 
-        ? 'fixed inset-0 z-50 rounded-none' 
-        : ''
+        ? 'fixed inset-0 top-24 z-50 rounded-none overflow-auto' 
+        : 'overflow-hidden'
     }`}>
-      <EditorToolbar
-        editor={editor}
-        onLinkClick={handleLinkClick}
-        onImageClick={handleImageClick}
-        onVideoClick={() => setIsVideoModalOpen(true)}
-        onTableClick={handleTableClick}
-        onFullscreenToggle={handleFullscreenToggle}
-      />
+      <div className={isFullscreen ? 'sticky top-0 z-10 bg-white' : ''}>
+        <EditorToolbar
+          editor={editor}
+          onLinkClick={handleLinkClick}
+          onImageClick={handleImageClick}
+          onVideoClick={() => setIsVideoModalOpen(true)}
+          onTableClick={handleTableClick}
+          onFullscreenToggle={handleFullscreenToggle}
+        />
+      </div>
       
       <div className="editor-content">
         <style>{`

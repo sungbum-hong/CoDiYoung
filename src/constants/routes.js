@@ -11,6 +11,7 @@ export const ROUTES = {
   
   // 동적 라우트
   STUDY_CATEGORY: "/study/:category",
+  PROJECTS: "/projects",
   PROJECT_DETAIL: "/project/:projectId", 
   
   // 사용자 기능

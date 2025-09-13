@@ -1,34 +1,35 @@
 import { COLORS } from "../../../utils/colors.js";
+import useStudyChannelStore from "../../../stores/studyChannelStore.js";
 
 export default function ProjectGalleryModal({
-  isOpen,
-  onClose,
-  currentIndex = 0,
-  totalItems = 1,
-  onIndexChange,
   // ✅ 원하는 크기로 손쉽게 조절
   circleSize = 500,   // 원형(이미지) 지름
   buttonSize = 48,    // 좌우 화살표 버튼 지름
   gap = 24,           // 원형과 버튼 사이 간격
 }) {
+  const { 
+    modals: { project: isOpen },
+    project: { currentIndex, count: totalItems },
+    closeModal,
+    navigateProject 
+  } = useStudyChannelStore();
+  
   if (!isOpen) return null;
 
   const handlePrevious = (e) => {
     e?.stopPropagation();
-    const newIndex = (currentIndex - 1 + totalItems) % totalItems;
-    onIndexChange?.(newIndex);
+    navigateProject('prev');
   };
 
   const handleNext = (e) => {
     e?.stopPropagation();
-    const newIndex = (currentIndex + 1) % totalItems;
-    onIndexChange?.(newIndex);
+    navigateProject('next');
   };
 
   return (
     <div
       className="fixed inset-0 flex items-center justify-center z-50 p-4"
-      onClick={onClose}
+      onClick={() => closeModal('project')}
     >
       {/* 모달 박스 */}
       <div
@@ -105,7 +106,7 @@ export default function ProjectGalleryModal({
 
             {/* 확인 버튼 (원형 하단 안쪽) — 필요시 유지/제거 */}
             <button
-              onClick={onClose}
+              onClick={() => closeModal('project')}
               className="absolute bottom-20 left-1/2 -translate-x-1/2 rounded-full font-medium cursor-pointer transition-colors"
               style={{
                 width: 100,

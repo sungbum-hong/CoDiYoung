@@ -4,9 +4,13 @@ import Button from "../../../ui/Button.jsx";
 import { MODAL_SIZES } from '../../../constants/sizes.js';
 import { CONFIG } from '../../../constants/config.js';
 import { COLORS } from "../../../utils/colors.js";
+import { usePrimaryButtonHover } from "../../../hooks/useHoverStyle.js";
 
 export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
   const navigate = useNavigate();
+  
+  // 호버 효과 훅 사용
+  const primaryButtonHover = usePrimaryButtonHover(COLORS.PRIMARY);
 
   const handleExplore = () => {
     navigate(`/project/${projectIndex + 1}`);
@@ -49,17 +53,7 @@ export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
               borderColor: COLORS.PRIMARY,
               transition: 'background-color .2s, color .2s',
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
-              e.currentTarget.style.color = 'white';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = COLORS.PRIMARY;
-            }}
-            
-    
-
+            {...primaryButtonHover}
           >
             구경하기
           </Button>

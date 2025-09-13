@@ -1,10 +1,13 @@
 import { COLORS } from "../../utils/colors.js";
+import useStudyChannelStore from "../../stores/studyChannelStore.js";
 
-export default function AttendanceSection({ attendanceFilledCount = 2 }) {
+export default function AttendanceSection() {
+  const { attendance } = useStudyChannelStore();
+
   return (
     <section className="mt-8">
       <h2 className="font-medium mb-4" style={{ color: COLORS.GRAY_800 }}>출석체크</h2>
-      <AttendanceGrid total={30} filled={attendanceFilledCount} />
+      <AttendanceGrid total={attendance.total} filled={attendance.filled} />
     </section>
   );
 }
