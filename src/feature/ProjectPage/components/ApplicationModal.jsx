@@ -1,223 +1,17 @@
-import { useState } from "react";
 import BaseModal from "../../../ui/BaseModal.jsx";
-import FormInput from "../../../ui/FormInput.jsx";
 import Button from "../../../ui/Button.jsx";
 import { COLORS } from "../../../utils/colors.js";
-import { MockProjectService, USE_MOCK_DATA } from "../../../mock-logic/index.js";
-// import { ProjectService } from "../../../services/projectService.js";
-
-// 드롭다운 옵션 정의
-const POSITION_OPTIONS = [
-  { value: "frontend", label: "프론트엔드" },
-  { value: "backend", label: "백엔드" },
-  { value: "fullstack", label: "풀스택" },
-  { value: "design", label: "디자인" },
-  { value: "mobile", label: "모바일" },
-  { value: "data", label: "데이터분석" }
-];
-
-const TECH_OPTIONS = [
-  { value: "react", label: "React" },
-  { value: "vue", label: "Vue.js" },
-  { value: "angular", label: "Angular" },
-  { value: "nodejs", label: "Node.js" },
-  { value: "python", label: "Python" },
-  { value: "java", label: "Java" },
-  { value: "spring", label: "Spring" },
-  { value: "javascript", label: "JavaScript" },
-  { value: "typescript", label: "TypeScript" },
-  { value: "flutter", label: "Flutter" },
-  { value: "react-native", label: "React Native" },
-  { value: "figma", label: "Figma" }
-];
-
-// 커스텀 드롭다운 컴포넌트
-function Dropdown({ options, value, onChange, placeholder, className = "" }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const selectedOption = options.find(option => option.value === value);
-
-  return (
-    <div className={`relative ${className}`}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full border-2 rounded-md p-2 text-left bg-white flex items-center justify-between"
-        style={{ borderColor: COLORS.PRIMARY, color: selectedOption ? 'black' : COLORS.GRAY_400 }}
-      >
-        <span className="flex-1">
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
-        <span className="ml-2" style={{ color: COLORS.PRIMARY }}>
-          {isOpen ? '▲' : '▼'}
-        </span>
-      </button>
-
-      {isOpen && (
-        <div 
-          className="absolute z-10 w-full mt-1 bg-white border-2 rounded-md shadow-lg max-h-48 overflow-y-auto"
-          style={{ borderColor: COLORS.PRIMARY }}
-        >
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => {
-                onChange(option.value);
-                setIsOpen(false);
-              }}
-              className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors duration-150"
-              style={{ 
-                backgroundColor: value === option.value ? COLORS.PRIMARY : 'transparent',
-                color: value === option.value ? 'white' : 'black'
-              }}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// 다중 선택 드롭다운 컴포넌트
-function MultiSelectDropdown({ options, value = [], onChange, placeholder, className = "" }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const selectedLabels = value.map(val => 
-    options.find(option => option.value === val)?.label
-  ).filter(Boolean);
-
-  const toggleOption = (optionValue) => {
-    const newValue = value.includes(optionValue)
-      ? value.filter(v => v !== optionValue)
-      : [...value, optionValue];
-    onChange(newValue);
-  };
-
-  return (
-    <div className={`relative ${className}`}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full border-2 rounded-md p-2 bg-white flex items-center justify-between min-h-[40px]"
-        style={{ borderColor: COLORS.PRIMARY, color: selectedLabels.length > 0 ? 'black' : COLORS.GRAY_400 }}
-      >
-        <div className="flex-1 text-left">
-          {selectedLabels.length > 0 ? (
-            <div className="flex flex-wrap gap-1">
-              {value.map((val) => {
-                const option = options.find(opt => opt.value === val);
-                return (
-                  <span
-                    key={val}
-                    className="inline-flex items-center px-2 py-1 text-xs rounded cursor-pointer group"
-                    style={{ backgroundColor: COLORS.PRIMARY, color: 'white' }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleOption(val);
-                    }}
-                  >
-                    {option?.label}
-                    <span className="ml-1 text-xs opacity-70 group-hover:opacity-100">
-                      ×
-                    </span>
-                  </span>
-                );
-              })}
-            </div>
-          ) : (
-            <span>{placeholder}</span>
-          )}
-        </div>
-        <span className="ml-2" style={{ color: COLORS.PRIMARY }}>
-          {isOpen ? '▲' : '▼'}
-        </span>
-      </button>
-
-      {isOpen && (
-        <div 
-          className="absolute z-10 w-full mt-1 bg-white border-2 rounded-md shadow-lg max-h-48 overflow-y-auto"
-          style={{ borderColor: COLORS.PRIMARY }}
-        >
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => toggleOption(option.value)}
-              className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors duration-150 flex items-center"
-              style={{ 
-                backgroundColor: value.includes(option.value) ? `${COLORS.PRIMARY}20` : 'transparent',
-                color: 'black'
-              }}
-            >
-              <span className="mr-2" style={{ color: COLORS.PRIMARY }}>
-                {value.includes(option.value) ? '✓' : '○'}
-              </span>
-              {option.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+import Dropdown from "./Dropdown.jsx";
+import MultiSelectDropdown from "./MultiSelectDropdown.jsx";
+import { POSITION_OPTIONS, TECH_OPTIONS } from "../constants/applicationOptions.js";
+import { useApplicationForm } from "../hooks/useApplicationForm.js";
+import { useTextareaResize } from "../hooks/useTextareaResize.js";
+import { useApplicationSubmit } from "../hooks/useApplicationSubmit.js";
 
 export default function ApplicationModal({ onClose, projectName = "프로젝트", projectId }) {
-  const [formData, setFormData] = useState({
-    question: "",
-    position: "",
-    tech: []
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleTextareaChange = (e) => {
-    const textarea = e.target;
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
-    handleInputChange('question', e.target.value);
-  };
-
-  const handleFocus = (e) => {
-    setIsFocused(true);
-    // focus 시 내용에 맞게 높이 조정
-    setTimeout(() => {
-      const textarea = e.target;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }, 0);
-  };
-
-  const handleBlur = () => {
-    setIsFocused(false);
-    // focus 해제 시 높이 원상복귀
-    setTimeout(() => {
-      const textarea = document.querySelector('.question-textarea');
-      if (textarea) {
-        textarea.style.height = '44px'; // 원래 최소 높이로 복귀
-      }
-    }, 0);
-  };
-
-  const validateForm = () => {
-    const errors = [];
-    if (!formData.question.trim()) errors.push("질문을 입력해주세요");
-    if (!formData.position) errors.push("포지션을 선택해주세요");
-    if (formData.tech.length === 0) errors.push("기술을 선택해주세요");
-    
-    if (errors.length > 0) {
-      alert(errors.join("\n"));
-      return false;
-    }
-    return true;
-  };
+  const { formData, handleInputChange, validateForm, resetForm } = useApplicationForm();
+  const { handleTextareaChange, handleFocus, handleBlur } = useTextareaResize();
+  const { isSubmitting, isCompleted, submitApplication, closeSuccess } = useApplicationSubmit();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -226,70 +20,14 @@ export default function ApplicationModal({ onClose, projectName = "프로젝트"
       return;
     }
 
-    if (!projectId) {
-      alert("프로젝트 ID가 없습니다.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    
-    try {
-      // API 스펙에 맞게 데이터 구성
-      const applicationData = {
-        answer: formData.question,
-        position: formData.position,
-        techs: formData.tech.join(", ") // 배열을 문자열로 변환
-      };
-
-      console.log('신청 데이터:', applicationData);
-      console.log('프로젝트 ID:', projectId);
-      console.log('Mock 데이터 사용 여부:', USE_MOCK_DATA);
-      
-      const response = USE_MOCK_DATA 
-        ? await MockProjectService.applyToProject(projectId, applicationData)
-        : null; // 실제 API는 주석 처리됨
-      
-      // 실제 API 호출 코드 (주석 처리)
-      /*
-      const apiResponse = await fetch(`/api/projects/${projectId}/apply`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(applicationData)
-      });
-      
-      if (!apiResponse.ok) {
-        const errorText = await apiResponse.text();
-        throw new Error(`신청 실패: ${errorText}`);
-      }
-      
-      response = await apiResponse.json();
-      */
-      
-      console.log('신청 응답:', response);
-      
-      // 성공 처리 - 신청완료 모달 표시
-      setIsCompleted(true);
-      setIsSubmitting(false);
-      
-      // 폼 초기화
-      setFormData({
-        question: "",
-        position: "",
-        tech: []
-      });
-      
-    } catch (error) {
-      console.error('신청 실패:', error);
-      alert("신청 중 오류가 발생했습니다: " + error.message);
-      setIsSubmitting(false);
+    const success = await submitApplication(projectId, formData);
+    if (success) {
+      resetForm();
     }
   };
 
   const handleCloseSuccess = () => {
-    setIsCompleted(false);
+    closeSuccess();
     onClose();
   };
 
@@ -332,7 +70,7 @@ export default function ApplicationModal({ onClose, projectName = "프로젝트"
                 color: 'black'
               }}
               value={formData.question}
-              onChange={handleTextareaChange}
+              onChange={(e) => handleTextareaChange(e, (value) => handleInputChange('question', value))}
               onFocus={handleFocus}
               onBlur={handleBlur}
               placeholder="질문을 입력해주세요"
