@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { CalendarIcon } from '@heroicons/react/24/outline';
 import { COLORS } from '../../utils/colors';
+import { usePrimaryButtonHover } from '../../hooks/useHoverStyle.js';
 import AttendanceStars from './AttendanceStars';
 import DatePickerModal from './Study/DatePickerModal';
 
 export default function AttendanceContent() {
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  
+  // 호버 효과 훅 사용
+  const primaryButtonHover = usePrimaryButtonHover(COLORS.PRIMARY);
 
   const handleCalendarClick = () => {
     setIsDatePickerOpen(true);
@@ -30,14 +34,7 @@ export default function AttendanceContent() {
             border: `2px solid ${COLORS.PRIMARY}`,
             color: COLORS.PRIMARY
           }}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = COLORS.PRIMARY;
-            e.target.style.color = COLORS.WHITE;
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = COLORS.WHITE;
-            e.target.style.color = COLORS.PRIMARY;
-          }}
+          {...primaryButtonHover}
           title="달력 보기"
         >
           <CalendarIcon className="w-5 h-5" />

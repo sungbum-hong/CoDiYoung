@@ -1,55 +1,26 @@
-import { useNavigate } from "react-router-dom";
-import { PencilIcon, CodeBracketIcon, PaintBrushIcon, VideoCameraIcon } from "@heroicons/react/24/outline";
-import { ROUTES } from "../../constants/routes";
+import { PencilIcon } from "@heroicons/react/24/outline";
 import { COLORS } from "../../utils/colors";
-import { CONFIG } from "../../constants/config";
 import { useAvatarGeneration } from "../../hooks/useAvatarGeneration.js";
+import { useStudyNavigation } from "./hooks/useStudyNavigation.js";
+import { useCategoryConfig } from "./hooks/useCategoryConfig.js";
+import CategoryCard from "./components/CategoryCard.jsx";
 
-export default function StudyCategory({
-  title = "스터디 채널",
-  rows = [
+export default function StudyCategory() {
+  const title = "스터디 채널";
+  const rows = [
     { label: "코딩", count: 5 },
     { label: "디자인", count: 5 },
     { label: "영상편집", count: 5 },
-  ],
-}) {
-  const navigate = useNavigate();
-  
+  ];
+
   // 커스텀 훅을 사용한 아바타 생성
   const { getAvatar, isLoading } = useAvatarGeneration(rows, { size: 96 });
-
-  const handleCategoryClick = (category) => {
-    navigate(`${ROUTES.STUDY_CATEGORY.replace(":category", category)}`);
-  };
-
-  const handleWriteClick = () => {
-    navigate(ROUTES.WRITE);
-  };
-
-  const getCategoryConfig = (label) => {
-    switch (label) {
-      case "코딩":
-        return { 
-          color: "#ef4444", // red-500
-          icon: CodeBracketIcon 
-        };
-      case "디자인":
-        return { 
-          color: "#eab308", // yellow-500
-          icon: PaintBrushIcon 
-        };
-      case "영상편집":
-        return { 
-          color: "#8b5cf6", // violet-500
-          icon: VideoCameraIcon 
-        };
-      default:
-        return { 
-          color: COLORS.GRAY_500, 
-          icon: PencilIcon 
-        };
-    }
-  };
+  
+  // 네비게이션 훅
+  const { handleCategoryClick, handleWriteClick } = useStudyNavigation();
+  
+  // 카테고리 설정 훅
+  const { getCategoryConfig } = useCategoryConfig();
 
   return (
     <section className="space-y-6 mb-21">
@@ -98,32 +69,14 @@ export default function StudyCategory({
               const avatarSrc = getAvatar(r.label, i);
               
               return (
-                <button
+                <CategoryCard
                   key={i}
-                  onClick={() => handleCategoryClick(r.label)}
-                  className="w-24 h-24 rounded-full cursor-pointer focus:outline-none focus:ring-2 overflow-hidden border-2"
-                  style={{
-                    backgroundColor: COLORS.WHITE,
-                    borderColor: COLORS.GRAY_300,
-                  }}
-                  onFocus={(e) =>
-                    (e.target.style.boxShadow = `0 0 0 2px ${COLORS.BLUE_600}`)
-                  }
-                  onBlur={(e) => (e.target.style.boxShadow = "none")}
-                  aria-label={`${r.label} 스터디 채널 ${i + 1}번`}
-                >
-                  {avatarSrc ? (
-                    <img 
-                      src={avatarSrc} 
-                      alt={`${r.label} 아바타 ${i + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
-                      {isLoading ? 'Loading...' : 'Error'}
-                    </div>
-                  )}
-                </button>
+                  label={r.label}
+                  index={i}
+                  avatarSrc={avatarSrc}
+                  isLoading={isLoading}
+                  onCategoryClick={handleCategoryClick}
+                />
               );
             })}
             </div>

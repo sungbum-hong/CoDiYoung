@@ -1,141 +1,40 @@
-import { useState, useEffect } from "react";
 import { UserIcon } from "@heroicons/react/24/solid";
+import { useEffect } from "react";
 import ProjectCreateForm from "./ProjectCreateForm";
 import ApplicantListView from "./components/ApplicantListView";
-import { ProjectService } from "../../../services/projectService.js";
-import {
-  MockProjectService,
-  USE_MOCK_DATA,
-} from "../../../mock-logic/index.js";
+import ProjectCard from "../components/ProjectCard.jsx";
+import { useProjectData } from "../hooks/useProjectData.js";
+import { useApplicantData } from "../hooks/useApplicantData.js";
+import { useProjectNavigation } from "../hooks/useProjectNavigation.js";
+import { useProjectModal } from "../hooks/useProjectModal.js";
 
 export default function ProjectContent() {
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [showApplicantList, setShowApplicantList] = useState(false);
-  const [progressingProjects, setProgressingProjects] = useState([]);
-  const [appliedProjects, setAppliedProjects] = useState([]);
-  const [projectApplicants, setProjectApplicants] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentProjectId, setCurrentProjectId] = useState(null);
+  // 프로젝트 데이터 훅
+  const { progressingProjects, appliedProjects, isLoading } = useProjectData();
+  
+  // 신청자 데이터 훅
+  const { projectApplicants, fetchMultipleProjectApplicants } = useApplicantData();
+  
+  // 네비게이션 훅
+  const {
+    showCreateForm,
+    showApplicantList,
+    currentProjectId,
+    handleCreateClick,
+    handleBackClick,
+    handleApplicantIconClick,
+    handleBackToProjects,
+  } = useProjectNavigation();
+  
+  // 모달 관리 훅
+  const { modals, openModal, closeModal } = useProjectModal();
 
-  const handleCreateClick = () => {
-    setShowCreateForm(true);
-  };
-
-  const handleBackClick = () => {
-    setShowCreateForm(false);
-  };
-
-  const handleApplicantIconClick = (projectId) => {
-    setCurrentProjectId(projectId);
-    setShowApplicantList(true);
-  };
-
-  const handleBackToProjects = () => {
-    setShowApplicantList(false);
-    setCurrentProjectId(null);
-  };
-
-  // 진행 프로젝트 조회
-  const fetchProgressingProjects = async () => {
-    try {
-      const response = USE_MOCK_DATA
-        ? await MockProjectService.getProgressingProjects()
-        : await ProjectService.getProgressingProjects();
-      console.log("진행 프로젝트 응답:", response);
-      if (response) {
-        const projectsArray = Array.isArray(response) ? response : [response];
-        setProgressingProjects(projectsArray);
-
-        // 각 진행 프로젝트의 신청자 조회
-        for (const project of projectsArray) {
-          console.log(`프로젝트 정보:`, project);
-          if (project.id) {
-            console.log(`프로젝트 ${project.id}의 신청자 조회 시작`);
-            await fetchProjectApplicants(project.id);
-          } else {
-            console.log(`프로젝트 ID가 null입니다:`, project.title);
-            console.log(
-              `서버에서 프로젝트 ID를 반환하지 않아 신청자 조회가 불가능합니다.`
-            );
-            // 임시로 빈 신청자 배열 설정
-            setProjectApplicants((prev) => ({
-              ...prev,
-              ["no-id"]: [],
-            }));
-          }
-        }
-      } else {
-        setProgressingProjects([]);
-      }
-    } catch (error) {
-      console.error("진행 프로젝트 조회 실패:", error);
-      setProgressingProjects([]);
-    }
-  };
-
-  // 신청 프로젝트 조회
-  const fetchAppliedProjects = async () => {
-    try {
-      const response = USE_MOCK_DATA
-        ? await MockProjectService.getAppliedProjects()
-        : await ProjectService.getAppliedProjects();
-      console.log("신청 프로젝트 응답:", response);
-      if (response) {
-        const projectsArray = Array.isArray(response) ? response : [response];
-        setAppliedProjects(projectsArray);
-      } else {
-        setAppliedProjects([]);
-      }
-    } catch (error) {
-      console.error("신청 프로젝트 조회 실패:", error);
-      setAppliedProjects([]);
-    }
-  };
-
-  // 프로젝트 신청자 조회
-  const fetchProjectApplicants = async (projectId) => {
-    try {
-      const response = USE_MOCK_DATA
-        ? await MockProjectService.getProjectApplicants(projectId)
-        : await ProjectService.getProjectApplicants(projectId);
-      console.log(`프로젝트 ${projectId} 신청자 응답:`, response);
-      if (response) {
-        const applicantsArray = Array.isArray(response) ? response : [response];
-        setProjectApplicants((prev) => ({
-          ...prev,
-          [projectId]: applicantsArray,
-        }));
-      }
-    } catch (error) {
-      console.error(`프로젝트 ${projectId} 신청자 조회 실패:`, error);
-      // 신청자가 없는 경우도 정상적인 상황
-      if (
-        error.message.includes("신청자가 없습니다") ||
-        error.message.includes("404")
-      ) {
-        console.log(`프로젝트 ${projectId}에 신청자가 없음 - 정상 상황`);
-        setProjectApplicants((prev) => ({
-          ...prev,
-          [projectId]: [],
-        }));
-      }
-    }
-  };
-
-  // 모든 프로젝트 데이터 조회
-  const fetchAllProjects = async () => {
-    setIsLoading(true);
-    try {
-      await Promise.all([fetchProgressingProjects(), fetchAppliedProjects()]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // 프로젝트 데이터가 로드된 후 신청자 데이터 조회
   useEffect(() => {
-    console.log("ProjectContent Mock 데이터 사용 여부:", USE_MOCK_DATA);
-    fetchAllProjects();
-  }, []);
+    if (progressingProjects.length > 0) {
+      fetchMultipleProjectApplicants(progressingProjects);
+    }
+  }, [progressingProjects, fetchMultipleProjectApplicants]);
 
   if (showCreateForm) {
     return (
@@ -167,7 +66,7 @@ export default function ProjectContent() {
       {/* 신청 프로젝트 + 아이콘 */}
       <div className="mb-10">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-lg font-semibold">진행 프로젝트</h2>
+          <h2 className="text-lg font-semibold">신청 프로젝트</h2>
           {/* 신청자/완료 이미지를 제목 오른쪽에 배치 */}
           <div className="flex gap-4">
             {/* 신청자 리스트 보기 버튼 */}
@@ -190,121 +89,7 @@ export default function ProjectContent() {
           ) : progressingProjects && progressingProjects.length > 0 ? (
             <div className="w-full h-full overflow-y-auto">
               {progressingProjects.map((project, index) => (
-                <div key={index} className="relative w-full h-full">
-                  {/* 프로젝트 이미지 */}
-                  <div
-                    className="absolute w-[70px] h-[70px] rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600"
-                    style={{ left: "20px", top: "12px" }}
-                  >
-                    프로젝트
-                    <br />
-                    이미지
-                  </div>
-
-                  {/* 프로젝트 정보 */}
-                  <div
-                    className="absolute"
-                    style={{ left: "198px", top: "13px" }}
-                  >
-                    <div className="text-xs font-bold">
-                      프로젝트 명: {project.title || ""}
-                    </div>
-                  </div>
-
-                  <div
-                    className="absolute"
-                    style={{ left: "198px", top: "38px" }}
-                  >
-                    <div className="text-xs font-bold">
-                      참여 인원: {project.memberCount ?? 0}명
-                    </div>
-                  </div>
-
-                  <div
-                    className="absolute"
-                    style={{ left: "198px", top: "65px" }}
-                  >
-                    <div className="text-xs font-bold">
-                      포지션:{" "}
-                      {project.positions && Array.isArray(project.positions)
-                        ? project.positions.join(", ")
-                        : "미설정"}
-                    </div>
-                  </div>
-
-                  <div
-                    className="absolute"
-                    style={{ left: "198px", top: "92px" }}
-                  >
-                    <div className="text-xs font-bold">
-                      연락처:{" "}
-                      {project.kakakoLink ? (
-                        <a
-                          href={project.kakakoLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 underline cursor-pointer"
-                        >
-                          {project.kakakoLink}
-                        </a>
-                      ) : (
-                        ""
-                      )}
-                    </div>
-                  </div>
-
-                  {/* 크루 제목 */}
-                  <div
-                    className="absolute text-xs font-bold"
-                    style={{ left: "22px", top: "113px" }}
-                  >
-                    크루
-                  </div>
-
-                  {/* 크루 동그라미들 */}
-                  <div
-                    className="absolute flex gap-[20px]"
-                    style={{ left: "20px", top: "136px" }}
-                  >
-                    {project.memberBriefs && project.memberBriefs.length > 0 ? (
-                      project.memberBriefs.slice(0, 2).map((member, i) => (
-                        <div
-                          key={i}
-                          className="w-[38px] h-[38px] rounded-full bg-gray-300 flex items-center justify-center text-xs"
-                        >
-                          {member.name?.[0] ?? "?"}
-                        </div>
-                      ))
-                    ) : (
-                      <>
-                        <div className="w-[38px] h-[38px] rounded-full bg-gray-300"></div>
-                        <div className="w-[38px] h-[38px] rounded-full bg-gray-300"></div>
-                      </>
-                    )}
-                  </div>
-
-                  {/* 기술 제목 */}
-                  <div
-                    className="absolute text-xs font-bold"
-                    style={{ left: "21px", top: "182px" }}
-                  >
-                    기술
-                  </div>
-
-                  {/* 기술 동그라미 */}
-                  <div
-                    className="absolute"
-                    style={{ left: "21px", top: "205px" }}
-                  >
-                    <div className="w-[38px] h-[38px] rounded-full bg-gray-300 flex items-center justify-center text-xs">
-                      {project.techs &&
-                      Array.isArray(project.techs) &&
-                      project.techs.length > 0
-                        ? project.techs[0].slice(0, 2)
-                        : "미설정"}
-                    </div>
-                  </div>
-                </div>
+                <ProjectCard key={index} project={project} index={index} />
               ))}
             </div>
           ) : (
@@ -367,121 +152,7 @@ export default function ProjectContent() {
           ) : progressingProjects && progressingProjects.length > 0 ? (
             <div className="w-full h-full overflow-y-auto">
               {progressingProjects.map((project, index) => (
-                <div key={index} className="relative w-full h-full">
-                  {/* 프로젝트 이미지 */}
-                  <div
-                    className="absolute w-[70px] h-[70px] rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600"
-                    style={{ left: "20px", top: "12px" }}
-                  >
-                    프로젝트
-                    <br />
-                    이미지
-                  </div>
-
-                  {/* 프로젝트 정보 */}
-                  <div
-                    className="absolute"
-                    style={{ left: "198px", top: "13px" }}
-                  >
-                    <div className="text-xs font-bold">
-                      프로젝트 명: {project.title || ""}
-                    </div>
-                  </div>
-
-                  <div
-                    className="absolute"
-                    style={{ left: "198px", top: "38px" }}
-                  >
-                    <div className="text-xs font-bold">
-                      참여 인원: {project.memberCount ?? 0}명
-                    </div>
-                  </div>
-
-                  <div
-                    className="absolute"
-                    style={{ left: "198px", top: "65px" }}
-                  >
-                    <div className="text-xs font-bold">
-                      포지션:{" "}
-                      {project.positions && Array.isArray(project.positions)
-                        ? project.positions.join(", ")
-                        : "미설정"}
-                    </div>
-                  </div>
-
-                  <div
-                    className="absolute"
-                    style={{ left: "198px", top: "92px" }}
-                  >
-                    <div className="text-xs font-bold">
-                      연락처:{" "}
-                      {project.kakakoLink ? (
-                        <a
-                          href={project.kakakoLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 underline cursor-pointer"
-                        >
-                          {project.kakakoLink}
-                        </a>
-                      ) : (
-                        ""
-                      )}
-                    </div>
-                  </div>
-
-                  {/* 크루 제목 */}
-                  <div
-                    className="absolute text-xs font-bold"
-                    style={{ left: "22px", top: "113px" }}
-                  >
-                    크루
-                  </div>
-
-                  {/* 크루 동그라미들 */}
-                  <div
-                    className="absolute flex gap-[20px]"
-                    style={{ left: "20px", top: "136px" }}
-                  >
-                    {project.memberBriefs && project.memberBriefs.length > 0 ? (
-                      project.memberBriefs.slice(0, 2).map((member, i) => (
-                        <div
-                          key={i}
-                          className="w-[38px] h-[38px] rounded-full bg-gray-300 flex items-center justify-center text-xs"
-                        >
-                          {member.name?.[0] ?? "?"}
-                        </div>
-                      ))
-                    ) : (
-                      <>
-                        <div className="w-[38px] h-[38px] rounded-full bg-gray-300"></div>
-                        <div className="w-[38px] h-[38px] rounded-full bg-gray-300"></div>
-                      </>
-                    )}
-                  </div>
-
-                  {/* 기술 제목 */}
-                  <div
-                    className="absolute text-xs font-bold"
-                    style={{ left: "21px", top: "182px" }}
-                  >
-                    기술
-                  </div>
-
-                  {/* 기술 동그라미 */}
-                  <div
-                    className="absolute"
-                    style={{ left: "21px", top: "205px" }}
-                  >
-                    <div className="w-[38px] h-[38px] rounded-full bg-gray-300 flex items-center justify-center text-xs">
-                      {project.techs &&
-                      Array.isArray(project.techs) &&
-                      project.techs.length > 0
-                        ? project.techs[0].slice(0, 2)
-                        : "미설정"}
-                    </div>
-                  </div>
-                </div>
+                <ProjectCard key={index} project={project} index={index} />
               ))}
             </div>
           ) : (

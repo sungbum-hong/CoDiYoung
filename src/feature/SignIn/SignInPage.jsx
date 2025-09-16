@@ -1,62 +1,31 @@
-// src/feature/Auth/SignInPage.jsx
-import { useNavigate } from "react-router-dom";
-import { createPortal } from "react-dom";               // ⬅ 추가
-import { useAuth } from "../../contexts/AuthContext";
-import { useUI } from "../../contexts/UIContext";
-import { validateEmail, validatePassword } from "../../utils/validation";
 import Button from "../../ui/Button.jsx";
 import FormInput from "../../ui/FormInput";
 import { COLORS } from "../../utils/colors.js";
-import { ROUTES } from "../../constants/routes.js";
 import { MESSAGES } from "../../constants/messages.js";
 import { CONFIG } from "../../constants/config.js";
+import ErrorModal from "./components/ErrorModal.jsx";
+import { useSignInForm } from "./hooks/useSignInForm.js";
+import { useSignInAuth } from "./hooks/useSignInAuth.js";
 
 export default function SignInPage({ onClose }) {
-  const navigate = useNavigate();
-  const { login, isLoading, error, clearError } = useUI();
   const {
     email, password, emailError, passwordError,
-    setEmail, setPassword, setEmailError, setPasswordError, resetErrors
-  } = useAuth();
-
-  const handleEmailChange = (e) => {
-    const v = e.target.value;
-    setEmail(v);
-    if (v) setEmailError(validateEmail(v));
-    if (error) clearError();
-  };
-
-  const handlePasswordChange = (e) => {
-    const v = e.target.value;
-    setPassword(v);
-    if (v) setPasswordError(validatePassword(v));
-    if (error) clearError();
-  };
+    handleEmailChange, handlePasswordChange, validateForm, resetErrors,
+    error, clearError
+  } = useSignInForm();
+  
+  const { isLoading, handleLogin, handleFindPassword } = useSignInAuth();
 
   const onSubmit = async (e) => {
     e.preventDefault();
-
-    const eErr = validateEmail(email);
-    const pErr = validatePassword(password);
-    setEmailError(eErr);
-    setPasswordError(pErr);
-
-    if (eErr || pErr) return;
-
-    try {
-      const result = await login(email, password);
-      if (result.success) {
-        navigate(ROUTES.HOME);
-        onClose?.();
-      }
-    } catch (error) {
-      // handled in UI context
-    }
+    
+    if (!validateForm()) return;
+    
+    await handleLogin(email, password, onClose);
   };
 
-  const handleFindPassword = () => {
-    resetErrors();
-    navigate(ROUTES.FIND_PASSWORD);
+  const onFindPassword = () => {
+    handleFindPassword(resetErrors);
   };
 
   return (
@@ -129,7 +98,7 @@ export default function SignInPage({ onClose }) {
 
               <button
                 type="button"
-                onClick={handleFindPassword}
+                onClick={onFindPassword}
                 className="
                   text-black hover:text-[var(--primary)]
                   focus-visible:text-[var(--primary)] focus-visible:underline
@@ -169,39 +138,10 @@ export default function SignInPage({ onClose }) {
         onClose={clearError}
         onFindPassword={() => {
           clearError();
-          handleFindPassword();
+          onFindPassword();
         }}
       />
     </div>
   );
 }
 
-/* ---- lightweight ErrorModal (no deps) ---- */
-function ErrorModal({ open, message, onClose, onFindPassword, primary }) {
-  if (!open) return null;
-  return createPortal(
-    <div className="fixed inset-0 z-[100]">
-      {/* overlay */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
-        onClick={onClose}
-      />
-      {/* dialog */}
-      <div
-        role="alertdialog"
-        aria-labelledby="signin-error-title"
-        aria-describedby="signin-error-desc"
-        className="absolute left-1/2 top-[40%] -translate-x-1/2
-                   w-[90%] max-w-[420px] rounded-2xl bg-white shadow-2xl
-                   border border-red-200 p-5"
-      >
-        <div className="grid place-items-center">
-          <p id="signin-error-desc" className="text-center text-sm text-red-700">
-            {message}
-          </p>
-        </div>
-      </div>
-    </div>,
-    document.body
-  );
-}

@@ -1,30 +1,19 @@
-import { useRef } from "react";
 import { COLORS } from "../../utils/colors.js";
 import useStudyChannelStore from "../../stores/studyChannelStore.js";
 import StudyModal from "./Modal/StudyModal.jsx";
+import StudyCard from "./components/StudyCard.jsx";
+import { useHorizontalScroll } from "./hooks/useHorizontalScroll.js";
 
 export default function StudySection() {
-  const railRef = useRef(null);
   const { 
     study: { count: studyCount },
-    modals: { study: isModalOpen },
-    openStudyModal,
-    closeModal 
+    openStudyModal
   } = useStudyChannelStore();
+
+  const { railRef, scrollByCards } = useHorizontalScroll();
 
   const openModal = (index) => {
     openStudyModal(index);
-  };
-
-  // 화살표 클릭 시 화면에 보이는 카드 개수만큼 부드럽게 이동
-  const scrollByCards = (dir = 1) => {
-    const rail = railRef.current;
-    if (!rail) return;
-    const CARD = 100; // 카드 한 변
-    const gap = parseInt(getComputedStyle(rail).columnGap || "0", 10) || 32; // gap-8 = 32px
-    const perPage = Math.max(1, Math.floor((rail.clientWidth + gap) / (CARD + gap)));
-    const step = perPage * (CARD + gap);
-    rail.scrollBy({ left: dir * step, behavior: "smooth" });
   };
 
   return (
@@ -79,14 +68,3 @@ export default function StudySection() {
   );
 }
 
-function StudyCard({ onClick }) {
-  return (
-    <div
-      onClick={onClick}
-      className="size-[100px] rounded-2xl cursor-pointer transition-colors"
-      style={{ backgroundColor: COLORS.GRAY_300 }}
-      onMouseEnter={(e) => e.target.style.backgroundColor = COLORS.GRAY_400}
-      onMouseLeave={(e) => e.target.style.backgroundColor = COLORS.GRAY_300}
-    />
-  );
-}
