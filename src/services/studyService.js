@@ -8,7 +8,7 @@ const ENDPOINTS = {
   PRESIGN: '/storage/presign',
   STUDY_CREATE: '/api/study/create',
   STUDY_GET: '/api/study',
-  STUDY_UPDATE: '/api/study',
+  STUDY_UPDATE: '/api/study/update/study',
   STUDY_DELETE: '/api/study/delete',
   STUDY_GET_ALL: '/api/study/getAll',
   ATTENDANCE_CHECK: '/api/attendance/check',
@@ -225,10 +225,13 @@ export class StudyService {
   // 스터디 수정
   static async updateStudy(studyId, content, images = []) {
     try {
-      const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_UPDATE}/${studyId}`, {
+      const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_UPDATE}`, {
         method: 'PUT',
         headers: this.getCommonHeaders(),
-        body: JSON.stringify({ content, images })
+        body: JSON.stringify({ 
+          content, 
+          images 
+        })
       });
 
       return await this.handleResponse(response, '스터디 수정 실패');

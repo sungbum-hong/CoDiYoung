@@ -34,7 +34,7 @@ export default function ProjectContent() {
     if (progressingProjects.length > 0) {
       fetchMultipleProjectApplicants(progressingProjects);
     }
-  }, [progressingProjects, fetchMultipleProjectApplicants]);
+  }, [progressingProjects]);
 
   if (showCreateForm) {
     return (
@@ -56,6 +56,7 @@ export default function ProjectContent() {
       <ApplicantListView
         applicants={applicants}
         projectTitle={currentProject?.title || "프로젝트"}
+        projectId={currentProjectId}
         onBack={handleBackToProjects}
       />
     );
@@ -69,15 +70,43 @@ export default function ProjectContent() {
           <h2 className="text-lg font-semibold">신청 프로젝트</h2>
           {/* 신청자/완료 이미지를 제목 오른쪽에 배치 */}
           <div className="flex gap-4">
-            {/* 신청자 리스트 보기 버튼 */}
+            {/* 프로젝트 생성/취소 버튼 */}
             <div className="flex gap-2">
-              <button
-                onClick={handleCreateClick}
-                className="w-10 h-10 rounded-full bg-white border-2 border-violet-600 text-violet-600 
-             hover:bg-violet-600 hover:text-white transition flex items-center justify-center text-sm shadow-sm"
-              >
-                ➕
-              </button>
+              {(() => {
+                // 진행 프로젝트가 있으면 아이콘 숨김
+                if (progressingProjects && progressingProjects.length > 0) {
+                  return null;
+                }
+                
+                // 신청 프로젝트가 있으면 취소 아이콘
+                if (appliedProjects && appliedProjects.length > 0) {
+                  return (
+                    <button
+                      onClick={() => {
+                        // 취소 로직 구현 필요
+                        console.log('프로젝트 신청 취소');
+                      }}
+                      className="w-10 h-10 rounded-full bg-white border-2 border-red-600 text-red-600 
+                   hover:bg-red-600 hover:text-white transition flex items-center justify-center text-sm shadow-sm"
+                      title="프로젝트 신청 취소"
+                    >
+                      ✖️
+                    </button>
+                  );
+                }
+                
+                // 둘 다 없으면 개설 아이콘
+                return (
+                  <button
+                    onClick={handleCreateClick}
+                    className="w-10 h-10 rounded-full bg-white border-2 border-violet-600 text-violet-600 
+                 hover:bg-violet-600 hover:text-white transition flex items-center justify-center text-sm shadow-sm"
+                    title="새 프로젝트 개설"
+                  >
+                    ➕
+                  </button>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -86,9 +115,9 @@ export default function ProjectContent() {
             <div className="w-full h-full flex items-center justify-center">
               <span className="font-bold text-lg">로딩 중...</span>
             </div>
-          ) : progressingProjects && progressingProjects.length > 0 ? (
+          ) : appliedProjects && appliedProjects.length > 0 ? (
             <div className="w-full h-full overflow-y-auto">
-              {progressingProjects.map((project, index) => (
+              {appliedProjects.map((project, index) => (
                 <ProjectCard key={index} project={project} index={index} />
               ))}
             </div>
@@ -105,44 +134,49 @@ export default function ProjectContent() {
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-lg font-semibold">진행 프로젝트</h2>
           {/* 신청자/완료 이미지를 제목 오른쪽에 배치 */}
-          <div className="flex gap-4">
-            {/* 신청자 리스트 보기 버튼 */}
-            <div className="flex gap-2">
-              {progressingProjects.length > 0 && progressingProjects[0] ? (
-                progressingProjects[0].id ? (
-                  <button
-                    onClick={() =>
-                      handleApplicantIconClick(progressingProjects[0].id)
-                    }
-                    className="w-[58px] h-[58px] rounded-full flex items-center justify-center text-sm font-bold text-white hover:scale-105 transition-transform cursor-pointer"
-                    style={{ backgroundColor: "#6366F1" }}
-                    title={`신청자 목록 보기 (${
-                      projectApplicants[progressingProjects[0].id]?.length || 0
-                    }명)`}
-                  >
-                    <UserIcon className="w-6 h-6 text-white" />
-                  </button>
-                ) : (
-                  <div className="w-[58px] h-[58px] rounded-full bg-orange-200 flex items-center justify-center text-xs text-orange-700 font-semibold">
-                    서버
-                    <br />
-                    이슈
-                  </div>
-                )
-              ) : (
-                <div className="w-[58px] h-[58px] rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
-                  프로젝트
-                  <br />
-                  없음
-                </div>
-              )}
+          {/* 진행 프로젝트가 있을 때만 아이콘들 표시 */}
+          {progressingProjects && progressingProjects.length > 0 && (
+            <div className="flex gap-4">
+              {/* 신청자 리스트 보기 버튼 */}
+              <div className="flex gap-2">
+                {progressingProjects[0] ? (
+                  progressingProjects[0].id ? (
+                    (() => {
+                      const applicantCount = projectApplicants[progressingProjects[0].id]?.length || 0;
+                      const hasApplicants = applicantCount > 0;
+                      
+                      return (
+                        <button
+                          onClick={hasApplicants ? () => handleApplicantIconClick(progressingProjects[0].id) : undefined}
+                          className={`w-[58px] h-[58px] rounded-full flex items-center justify-center text-sm font-bold text-white transition-transform ${
+                            hasApplicants 
+                              ? 'hover:scale-105 cursor-pointer' 
+                              : 'cursor-not-allowed opacity-50'
+                          }`}
+                          style={{ backgroundColor: hasApplicants ? "#6366F1" : "#9CA3AF" }}
+                          title={hasApplicants ? `신청자 목록 보기 (${applicantCount}명)` : "신청자가 없습니다"}
+                          disabled={!hasApplicants}
+                        >
+                          <UserIcon className="w-6 h-6 text-white" />
+                        </button>
+                      );
+                    })()
+                  ) : (
+                    <div className="w-[58px] h-[58px] rounded-full bg-orange-200 flex items-center justify-center text-xs text-orange-700 font-semibold">
+                      서버
+                      <br />
+                      이슈
+                    </div>
+                  )
+                ) : null}
+              </div>
+              <div className="w-[58px] h-[58px] rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
+                완료
+                <br />
+                이미지
+              </div>
             </div>
-            <div className="w-[58px] h-[58px] rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
-              완료
-              <br />
-              이미지
-            </div>
-          </div>
+          )}
         </div>
         <div className="w-full max-w-xl h-64 border-2 border-[var(--color-primary)] rounded-md relative">
           {isLoading ? (

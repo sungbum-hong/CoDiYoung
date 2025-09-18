@@ -9,6 +9,7 @@ export function useWritePage() {
   const isEditMode = !!id;
 
   // 상태 관리
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [savedStudyId, setSavedStudyId] = useState(null);
@@ -33,6 +34,7 @@ export function useWritePage() {
     try {
       setIsLoading(true);
       const studyData = await StudyService.getStudy(id);
+      setTitle(studyData.title || '');
       setContent(studyData.content || '');
     } catch (error) {
       alert('스터디를 불러오는데 실패했습니다: ' + error.message);
@@ -131,6 +133,8 @@ export function useWritePage() {
 
   return {
     // 상태
+    title,
+    setTitle,
     content,
     setContent,
     isLoading,

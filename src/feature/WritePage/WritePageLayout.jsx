@@ -14,6 +14,8 @@ import ConfirmModal from './components/ConfirmModal.jsx';
 export default function WritePageLayout() {
   const writeFormRef = useRef(null);
   const {
+    title,
+    setTitle,
     content,
     setContent,
     isLoading,
@@ -50,6 +52,8 @@ export default function WritePageLayout() {
         <div className="bg-white rounded-lg shadow-sm border">
           <WriteForm 
             ref={writeFormRef}
+            title={title}
+            setTitle={setTitle}
             content={content}
             setContent={setContent}
             isLoading={isLoading}

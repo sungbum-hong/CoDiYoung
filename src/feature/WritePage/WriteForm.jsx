@@ -1,7 +1,7 @@
 import TiptapEditor from './TiptapEditor';
 import { forwardRef, useImperativeHandle } from 'react';
 
-const WriteForm = forwardRef(({ content, setContent, isLoading, onSave }, ref) => {
+const WriteForm = forwardRef(({ title, setTitle, content, setContent, isLoading, onSave }, ref) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
