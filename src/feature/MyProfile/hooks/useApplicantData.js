@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ProjectService } from "../../../services/projectService.js";
-import { MockProjectService, USE_MOCK_DATA } from "../../../mock-logic/index.js";
 
 export function useApplicantData() {
   const [projectApplicants, setProjectApplicants] = useState({});
@@ -13,11 +12,7 @@ export function useApplicantData() {
 
     try {
       setIsLoading(true);
-      const response = USE_MOCK_DATA
-        ? await MockProjectService.getProjectApplicants(projectId)
-        : await ProjectService.getProjectApplicants(projectId);
-      
-      console.log(`프로젝트 ${projectId} 신청자 응답:`, response);
+      const response = await ProjectService.getProjectApplicants(projectId);
       
       if (response) {
         const applicantsArray = Array.isArray(response) ? response : [response];
@@ -35,6 +30,20 @@ export function useApplicantData() {
       }
     } catch (error) {
       console.error(`프로젝트 ${projectId} 신청자 조회 실패:`, error);
+      
+      // 401 인증 에러 또는 로그인 필요 에러인 경우 조용히 처리
+      if (
+        error.message.includes("로그인이 필요합니다") ||
+        error.message.includes("401") ||
+        error.message.includes("인증")
+      ) {
+        console.log(`프로젝트 ${projectId} 신청자 조회 - 인증 필요 (무시)`);
+        setProjectApplicants((prev) => ({
+          ...prev,
+          [projectId]: [],
+        }));
+        return [];
+      }
       
       // 신청자가 없는 경우도 정상적인 상황
       if (

@@ -2,7 +2,7 @@ import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 import { COLORS } from "../../../../utils/colors.js";
 import ApplicantCard from "./ApplicantCard.jsx";
 
-export default function ApplicantListView({ applicants = [], projectTitle, onBack }) {
+export default function ApplicantListView({ applicants = [], projectTitle, projectId, onBack }) {
   const handleApprove = (applicant) => {
     console.log('승인:', applicant);
     // 승인 로직 구현
@@ -20,6 +20,7 @@ export default function ApplicantListView({ applicants = [], projectTitle, onBac
       <div className="flex justify-center flex-1">
         <ApplicantCard
           applicants={applicants}
+          projectId={projectId}
           onApprove={handleApprove}
           onReject={handleReject}
         />

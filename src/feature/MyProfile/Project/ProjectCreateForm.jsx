@@ -4,7 +4,6 @@ import { COLORS } from "../../../utils/colors.js";
 import Button from "../../../ui/Button";
 import { ProjectService } from "../../../services/projectService.js";
 import { StudyService } from "../../../services/studyService.js";
-import { MockProjectService, USE_MOCK_DATA } from "../../../mock-logic/index.js";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { ko } from 'date-fns/locale';
@@ -477,51 +476,51 @@ export default function ProjectCreateForm({ onBack }) {
       const projectData = {
         title: formData.projectName || "",
         description: formData.motivation || "",
-        imageKey: "", // 빈 문자열로 변경
+        imageKey: "", 
         slogan: formData.slogan || "",
+        capacity: formData.participants || 1,
         positions: formData.position || [],
         techs: formData.tech || [],
         questions: formData.slogan ? [formData.slogan] : [],
-        kakaoLink: formData.openTalkLink || "",
-        capacity: formData.participants || 1
+        kakaoLink: formData.openTalkLink || ""
       };
 
-      console.log('전송할 프로젝트 데이터:', projectData);
-      console.log('포지션 데이터:', formData.position);
-      console.log('기술 데이터:', formData.tech);
-      console.log('Mock 데이터 사용 여부:', USE_MOCK_DATA);
+      console.log('===== 프로젝트 생성 API 호출 =====');
+      console.log('API 엔드포인트: POST /api/project/create');
+      console.log('전송할 프로젝트 데이터:', JSON.stringify(projectData, null, 2));
+      console.log('포지션 배열:', formData.position);
+      console.log('기술스택 배열:', formData.tech);
+      console.log('참여인원:', formData.participants);
 
-      // Mock 데이터 사용 여부에 따라 서비스 선택
-      const response = USE_MOCK_DATA 
-        ? await MockProjectService.createProject(projectData)
-        : await ProjectService.createProject(projectData);
+      const response = await ProjectService.createProject(projectData);
       
+      console.log('===== API 응답 =====');
       console.log('프로젝트 생성 응답:', response);
+      console.log('응답 상태:', response?.status || 'undefined');
       
       setIsSuccess(true);
       
-      // Mock 데이터 사용 시에는 새로고침 없이 폼만 초기화
+      // 성공 후 폼 초기화 및 뒤로가기
       setTimeout(() => {
-        if (USE_MOCK_DATA) {
-          // 폼 초기화
-          setFormData({
-            projectName: '',
-            participants: '',
-            deadline: null,
-            position: [],
-            tech: [],
-            slogan: '',
-            motivation: '',
-            openTalkLink: ''
-          });
-          setIsSuccess(false);
-          onBack(); // 프로젝트 목록으로 돌아가기
-        } else {
-          window.location.reload();
-        }
+        setFormData({
+          projectName: '',
+          participants: '',
+          deadline: null,
+          position: [],
+          tech: [],
+          slogan: '',
+          motivation: '',
+          openTalkLink: ''
+        });
+        setIsSuccess(false);
+        onBack(); // 프로젝트 목록으로 돌아가기
       }, 2000);
       
     } catch (error) {
+      console.log('===== API 에러 =====');
+      console.error('프로젝트 생성 에러:', error);
+      console.error('에러 메시지:', error.message);
+      console.error('에러 스택:', error.stack);
       alert('프로젝트 생성에 실패했습니다: ' + error.message);
     } finally {
       setIsLoading(false);

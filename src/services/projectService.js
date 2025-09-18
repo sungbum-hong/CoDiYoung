@@ -13,7 +13,9 @@ const ENDPOINTS = {
   PROJECT_GET_PROGRESSING: '/api/project/find/progressing',
   PROJECT_GET_APPLIED: '/api/project/find/applied', // 신청한 프로젝트 조회
   PROJECT_APPLY: '/api/project/apply',
-  PROJECT_GET_APPLICANTS: '/api/projectApplication' // 신청자 조회
+  PROJECT_GET_APPLICANTS: '/api/project/projectApplication', // 신청자 조회
+  PROJECT_APPROVE_APPLICANT: '/api/projectApplication', // 신청자 승인
+  PROJECT_REJECT_APPLICANT: '/api/projectApplication' // 신청자 거절
 };
 
 export class ProjectService {
@@ -205,13 +207,69 @@ export class ProjectService {
   // 프로젝트 신청자 조회
   static async getProjectApplicants(projectId) {
     try {
+      console.log("===== 신청자 조회 API 호출 =====");
+      console.log(`API 엔드포인트: GET /api/project/projectApplication/${projectId}/applicants`);
+      
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET_APPLICANTS}/${projectId}/applicants`, {
         method: 'GET',
         headers: this.getCommonHeaders()
       });
 
-      return await this.handleResponse(response, '신청자 조회 실패');
+      console.log("===== 신청자 조회 API 응답 =====");
+      const result = await this.handleResponse(response, '신청자 조회 실패');
+      console.log("신청자 데이터:", result);
+      console.log("신청자 수:", Array.isArray(result) ? result.length : 'N/A');
+      
+      return result;
     } catch (error) {
+      console.log("===== 신청자 조회 API 에러 =====");
+      console.error("신청자 조회 실패:", error);
+      this.handleApiError(error);
+    }
+  }
+
+  // 신청자 승인
+  static async approveApplicant(projectId, userId) {
+    try {
+      console.log("===== 신청자 승인 API 호출 =====");
+      console.log(`API 엔드포인트: POST /api/projectApplication/${projectId}/applicants/${userId}/approve`);
+      
+      const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_APPROVE_APPLICANT}/${projectId}/applicants/${userId}/approve`, {
+        method: 'POST',
+        headers: this.getCommonHeaders()
+      });
+
+      console.log("===== 신청자 승인 API 응답 =====");
+      const result = await this.handleResponse(response, '신청자 승인 실패');
+      console.log("승인 결과:", result);
+      
+      return result;
+    } catch (error) {
+      console.log("===== 신청자 승인 API 에러 =====");
+      console.error("신청자 승인 실패:", error);
+      this.handleApiError(error);
+    }
+  }
+
+  // 신청자 거절
+  static async rejectApplicant(projectId, userId) {
+    try {
+      console.log("===== 신청자 거절 API 호출 =====");
+      console.log(`API 엔드포인트: POST /api/projectApplication/${projectId}/applicants/${userId}/reject`);
+      
+      const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_REJECT_APPLICANT}/${projectId}/applicants/${userId}/reject`, {
+        method: 'POST',
+        headers: this.getCommonHeaders()
+      });
+
+      console.log("===== 신청자 거절 API 응답 =====");
+      const result = await this.handleResponse(response, '신청자 거절 실패');
+      console.log("거절 결과:", result);
+      
+      return result;
+    } catch (error) {
+      console.log("===== 신청자 거절 API 에러 =====");
+      console.error("신청자 거절 실패:", error);
       this.handleApiError(error);
     }
   }
