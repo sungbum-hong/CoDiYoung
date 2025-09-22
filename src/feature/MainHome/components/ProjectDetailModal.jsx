@@ -6,7 +6,7 @@ import { CONFIG } from '../../../constants/config.js';
 import { COLORS } from "../../../utils/colors.js";
 import { usePrimaryButtonHover } from "../../../hooks/useHoverStyle.js";
 
-export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
+export default function ProjectDetailModal({ isOpen, onClose, projectIndex, project }) {
   const navigate = useNavigate();
   
   // 호버 효과 훅 사용
@@ -33,8 +33,23 @@ export default function ProjectDetailModal({ isOpen, onClose, projectIndex }) {
     >
       <div className="relative w-full h-full p-6">
         {/* 이미지/프리뷰 영역 */}
-        <div className="h-48 rounded-lg mb-6 flex items-center justify-center">
-          <p className="text-gray-500">프로젝트 이미지</p>
+        <div className="h-48 rounded-lg mb-6 flex items-center justify-center bg-gray-100 overflow-hidden">
+          {project?.imageKey ? (
+            <img 
+              src={project.imageKey.startsWith('http') ? project.imageKey : `http://15.164.125.28:8080/storage/${project.imageKey}`}
+              alt={project?.title || '프로젝트 이미지'}
+              className="w-full h-full object-cover rounded-lg"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div 
+            className={`w-full h-full flex items-center justify-center ${project?.imageKey ? 'hidden' : 'flex'}`}
+          >
+            <p className="text-gray-500">프로젝트 이미지</p>
+          </div>
         </div>
 
         {/* 하단 버튼 그룹 */}

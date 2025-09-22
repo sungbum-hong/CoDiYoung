@@ -105,6 +105,7 @@ export default function ProjectSection({
         isOpen={isModalOpen}
         onClose={closeModal}
         projectIndex={selectedProjectIndex}
+        project={USE_MOCK_DATA && projects[selectedProjectIndex] ? projects[selectedProjectIndex] : null}
       />
     </section>
   );

@@ -17,11 +17,11 @@ export default function RecordModal({ isOpen, onClose, message = "오늘도 수�
       onCompleteRedirect();
     } else if (studyId) {
       onClose();
-      navigate(`/write/${studyId}`);
+      window.location.href = `/write/${studyId}`;
     } else if (redirectTo === '/') {
-      // 홈으로만 이동하는 경우 (삭제 완료)
+      // 홈으로 이동하는 경우 (삭제 완료) - 새로고침과 함께 홈으로 이동
       onClose();
-      navigate(redirectTo);
+      window.location.href = '/';
     } else {
       // 기본적으로는 모달만 닫기
       onClose();

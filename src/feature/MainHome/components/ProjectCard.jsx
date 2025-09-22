@@ -29,8 +29,23 @@ export default function ProjectCard({
         {...projectCardHover}
         aria-label={project ? `${project.title} 상세 보기` : `프로젝트 ${index + 1} 상세 보기`}
       >
-        <div className="text-center">
-          <div className="text-sm font-medium" style={{ color: COLORS.GRAY_600 }}>
+        <div className="text-center w-full h-full flex flex-col items-center justify-center relative overflow-hidden">
+          {project?.imageKey ? (
+            <img 
+              src={project.imageKey.startsWith('http') ? project.imageKey : `http://15.164.125.28:8080/storage/${project.imageKey}`}
+              alt={project?.title || '프로젝트 이미지'}
+              className="w-full h-full object-cover"
+              style={{ borderRadius: CONFIG.BORDER_RADIUS.MEDIUM }}
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div 
+            className={`text-sm font-medium w-full h-full flex items-center justify-center ${project?.imageKey ? 'hidden' : 'flex'}`}
+            style={{ color: COLORS.GRAY_600 }}
+          >
             프로젝트 {index + 1}
           </div>
         </div>

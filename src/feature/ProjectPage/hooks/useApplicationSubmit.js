@@ -14,16 +14,47 @@ export function useApplicationSubmit() {
     setIsSubmitting(true);
     
     try {
+      // formData.answers가 객체 형태 {questionId: answer}인지 확인
+      let answers = [];
+      
+      if (formData.answers) {
+        if (typeof formData.answers === 'object' && !Array.isArray(formData.answers)) {
+          // 객체 형태: {questionId: answer}
+          answers = Object.entries(formData.answers)
+            .filter(([questionId, answer]) => answer && answer.trim()) // 빈 답변 필터링
+            .map(([questionId, answer]) => ({
+              questionId: parseInt(questionId),
+              answer: answer.trim()
+            }));
+        } else if (Array.isArray(formData.answers)) {
+          // 배열 형태: ["answer1", "answer2"]
+          answers = formData.answers
+            .filter(answer => answer && answer.trim()) // 빈 답변 필터링
+            .map((answer, index) => ({
+              questionId: index + 1, // 임시 처리
+              answer: answer.trim()
+            }));
+        }
+      } else if (formData.question && formData.question.trim()) {
+        // 기존 단일 질문 형태
+        answers = [{
+          questionId: 1,
+          answer: formData.question.trim()
+        }];
+      }
+
+      // 답변이 없는 경우 에러
+      if (answers.length === 0) {
+        alert("모든 질문에 답변을 입력해주세요.");
+        setIsSubmitting(false);
+        return false;
+      }
+
       const applicationData = {
         projectId: parseInt(projectId),
         position: formData.position,
         techs: formData.tech.join(", "),
-        answers: [
-          {
-            questionId: 1, // 임시 questionId (실제로는 동적으로 설정해야 함)
-            answer: formData.question
-          }
-        ]
+        answers: answers
       };
 
       console.log('===== 프로젝트 신청 API 호출 =====');

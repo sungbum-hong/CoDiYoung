@@ -9,8 +9,10 @@ const ENDPOINTS = {
   STUDY_CREATE: '/api/study/create',
   STUDY_GET: '/api/study',
   STUDY_UPDATE: '/api/study/update/study',
+  STUDY_UPDATE_ALT: '/api/study', // 대안 엔드포인트
   STUDY_DELETE: '/api/study/delete',
   STUDY_GET_ALL: '/api/study/getAll',
+  STUDY_GET_GROUPED: '/api/study/category/grouped',
   ATTENDANCE_CHECK: '/api/attendance/check',
   ATTENDANCE_CALENDAR: '/api/attendance/calendar',
   UPLOAD_ENDPOINTS: [
@@ -196,14 +198,28 @@ export class StudyService {
   // 스터디 생성
   static async createStudy(content, images = []) {
     try {
+      // 새로운 API 스펙에 맞게 요청 본문 구성
+      const requestBody = {
+        images: images || [],
+        content: content
+      };
+      
+      console.log('=== 스터디 생성 API 호출 ===');
+      console.log('요청 본문:', requestBody);
+      
       const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_CREATE}`, {
         method: 'POST',
         headers: this.getCommonHeaders(),
-        body: JSON.stringify({ content, images })
+        body: JSON.stringify(requestBody)
       });
 
-      return await this.handleResponse(response, '스터디 작성 실패');
+      console.log('스터디 생성 응답 상태:', response.status);
+      const result = await this.handleResponse(response, '스터디 작성 실패');
+      console.log('스터디 생성 결과:', result);
+      
+      return result;
     } catch (error) {
+      console.error('스터디 생성 에러:', error);
       this.handleApiError(error);
     }
   }
@@ -211,11 +227,15 @@ export class StudyService {
   // 스터디 조회 (단일)
   static async getStudy(studyId) {
     try {
-      const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_GET}/${studyId}`, {
+      const url = `${BASE_URL}${ENDPOINTS.STUDY_GET}/${studyId}`;
+      console.log('Fetching study from URL:', url); // 디버깅용
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: this.getCommonHeaders()
       });
 
+      console.log('Response status:', response.status); // 디버깅용
       return await this.handleResponse(response, '스터디 조회 실패');
     } catch (error) {
       this.handleApiError(error);
@@ -225,17 +245,47 @@ export class StudyService {
   // 스터디 수정
   static async updateStudy(studyId, content, images = []) {
     try {
-      const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_UPDATE}`, {
+      const requestBody = {
+        content: content,
+        images: images || []
+      };
+      
+      console.log('=== 스터디 수정 API 호출 ===');
+      console.log('StudyId:', studyId);
+      console.log('Request body:', requestBody);
+      console.log('Images 배열 상세:');
+      if (images && images.length > 0) {
+        images.forEach((img, index) => {
+          console.log(`  Image ${index}:`, img);
+          console.log(`    - id:`, img.id, typeof img.id);
+          console.log(`    - key:`, img.key, typeof img.key);
+          console.log(`    - sortOrder:`, img.sortOrder, typeof img.sortOrder);
+        });
+      } else {
+        console.log('  이미지 없음 또는 빈 배열');
+      }
+      console.log('JSON 직렬화 테스트:', JSON.stringify(requestBody, null, 2));
+      
+      const updateUrl = `${BASE_URL}${ENDPOINTS.STUDY_UPDATE}/${studyId}`;
+      console.log('Update URL:', updateUrl);
+      
+      const response = await fetch(updateUrl, {
         method: 'PUT',
         headers: this.getCommonHeaders(),
-        body: JSON.stringify({ 
-          content, 
-          images 
-        })
+        body: JSON.stringify(requestBody)
       });
-
+      
+      console.log('Update response status:', response.status);
+      console.log('Update response headers:', Object.fromEntries(response.headers.entries()));
+      
+      // 응답 내용 확인
+      const responseClone = response.clone();
+      const responseText = await responseClone.text();
+      console.log('Update response body:', responseText);
+      
       return await this.handleResponse(response, '스터디 수정 실패');
     } catch (error) {
+      console.error('스터디 수정 에러:', error);
       this.handleApiError(error);
     }
   }
@@ -265,6 +315,48 @@ export class StudyService {
 
       return await this.handleResponse(response, '스터디 목록 조회 실패');
     } catch (error) {
+      this.handleApiError(error);
+    }
+  }
+
+  // 카테고리별 그룹화된 스터디 조회
+  static async getGroupedStudies(params = {}) {
+    try {
+      // 기본 파라미터 설정
+      const defaultParams = {
+        codingPage: 0,
+        codingSize: 10,
+        designPage: 0,
+        designSize: 10,
+        videoPage: 0,
+        videoSize: 10
+      };
+      
+      const queryParams = { ...defaultParams, ...params };
+      const searchParams = new URLSearchParams();
+      
+      Object.entries(queryParams).forEach(([key, value]) => {
+        searchParams.append(key, value.toString());
+      });
+      
+      const url = `${BASE_URL}${ENDPOINTS.STUDY_GET_GROUPED}?${searchParams.toString()}`;
+      console.log('=== 그룹화된 스터디 API 호출 ===');
+      console.log('API URL:', url);
+      console.log('Query Parameters:', queryParams);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getCommonHeaders()
+      });
+
+      console.log('Response status:', response.status);
+      const result = await this.handleResponse(response, '그룹화된 스터디 조회 실패');
+      console.log('API 응답 데이터:', result);
+      console.log('데이터 구조:', Object.keys(result || {}));
+      
+      return result;
+    } catch (error) {
+      console.error('그룹화된 스터디 조회 에러:', error);
       this.handleApiError(error);
     }
   }
@@ -310,6 +402,52 @@ export class StudyService {
       return await this.handleResponse(response, '카테고리별 스터디 조회 실패');
     } catch (error) {
       this.handleApiError(error);
+    }
+  }
+
+  // === 사용자 프로필 관련 메서드 ===
+
+  // 내 프로필 조회
+  static async getMyProfile() {
+    try {
+      const response = await fetch(`${BASE_URL}/api/mypage`, {
+        method: 'GET',
+        headers: StudyService.getCommonHeaders()
+      });
+
+      return await StudyService.handleResponse(response, '프로필 조회 실패');
+    } catch (error) {
+      StudyService.handleApiError(error);
+    }
+  }
+
+  // 닉네임 변경
+  static async updateNickname(nickname) {
+    try {
+      const response = await fetch(`${BASE_URL}/api/mypage/nickname`, {
+        method: 'PATCH',
+        headers: StudyService.getCommonHeaders(),
+        body: JSON.stringify({ nickname })
+      });
+
+      return await StudyService.handleResponse(response, '닉네임 변경 실패');
+    } catch (error) {
+      StudyService.handleApiError(error);
+    }
+  }
+
+  // 이메일 변경
+  static async updateEmail(email) {
+    try {
+      const response = await fetch(`${BASE_URL}/api/mypage/email`, {
+        method: 'PATCH',
+        headers: StudyService.getCommonHeaders(),
+        body: JSON.stringify({ email })
+      });
+
+      return await StudyService.handleResponse(response, '이메일 변경 실패');
+    } catch (error) {
+      StudyService.handleApiError(error);
     }
   }
 

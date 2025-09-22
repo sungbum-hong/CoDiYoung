@@ -28,13 +28,77 @@ export const useStudies = (filters = {}) => {
         return await StudyService.getMyStudies(author, page, size);
       }
       
-      // 전체 조회
-      const data = await StudyService.getAllStudies(page, size);
-      return data.content || data || [];
+      // 전체 조회 - 새로운 그룹화된 API 사용
+      const data = await StudyService.getGroupedStudies();
+      console.log('=== useStudies 훅에서 데이터 처리 ===');
+      console.log('받은 데이터:', data);
+      
+      // 그룹화된 데이터를 평면 배열로 변환
+      const flattenedStudies = [];
+      if (data) {
+        console.log('데이터 키들:', Object.keys(data));
+        ['coding', 'design', 'video'].forEach(category => {
+          console.log(`${category} 카테고리:`, data[category]);
+          if (data[category] && data[category].content) {
+            console.log(`${category} content 길이:`, data[category].content.length);
+            flattenedStudies.push(...data[category].content);
+          }
+        });
+      }
+      
+      console.log('최종 평면화된 스터디 배열:', flattenedStudies);
+      console.log('총 스터디 개수:', flattenedStudies.length);
+      
+      // 만약 그룹화된 API에서 데이터가 없다면 다른 API들 시도
+      if (flattenedStudies.length === 0) {
+        console.log('=== 그룹화된 API에 데이터가 없어서 대안 API 시도 ===');
+        
+        // 1. 기존 getAllStudies API 시도
+        try {
+          console.log('1. getAllStudies API 시도...');
+          const fallbackData = await StudyService.getAllStudies(page, size);
+          console.log('getAllStudies API 응답:', fallbackData);
+          const fallbackStudies = fallbackData.content || fallbackData || [];
+          if (fallbackStudies.length > 0) {
+            console.log('getAllStudies API 성공, 스터디 개수:', fallbackStudies.length);
+            return fallbackStudies;
+          }
+        } catch (fallbackError) {
+          console.error('getAllStudies API 실패:', fallbackError);
+        }
+        
+        // 2. 개별 스터디 조회 시도 (방금 생성한 ID 4번 포함)
+        try {
+          console.log('2. 개별 스터디 조회 시도...');
+          const individualStudies = [];
+          for (let id = 1; id <= 10; id++) {
+            try {
+              const study = await StudyService.getStudyById(id);
+              if (study) {
+                individualStudies.push(study);
+                console.log(`스터디 ID ${id} 조회 성공:`, study);
+              }
+            } catch (e) {
+              // 404는 정상, 다른 에러만 로깅
+              if (!e.message.includes('404')) {
+                console.error(`스터디 ID ${id} 조회 실패:`, e.message);
+              }
+            }
+          }
+          if (individualStudies.length > 0) {
+            console.log('개별 조회 성공, 총 스터디 개수:', individualStudies.length);
+            return individualStudies;
+          }
+        } catch (individualError) {
+          console.error('개별 스터디 조회 실패:', individualError);
+        }
+      }
+      
+      return flattenedStudies;
     },
     staleTime: 5 * 60 * 1000, // 5분간 신선
     gcTime: 10 * 60 * 1000,   // 10분 후 가비지 컬렉션
-    select: (data) => data.content || data || []
+    select: (data) => data || []
   });
 };
 

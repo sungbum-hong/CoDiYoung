@@ -1,17 +1,11 @@
-import { useEffect } from 'react';
-import { useUI } from '../../../contexts/UIContext';
 import { COLORS } from '../../../utils/colors.js';
 import ProfileField from './ProfileField';
 import ProfileImageSection from './ProfileImageSection';
 import AttendanceStars from '../AttendanceStars';
+import { useProfile } from '../hooks/useProfile.js';
 
 export default function ProfileContent() {
-  const { user, isLoading, error, loadProfile } = useUI();
-
-  useEffect(() => {
-    // 컴포넌트 마운트 시 프로필 정보 로드
-    loadProfile();
-  }, [loadProfile]);
+  const { data: user, isLoading, error } = useProfile();
 
   if (isLoading) {
     return (
@@ -26,8 +20,8 @@ export default function ProfileContent() {
   if (error) {
     return (
       <div className="bg-white shadow-sm rounded-lg p-6">
-        <div className="text-center" style={{ color: COLORS.ERROR }}>
-          {error}
+        <div className="text-center" style={{ color: COLORS.ERROR || '#EF4444' }}>
+          프로필 정보를 불러오는데 실패했습니다: {error.message}
         </div>
       </div>
     );
@@ -52,7 +46,7 @@ export default function ProfileContent() {
         <ProfileImageSection />
 
         {/* 사용자 정보 필드들 */}
-        <ProfileField label="닉네임" value={user.nickName || user.nickname || '닉네임 없음'} />
+        <ProfileField label="닉네임" value={user.nickName || '닉네임 없음'} />
         <ProfileField label="이메일" value={user.email || '이메일 없음'} />
         <ProfileField label="비밀번호" value="••••••••" />
 

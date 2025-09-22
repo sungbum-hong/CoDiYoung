@@ -33,14 +33,30 @@ export function useWritePage() {
   const loadStudy = async () => {
     try {
       setIsLoading(true);
+      console.log('Loading study with ID:', id); // 디버깅용
       const studyData = await StudyService.getStudy(id);
+      console.log('Loaded study data:', studyData); // 디버깅용
       setTitle(studyData.title || '');
       setContent(studyData.content || '');
     } catch (error) {
+      console.error('Study load error:', error); // 디버깅용
       alert('스터디를 불러오는데 실패했습니다: ' + error.message);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // 콘텐츠에서 이미지 추출
+  const extractImagesFromContent = (htmlContent) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+    const images = doc.querySelectorAll('img');
+    
+    return Array.from(images).map((img, index) => ({
+      id: parseInt(img.dataset.id) || 0, // 이미지 id 추가
+      key: img.dataset.key || img.src,
+      sortOrder: index
+    }));
   };
 
   // 저장 처리
@@ -53,13 +69,21 @@ export function useWritePage() {
     try {
       setIsLoading(true);
       
+      // 콘텐츠에서 이미지 정보 추출
+      const images = extractImagesFromContent(content);
+      
       if (isEditMode) {
-        await StudyService.updateStudy(id, content);
+        // 이미지가 없을 때는 null로 전송 시도
+        await StudyService.updateStudy(id, content, images.length > 0 ? images : null);
+        // 백엔드 처리 시간을 위한 지연
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        // 수정 후 최신 데이터 다시 로드
+        await loadStudy();
         setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
         setSavedStudyId(id);
         setModals(prev => ({ ...prev, complete: true }));
       } else {
-        const result = await StudyService.createStudy(content);
+        const result = await StudyService.createStudy(content, images);
         
         const studyId = result.id || result.studyId;
         setSavedStudyId(studyId);
@@ -104,7 +128,15 @@ export function useWritePage() {
       setIsLoading(true);
       setModals(prev => ({ ...prev, edit: false }));
       
-      await StudyService.updateStudy(id, content);
+      // 콘텐츠에서 이미지 정보 추출
+      const images = extractImagesFromContent(content);
+      
+      await StudyService.updateStudy(id, content, images.length > 0 ? images : null);
+      
+      // 백엔드 처리 시간을 위한 지연
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      // 수정 후 최신 데이터 다시 로드
+      await loadStudy();
       
       setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
       setSavedStudyId(id); // 현재 수정중인 studyId 설정

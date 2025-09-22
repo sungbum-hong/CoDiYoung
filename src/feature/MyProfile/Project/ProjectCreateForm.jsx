@@ -430,6 +430,12 @@ export default function ProjectCreateForm({ onBack }) {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
+  // 이미지 업로드 관련 상태
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [imageUploadLoading, setImageUploadLoading] = useState(false);
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -457,9 +463,113 @@ export default function ProjectCreateForm({ onBack }) {
     });
   };
 
+  // 이미지 업로드 관련 함수들
+  const validateImageFile = (file) => {
+    // 파일 타입 검증
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      alert('JPG, PNG, GIF, WEBP 형식의 이미지만 업로드 가능합니다.');
+      return false;
+    }
+
+    // 파일 크기 검증 (5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      alert('이미지 크기는 5MB 이하여야 합니다.');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleImageUpload = async (file) => {
+    if (!validateImageFile(file)) return;
+
+    setImageUploadLoading(true);
+    try {
+      console.log('=== 이미지 업로드 시작 ===');
+      console.log('파일 정보:', {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
+
+      // StudyService의 이미지 업로드 기능 사용
+      const uploadResult = await StudyService.uploadImage(file);
+      console.log('이미지 업로드 결과:', uploadResult);
+
+      setUploadedImage(uploadResult);
+
+      // 미리보기 생성
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+
+      console.log('이미지 업로드 완료');
+    } catch (error) {
+      console.error('이미지 업로드 에러:', error);
+      alert('이미지 업로드에 실패했습니다: ' + error.message);
+    } finally {
+      setImageUploadLoading(false);
+    }
+  };
+
+  // 드래그 앤 드롭 핸들러
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      handleImageUpload(files[0]); // 첫 번째 파일만 처리
+    }
+  };
+
+  // 파일 선택 핸들러
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleImageUpload(file);
+    }
+    // input 초기화
+    e.target.value = '';
+  };
+
+  // 이미지 제거
+  const handleImageRemove = () => {
+    setUploadedImage(null);
+    setImagePreview(null);
+  };
+
+  // 카카오톡 오픈채팅 링크 유효성 검사
+  const validateKakaoOpenTalkLink = (url) => {
+    if (!url.trim()) return true; // 빈 값은 허용
+    
+    const kakaoOpenTalkPattern = /^https:\/\/open\.kakao\.com\/o\/[a-zA-Z0-9]+$/;
+    return kakaoOpenTalkPattern.test(url);
+  };
+
   const handleCreateProject = async () => {
     if (!formData.projectName.trim()) {
       alert('프로젝트 명을 입력해주세요.');
+      return;
+    }
+
+    // 오픈톡 링크 유효성 검사
+    if (formData.openTalkLink && !validateKakaoOpenTalkLink(formData.openTalkLink)) {
+      alert('올바른 카카오톡 오픈채팅 링크를 입력해주세요.\n예: https://open.kakao.com/o/g6RZJeyg');
       return;
     }
 
@@ -476,7 +586,7 @@ export default function ProjectCreateForm({ onBack }) {
       const projectData = {
         title: formData.projectName || "",
         description: formData.motivation || "",
-        imageKey: "", 
+        imageKey: uploadedImage?.key || "", 
         slogan: formData.slogan || "",
         capacity: formData.participants || 1,
         positions: formData.position || [],
@@ -500,20 +610,9 @@ export default function ProjectCreateForm({ onBack }) {
       
       setIsSuccess(true);
       
-      // 성공 후 폼 초기화 및 뒤로가기
+      // 성공 후 새로고침으로 프로젝트 목록 갱신
       setTimeout(() => {
-        setFormData({
-          projectName: '',
-          participants: '',
-          deadline: null,
-          position: [],
-          tech: [],
-          slogan: '',
-          motivation: '',
-          openTalkLink: ''
-        });
-        setIsSuccess(false);
-        onBack(); // 프로젝트 목록으로 돌아가기
+        window.location.reload(); // 새로고침으로 최신 데이터 반영
       }, 2000);
       
     } catch (error) {
@@ -534,8 +633,58 @@ export default function ProjectCreateForm({ onBack }) {
 
       <div className="border-2 rounded-lg p-6 flex flex-col items-center gap-4" style={{ borderColor: COLORS.PRIMARY }}>
         {/* 이미지 업로드 영역 */}
-        <div className="w-full h-40 border-2 rounded-md flex items-center justify-center" style={{ borderColor: COLORS.PRIMARY, color: COLORS.GRAY_400 }}>
-          이미지
+        <div 
+          className={`w-full h-40 border-2 rounded-md flex items-center justify-center relative cursor-pointer transition-all duration-200 ${
+            isDragOver ? 'border-dashed scale-105' : 'border-solid'
+          }`}
+          style={{ 
+            borderColor: isDragOver ? COLORS.PRIMARY : COLORS.PRIMARY,
+            backgroundColor: isDragOver ? `${COLORS.PRIMARY}10` : 'transparent'
+          }}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => document.getElementById('imageFileInput').click()}
+        >
+          {imageUploadLoading ? (
+            <div className="flex flex-col items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: COLORS.PRIMARY }}></div>
+              <p className="mt-2 text-sm" style={{ color: COLORS.GRAY_400 }}>업로드 중...</p>
+            </div>
+          ) : imagePreview ? (
+            <div className="relative w-full h-full">
+              <img 
+                src={imagePreview} 
+                alt="업로드된 이미지" 
+                className="w-full h-full object-cover rounded-md"
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleImageRemove();
+                }}
+                className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+              >
+                ×
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-sm text-center" style={{ color: COLORS.GRAY_400 }}>
+                {isDragOver ? '파일을 여기에 놓으세요' : '이미지 업로드'}
+              </p>
+            </div>
+          )}
+          
+          {/* 숨겨진 파일 input */}
+          <input
+            id="imageFileInput"
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
         </div>
 
         {/* 입력 필드 */}
@@ -604,13 +753,27 @@ export default function ProjectCreateForm({ onBack }) {
           className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)] resize-none h-20"
           rows={3}
         />
-        <input
-          type="url"
-          placeholder="오픈톡 링크"
-          value={formData.openTalkLink}
-          onChange={(e) => handleInputChange('openTalkLink', e.target.value)}
-          className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)]"
-        />
+        <div className="w-full">
+          <input
+            type="url"
+            placeholder="카카오톡 오픈채팅 링크 (예: https://open.kakao.com/o/g6RZJeyg)"
+            value={formData.openTalkLink}
+            onChange={(e) => handleInputChange('openTalkLink', e.target.value)}
+            className={`w-full border-2 rounded-md p-2 text-center placeholder-[var(--color-gray-400)] ${
+              formData.openTalkLink && !validateKakaoOpenTalkLink(formData.openTalkLink)
+                ? 'border-red-500 bg-red-50' 
+                : 'border-[var(--color-primary)]'
+            }`}
+          />
+          {formData.openTalkLink && !validateKakaoOpenTalkLink(formData.openTalkLink) && (
+            <p className="text-red-500 text-xs mt-1 text-center">
+              올바른 카카오톡 오픈채팅 링크를 입력해주세요
+            </p>
+          )}
+          <p className="text-gray-500 text-xs mt-1 text-center">
+            형식: https://open.kakao.com/o/xxxxxxx
+          </p>
+        </div>
 
         {/* 성공 메시지 */}
         {isSuccess && (
