@@ -63,7 +63,7 @@ export const useAvatarGeneration = (categories = [], options = {}) => {
     };
 
     generateAvatars();
-  }, [categories, JSON.stringify(defaultOptions)]); // options 변경도 감지
+  }, []); // options 변경도 감지
 
   /**
    * 특정 아바타 가져오기

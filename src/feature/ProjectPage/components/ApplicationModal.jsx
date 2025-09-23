@@ -7,11 +7,15 @@ import { POSITION_OPTIONS, TECH_OPTIONS } from "../constants/applicationOptions.
 import { useApplicationForm } from "../hooks/useApplicationForm.js";
 import { useTextareaResize } from "../hooks/useTextareaResize.js";
 import { useApplicationSubmit } from "../hooks/useApplicationSubmit.js";
+import { useProjectQuestions } from "../hooks/useProjectQuestions.js";
 
-export default function ApplicationModal({ onClose, projectName = "프로젝트", projectId }) {
+export default function ApplicationModal({ onClose, project, projectName = "프로젝트", projectId, description }) {
   const { formData, handleInputChange, validateForm, resetForm } = useApplicationForm();
   const { handleTextareaChange, handleFocus, handleBlur } = useTextareaResize();
   const { isSubmitting, isCompleted, submitApplication, closeSuccess } = useApplicationSubmit();
+
+  // 실제 프로젝트 질문 API 사용
+  const { data: questions, isLoading: questionsLoading, error: questionsError } = useProjectQuestions(projectId);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,26 +62,58 @@ export default function ApplicationModal({ onClose, projectName = "프로젝트"
 
         {/* 폼 */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* 질문 입력 */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: COLORS.GRAY_700 }}>
-              질문
-            </label>
-            <textarea
-              className="question-textarea w-full border-2 rounded-md p-3 resize-none transition-all duration-200 focus:outline-none min-h-[44px] overflow-hidden"
-              style={{ 
-                borderColor: COLORS.PRIMARY,
-                color: 'black'
-              }}
-              value={formData.question}
-              onChange={(e) => handleTextareaChange(e, (value) => handleInputChange('question', value))}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              placeholder="질문을 입력해주세요"
-              disabled={isSubmitting}
-              rows={1}
-            />
-          </div>
+          {/* 프로젝트 질문들에 대한 답변 */}
+          {questionsLoading ? (
+            <div className="text-center py-4">
+              <p className="text-sm" style={{ color: COLORS.GRAY_500 }}>
+                질문을 불러오는 중...
+              </p>
+            </div>
+          ) : questionsError ? (
+            <div className="text-center py-4">
+              <p className="text-sm" style={{ color: COLORS.ERROR || '#EF4444' }}>
+                질문을 불러오는데 실패했습니다.
+              </p>
+            </div>
+          ) : questions && questions.length > 0 ? (
+            questions.map((question, index) => (
+              <div key={question.id || index}>
+                <label className="block text-sm font-medium mb-2" style={{ color: COLORS.GRAY_700 }}>
+                  질문 {index + 1}
+                </label>
+                <div className="mb-2 p-3 bg-gray-50 rounded-md border" style={{ borderColor: COLORS.GRAY_300 }}>
+                  <p className="text-sm" style={{ color: COLORS.GRAY_700 }}>
+                    {description || question.description || question.content || question}
+                  </p>
+                </div>
+                <textarea
+                  className="question-textarea w-full border-2 rounded-md p-3 resize-none transition-all duration-200 focus:outline-none min-h-[44px] overflow-hidden"
+                  style={{ 
+                    borderColor: COLORS.PRIMARY,
+                    color: 'black'
+                  }}
+                  value={formData.answers?.[question.id] || ''}
+                  onChange={(e) => handleTextareaChange(e, (value) => {
+                    const newAnswers = { ...(formData.answers || {}) };
+                    newAnswers[question.id] = value;
+                    handleInputChange('answers', newAnswers);
+                  })}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  placeholder="답변을 입력해주세요"
+                  disabled={isSubmitting || questionsLoading}
+                  rows={1}
+                />
+              </div>
+            ))
+          ) : (
+            // 질문이 없는 경우 기본 질문
+            <div className="text-center py-4">
+              <p className="text-sm" style={{ color: COLORS.GRAY_500 }}>
+                등록된 질문이 없습니다.
+              </p>
+            </div>
+          )}
 
           {/* 포지션 선택 */}
           <div>
@@ -112,10 +148,10 @@ export default function ApplicationModal({ onClose, projectName = "프로젝트"
             <Button
               type="submit"
               variant="secondary"
-              disabled={isSubmitting}
+              disabled={isSubmitting || questionsLoading || questionsError}
               className="flex-1 py-3"
             >
-              {isSubmitting ? "신청 중..." : "신청하기"}
+              {isSubmitting ? "신청 중..." : questionsLoading ? "로딩 중..." : "신청하기"}
             </Button>
             
             <Button

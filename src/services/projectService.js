@@ -15,7 +15,8 @@ const ENDPOINTS = {
   PROJECT_APPLY: '/api/project/apply',
   PROJECT_GET_APPLICANTS: '/api/project/projectApplication', // 신청자 조회
   PROJECT_APPROVE_APPLICANT: '/api/projectApplication', // 신청자 승인
-  PROJECT_REJECT_APPLICANT: '/api/projectApplication' // 신청자 거절
+  PROJECT_REJECT_APPLICANT: '/api/projectApplication', // 신청자 거절
+  PROJECT_GET_QUESTIONS: '/api/projectApplication/questions' // 프로젝트 질문 조회
 };
 
 export class ProjectService {
@@ -49,15 +50,19 @@ export class ProjectService {
   static async handleResponse(response, errorMessage = 'API 요청 실패') {
     if (!response.ok) {
       let errorData = {};
+      let errorText = '';
       try {
-        const errorText = await response.text();
+        errorText = await response.text();
+        console.log('오류 응답 원문:', errorText);
         if (errorText.trim()) {
           errorData = JSON.parse(errorText);
         }
       } catch (e) {
         console.error('JSON 파싱 오류:', e);
+        console.error('파싱 실패한 텍스트:', errorText);
         errorData = { message: errorText || '서버 에러가 발생했습니다.' };
       }
+      console.log('파싱된 오류 데이터:', errorData);
       throw new Error(errorData.message || `${errorMessage} (${response.status})`);
     }
 
@@ -99,18 +104,40 @@ export class ProjectService {
   // 프로젝트 생성
   static async createProject(projectData) {
     try {
+      console.log('=== ProjectService.createProject 호출 ===');
+      console.log('요청 데이터:', projectData);
+      
+      const bodyString = JSON.stringify(projectData);
+      console.log('JSON 직렬화 테스트:', bodyString);
+      console.log('JSON 문자열 길이:', bodyString.length);
+      
       const headers = this.getCommonHeaders();
+      headers['Content-Length'] = bodyString.length.toString();
+      console.log('요청 헤더:', headers);
+
+      console.log('요청 URL:', `${BASE_URL}${ENDPOINTS.PROJECT_CREATE}`);
+      console.log('요청 메서드:', 'POST');
+      console.log('요청 바디:', bodyString);
 
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_CREATE}`, {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify(projectData),
+        body: bodyString,
         mode: 'cors',
         credentials: 'include'
       });
 
+      console.log('응답 상태:', response.status);
+      console.log('응답 헤더:', Object.fromEntries(response.headers.entries()));
+      
+      // 응답 본문을 먼저 텍스트로 읽어서 확인
+      const responseText = await response.clone().text();
+      console.log('응답 본문 (텍스트):', responseText);
+
       return await this.handleResponse(response, '프로젝트 생성 실패');
     } catch (error) {
+      console.log('프로젝트 생성 에러:', error);
+      console.log('에러 상세:', error.stack);
       this.handleApiError(error);
     }
   }
@@ -270,6 +297,29 @@ export class ProjectService {
     } catch (error) {
       console.log("===== 신청자 거절 API 에러 =====");
       console.error("신청자 거절 실패:", error);
+      this.handleApiError(error);
+    }
+  }
+
+  // 프로젝트 질문 조회
+  static async getProjectQuestions(projectId) {
+    try {
+      console.log("===== 프로젝트 질문 조회 API 호출 =====");
+      console.log(`API 엔드포인트: GET /api/projectApplication/questions/${projectId}`);
+      
+      const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET_QUESTIONS}/${projectId}`, {
+        method: 'GET',
+        headers: this.getCommonHeaders()
+      });
+
+      console.log("===== 프로젝트 질문 조회 API 응답 =====");
+      const result = await this.handleResponse(response, '프로젝트 질문 조회 실패');
+      console.log("질문 데이터:", result);
+      
+      return result;
+    } catch (error) {
+      console.log("===== 프로젝트 질문 조회 API 에러 =====");
+      console.error("프로젝트 질문 조회 실패:", error);
       this.handleApiError(error);
     }
   }

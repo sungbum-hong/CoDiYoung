@@ -13,7 +13,12 @@ export const useImageUpload = (editor) => {
       try {
         const imageData = await StudyService.uploadImage(file);
         if (imageData.url) {
-          editor.chain().focus().setImage({ src: imageData.url }).run();
+          // 이미지 태그에 data-id와 data-key 속성 추가
+          editor.chain().focus().setImage({ 
+            src: imageData.url,
+            'data-id': imageData.id || 0,
+            'data-key': imageData.key || imageData.url
+          }).run();
         }
       } catch (error) {
         alert('이미지 업로드에 실패했습니다: ' + error.message);

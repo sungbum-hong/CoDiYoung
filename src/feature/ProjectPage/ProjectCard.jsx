@@ -90,16 +90,33 @@ export default function ProjectCard({ project }) {
 
       {/* Big description / image box */}
       <div className="mt-10 relative">
-        <div className="border-2 rounded-2xl p-8 h-96 flex items-center justify-center mt-12" style={{ borderColor: COLORS.BORDER }}>
-          <p className="text-center text-lg" style={{ color: COLORS.GRAY_700 }}>{description}</p>
+        <div className="border-2 rounded-2xl p-8 h-96 flex items-center justify-center mt-12 overflow-hidden" style={{ borderColor: COLORS.BORDER }}>
+          {project?.imageKey ? (
+            <img 
+              src={project.imageKey.startsWith('http') ? project.imageKey : `http://15.164.125.28:8080/storage/${project.imageKey}`}
+              alt={project?.title || '프로젝트 이미지'}
+              className="w-full h-full object-cover rounded-xl"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div 
+            className={`w-full h-full flex items-center justify-center ${project?.imageKey ? 'hidden' : 'flex'}`}
+          >
+            <p className="text-center text-lg" style={{ color: COLORS.GRAY_700 }}>{description}</p>
+          </div>
         </div>
         
         {/* ApplicationModal */}
         {isApplicationModalOpen && (
           <ApplicationModal 
             onClose={closeApplicationModal} 
+            project={project}
             projectName={name}
             projectId={projectId}
+            description={description}
           />
         )}
       </div>
