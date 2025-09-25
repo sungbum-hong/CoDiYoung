@@ -2,28 +2,46 @@ import BaseModal from '../../../../ui/BaseModal';
 import Button from '../../../../ui/Button';
 import { COLORS } from '../../../../utils/colors';
 import useStudyUIStore from '../../../../stores/studyUIStore.js';
-import { useStudies } from '../../../../hooks/useStudyQueries.js';
+// 새로운 훅 import
+import { useStudyDetail } from '../../../../hooks/useStudyQueries.js';
 
-export default function StudyModal({ 
-  onEdit
-}) {
-  const { 
-    modals, 
-    selectedIndex, 
-    selectedStudyId, 
-    closeModal, 
-    getFirstImage, 
-    getIntroduction 
+export default function StudyModal({ onEdit }) {
+  const {
+    modals,
+    selectedIndex,
+    selectedStudyId,
+    closeModal,
+    getFirstImage,
+    getIntroduction
   } = useStudyUIStore();
-  
-  const { data: studyData = [] } = useStudies({ size: 30 });
-  
-  const selectedStudy = studyData[selectedIndex] || null;
+
   const isOpen = modals.study;
+
+  // 선택된 스터디 ID로 상세 정보 조회
+  const {
+    data: selectedStudy,
+    isLoading: isStudyLoading,
+    error: studyError
+  } = useStudyDetail(selectedStudyId, {
+    enabled: isOpen && !!selectedStudyId // 모달이 열려있고 ID가 있을 때만 실행
+  });
+
+  // 모달이 닫힐 때 처리
+  const handleClose = () => {
+    closeModal('study');
+  };
+
+  // 수정 버튼 클릭 처리
+  const handleEdit = () => {
+    if (selectedStudyId) {
+      onEdit();
+    }
+  };
+
   return (
     <BaseModal
       isOpen={isOpen}
-      onClose={() => closeModal('study')}
+      onClose={handleClose}
       size="CUSTOM"
       style={{
         width: "min(90vw, 500px)",
@@ -37,26 +55,79 @@ export default function StudyModal({
       >
         {/* 스터디 상세 내용 */}
         <div className="text-center mt-2 mb-16">
-          {selectedStudy ? (
+          {/* 로딩 상태 */}
+          {isStudyLoading && (
             <div>
               <h3 className="text-lg font-semibold mb-4">
                 스터디 {(selectedIndex ?? 0) + 1}
               </h3>
               <div className="flex justify-center items-center h-64">
-                {getFirstImage(selectedStudy.content) ? (
-                  <img 
-                    src={getFirstImage(selectedStudy.content)}
+                <div className="text-gray-500">
+                  <p>로딩 중...</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 에러 상태 */}
+          {studyError && !isStudyLoading && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">
+                스터디 {(selectedIndex ?? 0) + 1}
+              </h3>
+              <div className="flex justify-center items-center h-64">
+                <div className="text-red-500">
+                  <p>스터디를 불러오는데 실패했습니다.</p>
+                  <p className="text-sm mt-2">{studyError.message}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 데이터가 있는 경우 */}
+          {selectedStudy && !isStudyLoading && !studyError && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">
+                스터디 {(selectedIndex ?? 0) + 1}
+              </h3>
+              <div className="flex justify-center items-center h-64">
+                {/* 이미지가 있는 경우 */}
+                {selectedStudy.images && selectedStudy.images.length > 0 ? (
+                  <img
+                    src={selectedStudy.images[0].url}
                     alt="스터디 이미지"
                     className="max-w-full max-h-full object-contain rounded-lg"
+                    onError={(e) => {
+                      console.error('이미지 로드 실패:', e);
+                      e.target.style.display = 'none';
+                    }}
                   />
                 ) : (
-                  <div className="text-gray-500">
-                    <p>{getIntroduction(selectedStudy.content)}</p>
+                  /* 이미지가 없는 경우 텍스트 내용 표시 */
+                  <div className="text-gray-500 max-w-full px-4">
+                    <p className="text-base leading-relaxed whitespace-pre-wrap">
+                      {selectedStudy.content || '내용이 없습니다.'}
+                    </p>
                   </div>
                 )}
               </div>
+              
+              {/* 작성 날짜 표시 */}
+              {selectedStudy.createdAt && (
+                <div className="mt-4 text-sm text-gray-400">
+                  {new Date(selectedStudy.createdAt).toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'short'
+                  })}
+                </div>
+              )}
             </div>
-          ) : (
+          )}
+
+          {/* 빈 슬롯인 경우 (ID가 없거나 데이터가 없음) */}
+          {!selectedStudyId && !isStudyLoading && (
             <div>
               <h3 className="text-lg font-semibold mb-4">
                 빈 슬롯 {(selectedIndex ?? 0) + 1}
@@ -69,24 +140,28 @@ export default function StudyModal({
 
         {/* 하단 버튼 */}
         <div className="absolute bottom-14 left-1/2 -translate-x-1/2 flex gap-24">
+          {/* 수정 버튼 - 실제 스터디 데이터가 있을 때만 활성화 */}
           <Button
             variant="secondary"
-            onClick={onEdit}
+            onClick={handleEdit}
+            disabled={!selectedStudyId || isStudyLoading}
             style={{
               width: '120px',
               height: '40px',
               backgroundColor: 'transparent',
-              color: COLORS.PRIMARY,
-              borderColor: COLORS.PRIMARY,
+              color: (!selectedStudyId || isStudyLoading) ? COLORS.GRAY : COLORS.PRIMARY,
+              borderColor: (!selectedStudyId || isStudyLoading) ? COLORS.GRAY : COLORS.PRIMARY,
               transition: 'background-color .2s, color .2s',
+              cursor: (!selectedStudyId || isStudyLoading) ? 'not-allowed' : 'pointer'
             }}
           >
-            수정
+            {isStudyLoading ? '로딩...' : '수정'}
           </Button>
-          
+
+          {/* 닫기 버튼 */}
           <Button
             variant="outline"
-            onClick={() => closeModal('study')}
+            onClick={handleClose}
             style={{ width: '120px', height: '40px' }}
           >
             닫기

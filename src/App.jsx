@@ -5,6 +5,7 @@ import QueryProvider from "./providers/QueryProvider.jsx"
 import AppLayout from "./layout/AppLayout.jsx"
 import HomePage from "./feature/MainHome/HomePage.jsx"
 import LoadingFallback from "./components/LoadingFallback.jsx"
+import TokenExpirationHandler from "./components/TokenExpirationHandler.jsx"
 
 // Lazy loaded components
 const SignInPage = lazy(() => import("./feature/SignIn/SignInPage.jsx"))
@@ -39,6 +40,7 @@ export default function App() {
   return (
     <QueryProvider>
       <AuthProvider>
+        <TokenExpirationHandler />
         <RouterProvider router={router} />
       </AuthProvider>
     </QueryProvider>

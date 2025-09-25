@@ -136,11 +136,9 @@ export default function ProjectApiTest({ onResult }) {
       endpoint: '/api/project/findAll',
       action: () => executeTest(
         'getAllProjects',
-        () => fetch(`http://15.164.125.28:8080/api/project/findAll?page=${testInputs.page || 0}&size=${testInputs.size || 10}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(res => res.json()),
+        () => ProjectService.getAllProjects(),
         'GET',
-        `/api/project/findAll?page=${testInputs.page || 0}&size=${testInputs.size || 10}`
+        '/api/project/findAll'
       )
     },
     {
