@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { createAvatar } from '@dicebear/core';
 import { pixelArt } from '@dicebear/collection';
 
@@ -12,20 +12,39 @@ export const useAvatarGeneration = (categories = [], options = {}) => {
   const [avatars, setAvatars] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // 생성 중복 방지를 위한 ref
+  const isGeneratingRef = useRef(false);
+  const lastCategoriesRef = useRef('');
 
-  const defaultOptions = {
+  const defaultOptions = useMemo(() => ({
     size: 96,
     ...options
-  };
+  }), [options.size]); // size만 감지
 
   useEffect(() => {
-    if (categories.length === 0) return;
+    // categories를 문자열로 변환해서 변화 감지
+    const categoriesKey = !categories || categories.length === 0 ? '' : 
+      JSON.stringify(categories.map(cat => ({ label: cat?.label, count: cat?.count })));
 
-    // 이미 아바타가 생성되어 있으면 중복 실행 방지
-    const totalAvatarsNeeded = categories.reduce((sum, cat) => sum + cat.count, 0);
-    if (Object.keys(avatars).length === totalAvatarsNeeded) return;
+    // 이전과 같으면 중복 실행 방지
+    if (categoriesKey === lastCategoriesRef.current || isGeneratingRef.current) {
+      return;
+    }
+
+    lastCategoriesRef.current = categoriesKey;
+
+    // 빈 카테고리일 때는 아바타 초기화
+    if (!categories || categories.length === 0) {
+      setAvatars({});
+      setIsLoading(false);
+      return;
+    }
 
     const generateAvatars = async () => {
+      if (isGeneratingRef.current) return;
+      
+      isGeneratingRef.current = true;
       setIsLoading(true);
       setError(null);
       
@@ -33,37 +52,40 @@ export const useAvatarGeneration = (categories = [], options = {}) => {
         const newAvatars = {};
         
         for (const category of categories) {
+          if (!category || typeof category !== 'object' || !category.label || typeof category.count !== 'number') {
+            continue;
+          }
+          
           for (let i = 0; i < category.count; i++) {
             const seed = `${category.label}-${i}`;
-            
-            // 이미 생성된 아바타는 스킵
-            if (avatars[seed]) {
-              newAvatars[seed] = avatars[seed];
-              continue;
-            }
 
-            const avatar = createAvatar(pixelArt, {
-              seed,
-              ...defaultOptions,
-            });
-            
-            newAvatars[seed] = await avatar.toDataUri();
+            try {
+              const avatar = createAvatar(pixelArt, {
+                seed,
+                size: defaultOptions.size,
+              });
+              
+              newAvatars[seed] = await avatar.toDataUri();
+            } catch (avatarError) {
+              console.error(`아바타 생성 실패 (${seed}):`, avatarError);
+              newAvatars[seed] = null;
+            }
           }
         }
         
         setAvatars(newAvatars);
       } catch (err) {
-        console.error('아바타 생성 실패:', err);
+        console.error('아바타 생성 전체 실패:', err);
         setError(err);
-        // 실패 시 빈 상태로 설정하여 무한 로딩 방지
         setAvatars({});
       } finally {
         setIsLoading(false);
+        isGeneratingRef.current = false;
       }
     };
 
     generateAvatars();
-  }, []); // options 변경도 감지
+  }, [categories, defaultOptions.size]); // 필요한 의존성만 포함
 
   /**
    * 특정 아바타 가져오기

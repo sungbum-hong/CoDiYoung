@@ -53,8 +53,11 @@ export default function StudyCategory() {
     studies: studyData?.[key]?.content || []
   }));
 
+  // 아바타 생성을 위한 유효한 rows만 필터링 (count > 0인 것만)
+  const validRows = rows.filter(row => row.count > 0);
+  
   // 커스텀 훅을 사용한 아바타 생성
-  const { getAvatar, isLoading } = useAvatarGeneration(rows, { size: 96 });
+  const { getAvatar, isLoading: avatarLoading, error: avatarError } = useAvatarGeneration(validRows, { size: 96 });
   
   // 네비게이션 훅
   const { handleCategoryClick, handleWriteClick } = useStudyNavigation();
@@ -138,6 +141,7 @@ export default function StudyCategory() {
             <div className="flex gap-4 justify-between">
               {r.count > 0 ? (
                 r.studies.slice(0, 5).map((study, i) => {
+                  // 사용자 이미지가 있으면 우선 사용, 없으면 아바타 사용
                   const avatarSrc = study.userImage || getAvatar(r.label, i);
                   
                   return (
@@ -146,7 +150,7 @@ export default function StudyCategory() {
                       label={r.label}
                       index={i}
                       avatarSrc={avatarSrc}
-                      isLoading={isLoading || loading}
+                      isLoading={avatarLoading || loading}
                       onCategoryClick={handleCategoryClick}
                       study={study}
                     />

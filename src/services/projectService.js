@@ -1,5 +1,6 @@
 import { CONFIG } from '../constants/config.js';
 import { MESSAGES } from '../constants/messages.js';
+import { AuthService } from './authService.js';
 
 const BASE_URL = 'http://15.164.125.28:8080';
 
@@ -8,7 +9,7 @@ const ENDPOINTS = {
   PROJECT_CREATE: '/api/project/create',
   PROJECT_CREATE_ALT: '/api/projects/create', // 대안 엔드포인트
   PROJECT_GET: '/api/project',
-  PROJECT_GET_ALL: '/api/project/getAll',
+  PROJECT_GET_ALL: '/api/project/findAll',
   PROJECT_DELETE: '/api/project/delete',
   PROJECT_GET_PROGRESSING: '/api/project/find/progressing',
   PROJECT_GET_APPLIED: '/api/project/find/applied', // 신청한 프로젝트 조회
@@ -21,8 +22,7 @@ const ENDPOINTS = {
 
 export class ProjectService {
   // 공통 헤더 생성
-  static getCommonHeaders(includeContentType = true) {
-    const token = localStorage.getItem('auth_token');
+  static getCommonHeaders(includeContentType = true, requireAuth = true) {
     const headers = {};
     
     if (includeContentType) {
@@ -31,8 +31,31 @@ export class ProjectService {
     
     headers['Accept'] = 'application/json';
     
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    // requireAuth가 true이면 토큰 검증
+    if (requireAuth) {
+      try {
+        const token = AuthService.validateTokenBeforeRequest(true); // 토큰 필수
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+      } catch (error) {
+        // 토큰 만료 시 에러를 상위로 전파
+        throw error;
+      }
+    } else {
+      // 조회 API의 경우 토큰이 있으면 포함, 없어도 OK
+      try {
+        const token = AuthService.validateTokenBeforeRequest(false); // 토큰 선택사항
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+      } catch (error) {
+        // 토큰 만료 시에만 에러, 토큰 없음은 무시
+        if (error.message.includes('만료')) {
+          throw error;
+        }
+        // 토큰이 없는 경우는 무시하고 계속 진행
+      }
     }
     
     return headers;
@@ -54,6 +77,8 @@ export class ProjectService {
       try {
         errorText = await response.text();
         console.log('오류 응답 원문:', errorText);
+        console.log('HTTP 상태 코드:', response.status);
+        console.log('응답 헤더:', Object.fromEntries(response.headers.entries()));
         if (errorText.trim()) {
           errorData = JSON.parse(errorText);
         }
@@ -63,6 +88,7 @@ export class ProjectService {
         errorData = { message: errorText || '서버 에러가 발생했습니다.' };
       }
       console.log('파싱된 오류 데이터:', errorData);
+      console.log('현재 토큰:', localStorage.getItem('auth_token') ? '존재함' : '없음');
       throw new Error(errorData.message || `${errorMessage} (${response.status})`);
     }
 
@@ -147,7 +173,10 @@ export class ProjectService {
     try {
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET}/${projectId}`, {
         method: 'GET',
-        headers: this.getCommonHeaders()
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
       });
 
       return await this.handleResponse(response, '프로젝트 조회 실패');
@@ -161,7 +190,10 @@ export class ProjectService {
     try {
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET_ALL}`, {
         method: 'GET',
-        headers: this.getCommonHeaders()
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
       });
 
       return await this.handleResponse(response, '프로젝트 목록 조회 실패');
@@ -187,9 +219,13 @@ export class ProjectService {
   // 진행 중인 프로젝트 조회
   static async getProgressingProjects() {
     try {
+      const headers = this.getCommonHeaders();
+      console.log('진행 프로젝트 조회 - 요청 헤더:', headers);
+      console.log('요청 URL:', `${BASE_URL}${ENDPOINTS.PROJECT_GET_PROGRESSING}`);
+      
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET_PROGRESSING}`, {
         method: 'GET',
-        headers: this.getCommonHeaders()
+        headers: headers
       });
 
       return await this.handleResponse(response, '진행 프로젝트 조회 실패');

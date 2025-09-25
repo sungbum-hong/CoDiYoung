@@ -1,18 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { StudyService } from '../../../services/studyService.js';
 import { MESSAGES } from '../../../constants/messages.js';
 
+// React Query 훅들 사용
+import { 
+  useStudyDetail, 
+  useStudyOperations 
+} from '../../../hooks/useStudyQueries.js';
+
+// 출석 서비스 추가
+import { AttendanceService } from '../../../services/AttendanceService.js';
+
+/**
+ * 안전하고 최적화된 스터디 작성/수정 페이지 훅
+ * - 무한 리렌더링 방지
+ * - 401 에러 처리
+ * - 메모리 누수 방지
+ */
 export function useWritePage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = !!id;
+  const isMounted = useRef(true);
 
-  // 상태 관리
-  const [title, setTitle] = useState('');
+  // 로컬 상태 관리 (UI 전용)
   const [content, setContent] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [savedStudyId, setSavedStudyId] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // 모달 상태 관리
   const [modals, setModals] = useState({
@@ -23,159 +38,316 @@ export function useWritePage() {
   });
   const [completeMessage, setCompleteMessage] = useState('');
 
-  // 초기 데이터 로드
-  useEffect(() => {
-    if (isEditMode && id) {
-      loadStudy();
+  // React Query 훅들 (안전한 설정)
+  const {
+    data: studyData,
+    isLoading: isLoadingStudy,
+    error: studyError,
+    refetch: refetchStudy
+  } = useStudyDetail(id, {
+    enabled: isEditMode && !!id && isMounted.current,
+    retry: (failureCount, error) => {
+      // 401 에러는 재시도하지 않음
+      if (error?.message?.includes('401')) return false;
+      return failureCount < 1;
+    },
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false, // 윈도우 포커스 시 자동 새로고침 방지
+    onError: (error) => {
+      if (!isMounted.current) return;
+      
+      if (error?.message?.includes('401')) {
+        console.error('인증 오류:', error);
+        navigate('/login'); // 인증 실패 시 로그인 페이지로 리다이렉트
+        return;
+      }
+      
+      console.error('스터디 로드 실패:', error);
+      setErrorMessage(`스터디를 불러오는데 실패했습니다: ${error.message}`);
     }
-  }, [isEditMode, id]);
+  });
 
-  const loadStudy = async () => {
-    try {
-      setIsLoading(true);
-      console.log('Loading study with ID:', id); // 디버깅용
-      const studyData = await StudyService.getStudy(id);
-      console.log('Loaded study data:', studyData); // 디버깅용
-      setTitle(studyData.title || '');
+  const {
+    createStudy,
+    updateStudy,
+    deleteStudy,
+    isLoading: isMutating,
+    isCreating,
+    isUpdating,
+    isDeleting,
+    createError,
+    updateError,
+    deleteError,
+    isCreateSuccess,
+    isUpdateSuccess,
+    isDeleteSuccess,
+    resetAll
+  } = useStudyOperations();
+
+  // 컴포넌트 마운트 상태 추적
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  // 전체 로딩 상태
+  const isLoading = useMemo(() => {
+    return isLoadingStudy || isMutating;
+  }, [isLoadingStudy, isMutating]);
+
+  // 스터디 데이터 초기화 (한 번만 실행)
+  useEffect(() => {
+    if (studyData && !isInitialized && isMounted.current) {
       setContent(studyData.content || '');
-    } catch (error) {
-      console.error('Study load error:', error); // 디버깅용
-      alert('스터디를 불러오는데 실패했습니다: ' + error.message);
-    } finally {
-      setIsLoading(false);
+      setIsInitialized(true);
     }
-  };
+  }, [studyData, isInitialized]);
+
+  // 에러 처리 (안전한 방식)
+  const updateErrorMessage = useCallback((error, action) => {
+    if (!isMounted.current) return;
+    
+    if (error?.message?.includes('401')) {
+      navigate('/login');
+      return;
+    }
+    
+    setErrorMessage(`${action}에 실패했습니다: ${error.message}`);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!isMounted.current) return;
+    
+    if (createError) {
+      updateErrorMessage(createError, '작성');
+    } else if (updateError) {
+      updateErrorMessage(updateError, '수정');
+    } else if (deleteError) {
+      updateErrorMessage(deleteError, '삭제');
+    } else if (!studyError) {
+      setErrorMessage('');
+    }
+  }, [createError, updateError, deleteError, studyError, updateErrorMessage]);
 
   // 콘텐츠에서 이미지 추출
-  const extractImagesFromContent = (htmlContent) => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlContent, 'text/html');
-    const images = doc.querySelectorAll('img');
+  const extractImagesFromContent = useCallback((htmlContent) => {
+    if (!htmlContent) return [];
     
-    return Array.from(images).map((img, index) => ({
-      id: parseInt(img.dataset.id) || 0, // 이미지 id 추가
-      key: img.dataset.key || img.src,
-      sortOrder: index
-    }));
-  };
-
-  // 저장 처리
-  const handleSave = async () => {
-    if (!content.trim() || content === '<p></p>') {
-      alert('내용을 입력해주세요.');
-      return;
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, 'text/html');
+      const images = doc.querySelectorAll('img');
+      
+      return Array.from(images).map((img, index) => ({
+        id: parseInt(img.dataset.id) || 0,
+        key: img.dataset.key || img.src,
+        sortOrder: index
+      }));
+    } catch (error) {
+      console.warn('이미지 추출 실패:', error);
+      return [];
     }
+  }, []);
+
+  // 폼 유효성 검사
+  const validateContent = useCallback(() => {
+    if (!content.trim() || content === '<p></p>') {
+      setErrorMessage('내용을 입력해주세요.');
+      return false;
+    }
+    return true;
+  }, [content]);
+
+  // 저장 처리 (안전한 방식 + 출석 체크)
+  const handleSave = useCallback(async () => {
+    if (!isMounted.current || !validateContent()) return;
 
     try {
-      setIsLoading(true);
-      
-      // 콘텐츠에서 이미지 정보 추출
+      setErrorMessage('');
       const images = extractImagesFromContent(content);
       
+      let result;
       if (isEditMode) {
-        // 이미지가 없을 때는 null로 전송 시도
-        await StudyService.updateStudy(id, content, images.length > 0 ? images : null);
-        // 백엔드 처리 시간을 위한 지연
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        // 수정 후 최신 데이터 다시 로드
-        await loadStudy();
-        setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
-        setSavedStudyId(id);
-        setModals(prev => ({ ...prev, complete: true }));
-      } else {
-        const result = await StudyService.createStudy(content, images);
-        
-        const studyId = result.id || result.studyId;
-        setSavedStudyId(studyId);
-        
-        // 글 작성 성공 시 출석체크
-        try {
-          await StudyService.checkAttendance();
-        } catch (attendanceError) {
-          // 출석체크 실패해도 글 작성은 성공으로 처리
+        // 수정 모드 - 출석 체크 없음
+        result = await updateStudy(id, content, images);
+        if (isMounted.current) {
+          setSavedStudyId(id);
+          setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
+          setModals(prev => ({ ...prev, complete: true }));
         }
+      } else {
+        // 생성 모드 - 출석 체크 포함
+        result = await createStudy(content, images);
         
-        setModals(prev => ({ ...prev, record: true }));
+        if (isMounted.current && result) {
+          const newStudyId = result?.id || result?.studyId;
+          setSavedStudyId(newStudyId);
+          
+          // 스터디 생성 성공 후 출석 체크 시도
+          try {
+            await AttendanceService.checkAttendance();
+            console.log('출석 체크 완료');
+          } catch (attendanceError) {
+            console.warn('출석 체크 실패:', attendanceError);
+            // 출석 체크 실패해도 스터디 생성은 성공으로 처리
+          }
+          
+          setModals(prev => ({ ...prev, record: true }));
+        }
       }
     } catch (error) {
-      alert('저장에 실패했습니다: ' + error.message);
-    } finally {
-      setIsLoading(false);
+      console.error('저장 실패:', error);
+      // 에러는 useStudyOperations와 useEffect에서 처리
     }
-  };
+  }, [validateContent, extractImagesFromContent, content, isEditMode, id, updateStudy, createStudy]);
 
-  // 삭제 처리
-  const handleDelete = async () => {
+  // 삭제 처리 (안전한 방식)
+  const handleDelete = useCallback(async () => {
+    if (!isMounted.current || !id) return;
+
     try {
-      await StudyService.deleteStudy(id);
-      setModals(prev => ({ ...prev, delete: false }));
-      setCompleteMessage(MESSAGES.UI.DELETE_COMPLETE);
-      setModals(prev => ({ ...prev, complete: true }));
+      setErrorMessage('');
+      await deleteStudy(id);
+      
+      if (isMounted.current) {
+        setModals(prev => ({ ...prev, delete: false }));
+        setCompleteMessage(MESSAGES.UI.DELETE_COMPLETE);
+        setModals(prev => ({ ...prev, complete: true }));
+      }
     } catch (error) {
-      alert('삭제에 실패했습니다: ' + error.message);
-      setModals(prev => ({ ...prev, delete: false }));
+      console.error('삭제 실패:', error);
+      if (isMounted.current) {
+        setModals(prev => ({ ...prev, delete: false }));
+      }
     }
-  };
+  }, [id, deleteStudy]);
 
-  // 수정 처리
-  const handleEdit = async () => {
-    if (!content.trim() || content === '<p></p>') {
-      alert('내용을 입력해주세요.');
-      return;
-    }
+  // 수정 확인 처리
+  const handleEdit = useCallback(async () => {
+    if (!isMounted.current || !validateContent()) return;
 
     try {
-      setIsLoading(true);
+      setErrorMessage('');
       setModals(prev => ({ ...prev, edit: false }));
       
-      // 콘텐츠에서 이미지 정보 추출
       const images = extractImagesFromContent(content);
+      await updateStudy(id, content, images);
       
-      await StudyService.updateStudy(id, content, images.length > 0 ? images : null);
-      
-      // 백엔드 처리 시간을 위한 지연
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // 수정 후 최신 데이터 다시 로드
-      await loadStudy();
-      
-      setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
-      setSavedStudyId(id); // 현재 수정중인 studyId 설정
-      setModals(prev => ({ ...prev, complete: true }));
+      if (isMounted.current) {
+        setSavedStudyId(id);
+        setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
+        setModals(prev => ({ ...prev, complete: true }));
+      }
     } catch (error) {
-      alert('수정에 실패했습니다: ' + error.message);
-      setModals(prev => ({ ...prev, edit: false }));
-    } finally {
-      setIsLoading(false);
+      console.error('수정 실패:', error);
+      if (isMounted.current) {
+        setModals(prev => ({ ...prev, edit: false }));
+      }
     }
-  };
+  }, [validateContent, extractImagesFromContent, content, id, updateStudy]);
 
-  // 모달 제어
-  const openModal = (modalName) => {
+  // 모달 제어 (안전한 방식)
+  const openModal = useCallback((modalName) => {
+    if (!isMounted.current) return;
     setModals(prev => ({ ...prev, [modalName]: true }));
-  };
+  }, []);
 
-  const closeModal = (modalName) => {
+  const closeModal = useCallback((modalName) => {
+    if (!isMounted.current) return;
+    
     setModals(prev => ({ ...prev, [modalName]: false }));
-  };
+    
+    // 완료/기록 모달 닫을 때 정리
+    if (modalName === 'complete' || modalName === 'record') {
+      resetAll();
+      setErrorMessage('');
+    }
+  }, [resetAll]);
 
-  // 취소 (홈으로 이동)
-  const handleCancel = () => {
-    navigate('/');
-  };
+  // 취소 (안전한 네비게이션)
+  const handleCancel = useCallback(() => {
+    if (isMounted.current) {
+      navigate('/');
+    }
+  }, [navigate]);
+
+  // 에러 클리어
+  const clearError = useCallback(() => {
+    if (!isMounted.current) return;
+    setErrorMessage('');
+    resetAll();
+  }, [resetAll]);
+
+  // 폼 리셋
+  const resetForm = useCallback(() => {
+    if (!isMounted.current) return;
+    
+    setContent('');
+    setErrorMessage('');
+    setSavedStudyId(null);
+    setCompleteMessage('');
+    setIsInitialized(false);
+    setModals({
+      record: false,
+      delete: false,
+      edit: false,
+      complete: false,
+    });
+    resetAll();
+  }, [resetAll]);
+
+  // 재시도 (안전한 방식)
+  const handleRetry = useCallback(() => {
+    if (!isMounted.current) return;
+    
+    if (studyError && isEditMode) {
+      refetchStudy();
+    } else {
+      clearError();
+    }
+  }, [studyError, isEditMode, refetchStudy, clearError]);
+
+  // 생성 성공 후 완료 모달 처리 (안전한 방식)
+  useEffect(() => {
+    if (!isMounted.current) return;
+    
+    if (isCreateSuccess && !modals.record) {
+      setCompleteMessage('스터디가 성공적으로 작성되었습니다!');
+      setModals(prev => ({ ...prev, complete: true }));
+    }
+  }, [isCreateSuccess, modals.record]);
 
   return {
-    // 상태
-    title,
-    setTitle,
+    // 데이터 상태
+    studyData,
     content,
     setContent,
-    isLoading,
-    isEditMode,
     savedStudyId,
+    isEditMode,
+
+    // 로딩 상태
+    isLoading,
+    isLoadingStudy,
+    isCreating,
+    isUpdating,
+    isDeleting,
+
+    // 에러 상태
+    errorMessage,
+    studyError,
+    
+    // 성공 상태  
+    isCreateSuccess,
+    isUpdateSuccess,
+    isDeleteSuccess,
+
+    // 모달 상태
     modals,
     completeMessage,
 
-    // 액션
+    // 액션 함수들
     actions: {
       handleSave,
       handleDelete,
@@ -183,6 +355,15 @@ export function useWritePage() {
       handleCancel,
       openModal,
       closeModal,
+      clearError,
+      resetForm,
+      handleRetry,
     },
+
+    // 유틸리티 함수들
+    utils: {
+      extractImagesFromContent,
+      validateContent,
+    }
   };
 }

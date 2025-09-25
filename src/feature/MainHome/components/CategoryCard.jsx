@@ -27,12 +27,30 @@ export default function CategoryCard({
           src={avatarSrc} 
           alt={`${label} 아바타 ${index + 1}`}
           className="w-full h-full object-cover"
+          onError={(e) => {
+            // 이미지 로드 실패 시 기본 아바타 표시
+            e.target.style.display = 'none';
+            if (e.target.nextSibling) {
+              e.target.nextSibling.style.display = 'flex';
+            }
+          }}
         />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
-          {isLoading ? 'Loading...' : 'Error'}
-        </div>
-      )}
+      ) : null}
+      <div 
+        className="w-full h-full flex items-center justify-center text-xs text-gray-400"
+        style={{ display: avatarSrc ? 'none' : 'flex' }}
+      >
+        {isLoading ? (
+          <div className="animate-pulse">
+            <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+          </div>
+        ) : (
+          <div className="text-center">
+            <div className="text-2xl mb-1">👤</div>
+            <div className="text-xs">No Image</div>
+          </div>
+        )}
+      </div>
     </button>
   );
 }

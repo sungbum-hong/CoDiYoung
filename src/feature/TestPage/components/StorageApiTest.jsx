@@ -1,17 +1,12 @@
 import { useState } from 'react';
-import { StudyService } from '../../../services/studyService';
 import Button from '../../../ui/Button';
 
-export default function StudyApiTest({ onResult }) {
+export default function StorageApiTest({ onResult }) {
   const [testInputs, setTestInputs] = useState({
-    studyId: '1',
-    userId: '1',
-    content: '<p>테스트 스터디 내용입니다</p>',
-    page: '0',
-    size: '30',
     filename: 'test.jpg',
     contentType: 'image/jpeg',
-    key: 'test/image.jpg'
+    key: 'test/image.jpg',
+    originalFilename: 'test-image.jpg'
   });
 
   const [loading, setLoading] = useState({});
@@ -70,110 +65,12 @@ export default function StudyApiTest({ onResult }) {
 
   const tests = [
     {
-      name: 'createStudy',
-      label: '스터디 생성',
-      method: 'POST',
-      endpoint: '/api/study/create',
-      action: () => executeTest(
-        'createStudy',
-        () => StudyService.createStudy(testInputs.content, []),
-        'POST',
-        '/api/study/create'
-      )
-    },
-    {
-      name: 'getStudy',
-      label: '스터디 조회',
-      method: 'GET',
-      endpoint: '/api/study/{studyId}',
-      action: () => executeTest(
-        'getStudy',
-        () => StudyService.getStudy(testInputs.studyId),
-        'GET',
-        `/api/study/${testInputs.studyId}`
-      )
-    },
-    {
-      name: 'updateStudy',
-      label: '스터디 수정',
-      method: 'PUT',
-      endpoint: '/api/study/update/study/{studyId}',
-      action: () => executeTest(
-        'updateStudy',
-        () => StudyService.updateStudy(testInputs.studyId, testInputs.content, [{id: 0, key: "test/image.jpg", sortOrder: 0}]),
-        'PUT',
-        `/api/study/update/study/${testInputs.studyId}`
-      )
-    },
-    {
-      name: 'deleteStudy',
-      label: '스터디 삭제',
-      method: 'DELETE',
-      endpoint: '/api/study/delete/{studyId}',
-      action: () => executeTest(
-        'deleteStudy',
-        () => StudyService.deleteStudy(testInputs.studyId),
-        'DELETE',
-        `/api/study/delete/${testInputs.studyId}`
-      )
-    },
-    {
-      name: 'getUserStudies',
-      label: '유저의 스터디 목록 조회',
-      method: 'GET',
-      endpoint: '/api/study/users/studies',
-      action: () => executeTest(
-        'getUserStudies',
-        () => fetch(`http://15.164.125.28:8080/api/study/users/studies?page=${testInputs.page}&size=${testInputs.size}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(res => res.json()),
-        'GET',
-        `/api/study/users/studies?page=${testInputs.page}&size=${testInputs.size}`
-      )
-    },
-    {
-      name: 'getGroupedStudies',
-      label: '카테고리별 스터디 그룹 조회',
-      method: 'GET',
-      endpoint: '/api/study/category/grouped',
-      action: () => executeTest(
-        'getGroupedStudies',
-        () => StudyService.getGroupedStudies(),
-        'GET',
-        '/api/study/category/grouped'
-      )
-    },
-    {
-      name: 'checkAttendance',
-      label: '출석 체크',
-      method: 'POST',
-      endpoint: '/api/attendance/check',
-      action: () => executeTest(
-        'checkAttendance',
-        () => StudyService.checkAttendance(),
-        'POST',
-        '/api/attendance/check'
-      )
-    },
-    {
-      name: 'getAttendanceCalendar',
-      label: '출석 달력 조회',
-      method: 'GET',
-      endpoint: '/api/attendance/calendar',
-      action: () => executeTest(
-        'getAttendanceCalendar',
-        () => StudyService.getAttendanceCalendar(),
-        'GET',
-        '/api/attendance/calendar'
-      )
-    },
-    {
-      name: 'presignUrl',
-      label: '이미지 업로드 URL 발급',
+      name: 'presignPost',
+      label: 'Presigned URL 발급 (POST)',
       method: 'POST',
       endpoint: '/storage/presign',
       action: () => executeTest(
-        'presignUrl',
+        'presignPost',
         () => fetch('http://15.164.125.28:8080/storage/presign', {
           method: 'POST',
           headers: { 
@@ -181,24 +78,12 @@ export default function StudyApiTest({ onResult }) {
             'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
           },
           body: JSON.stringify({
-            originalFilename: 'test.jpg',
-            contentType: 'image/jpeg'
+            originalFilename: testInputs.originalFilename,
+            contentType: testInputs.contentType
           })
         }).then(res => res.json()),
         'POST',
         '/storage/presign'
-      )
-    },
-    {
-      name: 'getUserStudyChannel',
-      label: '유저의 스터디채널 반환',
-      method: 'GET',
-      endpoint: '/api/study?userId={userId}',
-      action: () => executeTest(
-        'getUserStudyChannel',
-        () => StudyService.getUserStudyChannel(testInputs.userId),
-        'GET',
-        `/api/study?userId=${testInputs.userId}`
       )
     },
     {
@@ -243,25 +128,12 @@ export default function StudyApiTest({ onResult }) {
         'GET',
         `/api/storage/presign-get?key=${testInputs.key}`
       )
-    },
-    {
-      name: 'healthCheck',
-      label: '헬스 체크',
-      method: 'GET',
-      endpoint: '/health',
-      action: () => executeTest(
-        'healthCheck',
-        () => fetch('http://15.164.125.28:8080/health').then(res => res.text()),
-        'GET',
-        '/health'
-      )
     }
   ];
 
   const runAllTests = async () => {
     for (const test of tests) {
       await test.action();
-      // 각 테스트 사이에 500ms 지연
       await new Promise(resolve => setTimeout(resolve, 500));
     }
   };
@@ -269,131 +141,29 @@ export default function StudyApiTest({ onResult }) {
   // API별 개별 입력 폼 렌더링
   const renderApiInputs = (test) => {
     switch(test.name) {
-      case 'createStudy':
-        return (
-          <div className="mb-3">
-            <label className="block text-xs font-medium text-gray-700 mb-1">스터디 내용 (HTML)</label>
-            <textarea
-              value={testInputs.content}
-              onChange={(e) => setTestInputs(prev => ({ ...prev, content: e.target.value }))}
-              className="w-full px-2 py-1 border border-gray-300 rounded text-xs h-16"
-              placeholder="<p>테스트 스터디 내용</p>"
-            />
-          </div>
-        );
-        
-      case 'getStudy':
-      case 'deleteStudy':
-        return (
-          <div className="mb-3">
-            <label className="block text-xs font-medium text-gray-700 mb-1">스터디 ID</label>
-            <input
-              type="text"
-              value={testInputs.studyId}
-              onChange={(e) => setTestInputs(prev => ({ ...prev, studyId: e.target.value }))}
-              className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-              placeholder="1"
-            />
-          </div>
-        );
-        
-      case 'updateStudy':
-        return (
-          <div className="space-y-3 mb-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">스터디 ID</label>
-              <input
-                type="text"
-                value={testInputs.studyId}
-                onChange={(e) => setTestInputs(prev => ({ ...prev, studyId: e.target.value }))}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                placeholder="1"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">수정할 내용</label>
-              <textarea
-                value={testInputs.content}
-                onChange={(e) => setTestInputs(prev => ({ ...prev, content: e.target.value }))}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs h-16"
-                placeholder="<p>수정할 스터디 내용</p>"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">이미지 정보 (JSON)</label>
-              <textarea
-                defaultValue={JSON.stringify([{id: 0, key: "test/image.jpg", sortOrder: 0}], null, 2)}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs h-20"
-                placeholder='[{"id": 0, "key": "test/image.jpg", "sortOrder": 0}]'
-              />
-            </div>
-          </div>
-        );
-        
-      case 'getUserStudies':
-      case 'getAllStudies':
+      case 'presignPost':
         return (
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">페이지</label>
-              <input
-                type="number"
-                value={testInputs.page}
-                onChange={(e) => setTestInputs(prev => ({ ...prev, page: e.target.value }))}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">크기</label>
-              <input
-                type="number"
-                value={testInputs.size}
-                onChange={(e) => setTestInputs(prev => ({ ...prev, size: e.target.value }))}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                placeholder="30"
-              />
-            </div>
-          </div>
-        );
-        
-      case 'presignUrl':
-        return (
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">파일명</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">원본 파일명</label>
               <input
                 type="text"
-                value="test.jpg"
+                value={testInputs.originalFilename}
+                onChange={(e) => setTestInputs(prev => ({ ...prev, originalFilename: e.target.value }))}
                 className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                placeholder="test.jpg"
-                readOnly
+                placeholder="test-image.jpg"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">컨텐츠 타입</label>
               <input
                 type="text"
-                value="image/jpeg"
+                value={testInputs.contentType}
+                onChange={(e) => setTestInputs(prev => ({ ...prev, contentType: e.target.value }))}
                 className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
                 placeholder="image/jpeg"
-                readOnly
               />
             </div>
-          </div>
-        );
-        
-      case 'getUserStudyChannel':
-        return (
-          <div className="mb-3">
-            <label className="block text-xs font-medium text-gray-700 mb-1">사용자 ID</label>
-            <input
-              type="text"
-              value={testInputs.userId}
-              onChange={(e) => setTestInputs(prev => ({ ...prev, userId: e.target.value }))}
-              className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-              placeholder="1"
-            />
           </div>
         );
         
@@ -451,79 +221,50 @@ export default function StudyApiTest({ onResult }) {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              스터디 ID
+              파일명
             </label>
             <input
               type="text"
-              value={testInputs.studyId}
-              onChange={(e) => setTestInputs(prev => ({ ...prev, studyId: e.target.value }))}
+              value={testInputs.filename}
+              onChange={(e) => setTestInputs(prev => ({ ...prev, filename: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-              placeholder="1"
+              placeholder="test.jpg"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              사용자 ID
+              원본 파일명
             </label>
             <input
               type="text"
-              value={testInputs.userId}
-              onChange={(e) => setTestInputs(prev => ({ ...prev, userId: e.target.value }))}
+              value={testInputs.originalFilename}
+              onChange={(e) => setTestInputs(prev => ({ ...prev, originalFilename: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-              placeholder="1"
+              placeholder="test-image.jpg"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              페이지 / 크기
+              컨텐츠 타입
             </label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                value={testInputs.page}
-                onChange={(e) => setTestInputs(prev => ({ ...prev, page: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                placeholder="0"
-              />
-              <input
-                type="number"
-                value={testInputs.size}
-                onChange={(e) => setTestInputs(prev => ({ ...prev, size: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                placeholder="30"
-              />
-            </div>
+            <input
+              type="text"
+              value={testInputs.contentType}
+              onChange={(e) => setTestInputs(prev => ({ ...prev, contentType: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              placeholder="image/jpeg"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              파일명 / 이미지 키
+              이미지 키
             </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={testInputs.filename}
-                onChange={(e) => setTestInputs(prev => ({ ...prev, filename: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                placeholder="test.jpg"
-              />
-              <input
-                type="text"
-                value={testInputs.key}
-                onChange={(e) => setTestInputs(prev => ({ ...prev, key: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                placeholder="test/image.jpg"
-              />
-            </div>
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              스터디 내용 (HTML)
-            </label>
-            <textarea
-              value={testInputs.content}
-              onChange={(e) => setTestInputs(prev => ({ ...prev, content: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm h-20"
-              placeholder="<p>테스트 스터디 내용</p>"
+            <input
+              type="text"
+              value={testInputs.key}
+              onChange={(e) => setTestInputs(prev => ({ ...prev, key: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              placeholder="test/image.jpg"
             />
           </div>
         </div>
@@ -531,7 +272,7 @@ export default function StudyApiTest({ onResult }) {
 
       {/* 전체 테스트 실행 버튼 */}
       <div className="flex justify-between items-center">
-        <h4 className="font-medium text-gray-900">스터디 API 테스트</h4>
+        <h4 className="font-medium text-gray-900">스토리지 API 테스트</h4>
         <Button
           onClick={runAllTests}
           variant="secondary"

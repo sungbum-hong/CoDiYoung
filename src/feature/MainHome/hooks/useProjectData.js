@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { MockProjectService, USE_MOCK_DATA } from "../../../mock-logic/index.js";
 
 export function useProjectData() {
   const [projects, setProjects] = useState([]);
@@ -8,7 +7,6 @@ export function useProjectData() {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      if (!USE_MOCK_DATA) return;
       
       try {
         setIsLoading(true);
