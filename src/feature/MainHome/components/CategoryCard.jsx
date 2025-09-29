@@ -5,12 +5,15 @@ export default function CategoryCard({
   index, 
   avatarSrc, 
   isLoading, 
-  onCategoryClick 
+  onCategoryClick,
+  userId,
+  userImage,
+  category
 }) {
   return (
     <button
       key={index}
-      onClick={() => onCategoryClick(label)}
+      onClick={() => onCategoryClick(label, userId)}
       className="w-24 h-24 rounded-full cursor-pointer focus:outline-none focus:ring-2 overflow-hidden border-2"
       style={{
         backgroundColor: COLORS.WHITE,

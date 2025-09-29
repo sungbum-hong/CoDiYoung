@@ -38,8 +38,7 @@ export default function ProfileContent() {
   }
 
   return (
-    <div className="bg-white shadow-sm rounded-lg p-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">프로필 정보</h1>
+    <div className="bg-white  rounded-lg p-6">
 
       <div className="space-y-4">
         {/* 프로필 이미지 섹션 */}

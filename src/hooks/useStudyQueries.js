@@ -9,6 +9,8 @@ import { useCallback, useMemo, useState } from 'react';
  * 개별 스터디 상세 조회
  * @param {number} studyId - 스터디 ID
  * @param {Object} options - 쿼리 옵션
+ * 
+ * API 응답 구조: { id, content, createdAt, images: [{ url, sortOrder }] }
  */
 export const useStudyDetail = (studyId, options = {}) => {
   return useQuery({
@@ -26,14 +28,28 @@ export const useStudyDetail = (studyId, options = {}) => {
 };
 
 /**
- * 유저의 스터디 채널 조회
+ * 유저의 상세 스터디 채널 조회 - 업데이트된 API
  * @param {number} userId - 유저 ID
+ * @param {Object} pageable - 페이지네이션 옵션
+ * @param {number} pageable.page - 페이지 번호
+ * @param {number} pageable.size - 페이지 크기
+ * @param {Array<string>} pageable.sort - 정렬 조건
  * @param {Object} options - 쿼리 옵션
+ * 
+ * API 응답 구조:
+ * {
+ *   category: string,
+ *   userImageUrl: string,
+ *   studyCount: number,
+ *   completedProject: [{ id, logoImageURL }],
+ *   month: { month, days: [{ date, checked }] },
+ *   studies: { content: [{ studyId, content }], pageNumber, pageSize, totalElements, totalPages, last }
+ * }
  */
-export const useUserStudyChannel = (userId, options = {}) => {
+export const useUserStudyChannel = (userId, pageable = { page: 0, size: 10, sort: ['createdAt,DESC'] }, options = {}) => {
   return useQuery({
-    queryKey: QUERY_KEYS.studies.my(userId),
-    queryFn: () => StudyService.getUserStudyChannel(userId),
+    queryKey: QUERY_KEYS.studies.my(userId, pageable),
+    queryFn: () => StudyService.getUserStudyChannel(userId, pageable),
     enabled: !!userId,
     staleTime: 5 * 60 * 1000, // 5분간 캐시
     ...options
@@ -46,6 +62,8 @@ export const useUserStudyChannel = (userId, options = {}) => {
  * @param {number} params.page - 페이지 번호
  * @param {number} params.size - 페이지 크기
  * @param {Array<string>} params.sort - 정렬 조건
+ * 
+ * API 응답 구조: { content: [{ studyId, content }], totalElements, totalPages, number, first, last, empty }
  */
 export const useUserStudies = ({ page = 0, size = 10, sort = ['createdAt,DESC'] } = {}) => {
   return useQuery({
@@ -80,7 +98,7 @@ export const useUserStudiesWithPagination = ({ page = 0, size = 10, sort = ['cre
     queryKey: QUERY_KEYS.studies.list({ type: 'paginated', page, size, sort }),
     queryFn: () => StudyService.getUserStudies(page, size, sort),
     staleTime: 3 * 60 * 1000,
-    keepPreviousData: true, // 페이지 전환 시 이전 데이터 유지
+    keepPreviousData: true,
     select: (data) => {
       return {
         studies: data?.content || [],
@@ -103,6 +121,13 @@ export const useUserStudiesWithPagination = ({ page = 0, size = 10, sort = ['cre
 /**
  * 카테고리별 그룹화된 스터디 조회
  * @param {Object} params - 카테고리별 페이지네이션 파라미터
+ * 
+ * API 응답 구조: 
+ * {
+ *   coding: { content: [{ userId, userImage, category }], totalElements, last, number },
+ *   design: { content: [{ userId, userImage, category }], totalElements, last, number },
+ *   video: { content: [{ userId, userImage, category }], totalElements, last, number }
+ * }
  */
 export const useGroupedStudies = (params = {}) => {
   const defaultParams = {
@@ -123,19 +148,19 @@ export const useGroupedStudies = (params = {}) => {
     select: (data) => {
       return {
         coding: {
-          studies: data?.coding?.content || [],
+          users: data?.coding?.content || [],  // studies → users로 명확하게
           totalElements: data?.coding?.totalElements || 0,
           hasNext: !data?.coding?.last,
           currentPage: data?.coding?.number || 0
         },
         design: {
-          studies: data?.design?.content || [],
+          users: data?.design?.content || [],
           totalElements: data?.design?.totalElements || 0,
           hasNext: !data?.design?.last,
           currentPage: data?.design?.number || 0
         },
         video: {
-          studies: data?.video?.content || [],
+          users: data?.video?.content || [],
           totalElements: data?.video?.totalElements || 0,
           hasNext: !data?.video?.last,
           currentPage: data?.video?.number || 0
@@ -150,6 +175,9 @@ export const useGroupedStudies = (params = {}) => {
 
 /**
  * 스터디 생성
+ * 
+ * API 요청: { content, images: [{ key, sortOrder }] }
+ * API 응답: { id, content, createdAt, images: [{ url, sortOrder }] }
  */
 export const useCreateStudy = () => {
   const queryClient = useQueryClient();
@@ -169,12 +197,10 @@ export const useCreateStudy = () => {
         QUERY_KEYS.studies.list({ type: 'user', page: 0 })
       );
 
-      // Optimistic update
+      // Optimistic update - 목록 API 응답 구조에 맞춤
       const tempStudy = {
-        id: `temp-${Date.now()}`,
+        studyId: `temp-${Date.now()}`,  // ✅ 목록 API는 studyId 사용
         content,
-        images: images.map(img => ({ url: img.key, sortOrder: img.sortOrder })),
-        createdAt: new Date().toISOString(),
         isOptimistic: true
       };
 
@@ -203,19 +229,21 @@ export const useCreateStudy = () => {
       console.error('스터디 생성 실패:', error);
     },
     onSuccess: (newStudy) => {
-      // 모든 스터디 관련 쿼리 무효화
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.studies.all,
-        exact: false
-      });
-
-      // 새 스터디를 상세 캐시에 미리 저장
+      console.log('스터디 생성 성공:', newStudy);
+      
+      // 상세 API 응답은 id 사용
       if (newStudy?.id) {
         queryClient.setQueryData(
           QUERY_KEYS.studies.detail(newStudy.id),
           newStudy
         );
       }
+
+      // 모든 스터디 관련 쿼리 무효화
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.studies.all,
+        exact: false
+      });
     },
     onSettled: () => {
       // 페이지네이션 쿼리들도 무효화
@@ -229,6 +257,9 @@ export const useCreateStudy = () => {
 
 /**
  * 스터디 수정
+ * 
+ * API 요청: { content, images: [{ id, key, sortOrder }] }
+ * API 응답: "string" (단순 문자열)
  */
 export const useUpdateStudy = () => {
   const queryClient = useQueryClient();
@@ -271,11 +302,21 @@ export const useUpdateStudy = () => {
       }
       console.error('스터디 수정 실패:', error);
     },
-    onSuccess: (updatedStudy, { studyId }) => {
-      // 상세 캐시 업데이트
+    onSuccess: (result, { studyId, content, images }) => {
+      console.log('스터디 수정 성공:', result);
+      
+      // API는 문자열을 반환하므로 직접 캐시 업데이트
       queryClient.setQueryData(
         QUERY_KEYS.studies.detail(studyId),
-        updatedStudy
+        (oldData) => ({
+          ...oldData,
+          content,
+          images: images.map(img => ({ 
+            url: img.key, 
+            sortOrder: img.sortOrder 
+          })),
+          updatedAt: new Date().toISOString()
+        })
       );
 
       // 목록 캐시들 무효화
@@ -289,6 +330,8 @@ export const useUpdateStudy = () => {
 
 /**
  * 스터디 삭제
+ * 
+ * API 응답: 성공 메시지 또는 상태
  */
 export const useDeleteStudy = () => {
   const queryClient = useQueryClient();
@@ -315,12 +358,12 @@ export const useDeleteStudy = () => {
         previousLists.set(query.queryKey, query.state.data);
       });
 
-      // Optimistic delete - 목록에서 제거
+      // Optimistic delete - 목록에서 제거 (studyId 사용)
       previousLists.forEach((data, queryKey) => {
         if (data?.content) {
           queryClient.setQueryData(queryKey, {
             ...data,
-            content: data.content.filter(study => study.id !== studyId),
+            content: data.content.filter(study => study.studyId !== studyId),  // ✅ id → studyId
             totalElements: Math.max((data.totalElements || 1) - 1, 0)
           });
         }
@@ -345,8 +388,10 @@ export const useDeleteStudy = () => {
       
       console.error('스터디 삭제 실패:', error);
     },
-    onSuccess: (_, studyId) => {
-      // 상세 캐시 제거
+    onSuccess: (result, studyId) => {
+      console.log('스터디 삭제 성공:', result);
+      
+      // 상세 캐시 제거 (상세 API는 id 사용)
       queryClient.removeQueries({
         queryKey: QUERY_KEYS.studies.detail(studyId)
       });

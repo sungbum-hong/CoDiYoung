@@ -28,15 +28,25 @@ export default function StudyCategory() {
     const fetchStudyData = async () => {
       try {
         setLoading(true);
+        console.log('=== 스터디 카테고리 데이터 로드 시작 ===');
+        
         const data = await StudyService.getGroupedStudies({
           codingSize: 5,
           designSize: 5,
           videoSize: 5
         });
+        
+        console.log('=== 스터디 카테고리 데이터 로드 성공 ===');
+        console.log('응답 데이터:', data);
+        console.log('코딩 카테고리:', data.coding?.content);
+        console.log('디자인 카테고리:', data.design?.content);
+        console.log('영상편집 카테고리:', data.video?.content);
+        
         setStudyData(data);
       } catch (err) {
+        console.error('=== 스터디 카테고리 데이터 로드 실패 ===');
+        console.error('에러:', err);
         setError(err.message);
-        console.error('스터디 데이터 로드 실패:', err);
       } finally {
         setLoading(false);
       }
@@ -46,12 +56,20 @@ export default function StudyCategory() {
   }, []);
   
   // 표시할 행 데이터 생성
-  const rows = Object.entries(categoryMap).map(([key, config]) => ({
-    label: config.label,
-    key: key,
-    count: studyData?.[key]?.content?.length || 0,
-    studies: studyData?.[key]?.content || []
-  }));
+  // API 응답 구조: { userId, userImage, category }
+  const rows = Object.entries(categoryMap).map(([key, config]) => {
+    const categoryData = studyData?.[key];
+    const users = categoryData?.content || [];
+    
+    console.log(`${config.label} 카테고리 유저 수:`, users.length);
+    
+    return {
+      label: config.label,
+      key: key,
+      count: users.length,
+      users: users  // studies → users로 명확하게 변경
+    };
+  });
 
   // 아바타 생성을 위한 유효한 rows만 필터링 (count > 0인 것만)
   const validRows = rows.filter(row => row.count > 0);
@@ -140,19 +158,29 @@ export default function StudyCategory() {
             </div>
             <div className="flex gap-4 justify-between">
               {r.count > 0 ? (
-                r.studies.slice(0, 5).map((study, i) => {
+                r.users.slice(0, 5).map((user, i) => {
+                  // API 응답 구조: { userId, userImage, category }
                   // 사용자 이미지가 있으면 우선 사용, 없으면 아바타 사용
-                  const avatarSrc = study.userImage || getAvatar(r.label, i);
+                  const avatarSrc = user.userImage || getAvatar(r.label, i);
+                  
+                  console.log(`${r.label} 카테고리 유저 ${i}:`, {
+                    userId: user.userId,
+                    userImage: user.userImage,
+                    category: user.category,
+                    avatarSrc: avatarSrc
+                  });
                   
                   return (
                     <CategoryCard
-                      key={study.studyId || i}
+                      key={user.userId || i}  // ✅ studyId → userId로 변경
                       label={r.label}
                       index={i}
                       avatarSrc={avatarSrc}
                       isLoading={avatarLoading || loading}
                       onCategoryClick={handleCategoryClick}
-                      study={study}
+                      userId={user.userId}  // ✅ userId 명시적 전달
+                      userImage={user.userImage}  // userImage 전달
+                      category={user.category}  // category 전달
                     />
                   );
                 })

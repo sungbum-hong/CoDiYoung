@@ -88,7 +88,7 @@ export default function StudyApiTest({ onResult }) {
       endpoint: '/api/study/{studyId}',
       action: () => executeTest(
         'getStudy',
-        () => StudyService.getStudy(testInputs.studyId),
+        () => StudyService.getStudyById(testInputs.studyId),
         'GET',
         `/api/study/${testInputs.studyId}`
       )
