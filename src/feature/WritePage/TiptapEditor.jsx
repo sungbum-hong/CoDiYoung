@@ -54,7 +54,7 @@ export default function TiptapEditor({ content = '', onChange }) {
         />
       </div>
       
-      <div className="editor-content">
+      <div className="editor-content tiptap-editor">
         <EditorStyles />
         <EditorContent 
           editor={editor} 

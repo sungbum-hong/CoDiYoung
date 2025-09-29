@@ -1,4 +1,5 @@
 import { Node, mergeAttributes } from '@tiptap/core';
+import { sanitizeYouTubeUrl } from '../utils/sanitizer.js';
 
 // YouTube iframe 확장
 const YouTube = Node.create({
@@ -61,17 +62,32 @@ const YouTube = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
+    const sanitizedSrc = sanitizeYouTubeUrl(HTMLAttributes.src);
+    
+    if (!sanitizedSrc) {
+      return [
+        'div',
+        { 
+          'data-youtube-video': 'error',
+          style: 'margin: 1rem 0; padding: 1rem; border: 2px solid #ff6b6b; border-radius: 4px; background: #ffe0e0; color: #d63031; text-align: center;'
+        },
+        '⚠️ 유효하지 않은 YouTube URL입니다.'
+      ];
+    }
+    
     return [
       'div', 
       { 'data-youtube-video': '', style: 'margin: 1rem 0; text-align: center;' },
       [
         'iframe', 
         mergeAttributes({
-          src: HTMLAttributes.src,
+          src: sanitizedSrc,
           width: '100%',
           height: '400',
           frameborder: '0',
           allowfullscreen: '',
+          loading: 'lazy',
+          'data-lazy': 'true',
           style: 'width: 100%; max-width: 100%; aspect-ratio: 16/9;'
         })
       ]
@@ -81,9 +97,19 @@ const YouTube = Node.create({
   addCommands() {
     return {
       setYouTubeVideo: (options) => ({ commands }) => {
+        const sanitizedOptions = {
+          ...options,
+          src: sanitizeYouTubeUrl(options.src)
+        };
+        
+        if (!sanitizedOptions.src) {
+          console.warn('유효하지 않은 YouTube URL:', options.src);
+          return false;
+        }
+        
         return commands.insertContent({
           type: this.name,
-          attrs: options,
+          attrs: sanitizedOptions,
         });
       },
     };

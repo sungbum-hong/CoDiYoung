@@ -10,7 +10,7 @@ export const ROUTES = {
   SUCCESS_RESET_PASSWORD: "/successresetpassword",
   
   // 동적 라우트
-  STUDY_CATEGORY: "/study/:category",
+  STUDY_CHANNEL: "/study/:userId",
   PROJECTS: "/projects",
   PROJECT_DETAIL: "/project/:projectId", 
   

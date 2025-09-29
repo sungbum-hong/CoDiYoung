@@ -1,9 +1,7 @@
 import { COLORS } from '../../../utils/colors.js';
 
 export const useWritePageHeader = (isEditMode, actions, handleRecordClick) => {
-  const getHeaderTitle = () => {
-    return isEditMode ? '스터디' : '스터디';
-  };
+  const getHeaderTitle = () => '스터디';
 
   const getEditModeButtons = () => [
     {

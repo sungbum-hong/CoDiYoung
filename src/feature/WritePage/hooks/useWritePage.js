@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MESSAGES } from '../../../constants/messages.js';
+import { sanitizeHtml } from '../utils/sanitizer.js';
 
 // React Query 훅들 사용
 import { 
@@ -160,18 +161,26 @@ export function useWritePage() {
     return true;
   }, [content]);
 
-  // 저장 처리 (안전한 방식 + 출석 체크)
+  // 저장 처리 (안전한 방식 + 출석 체크 + 콘텐츠 정화)
   const handleSave = useCallback(async () => {
     if (!isMounted.current || !validateContent()) return;
 
     try {
       setErrorMessage('');
-      const images = extractImagesFromContent(content);
+      
+      // 콘텐츠 정화 처리
+      const sanitizedContent = sanitizeHtml(content);
+      if (!sanitizedContent) {
+        setErrorMessage('올바르지 않은 콘텐츠입니다.');
+        return;
+      }
+      
+      const images = extractImagesFromContent(sanitizedContent);
       
       let result;
       if (isEditMode) {
         // 수정 모드 - 출석 체크 없음
-        result = await updateStudy(id, content, images);
+        result = await updateStudy(id, sanitizedContent, images);
         if (isMounted.current) {
           setSavedStudyId(id);
           setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
@@ -179,7 +188,7 @@ export function useWritePage() {
         }
       } else {
         // 생성 모드 - 출석 체크 포함
-        result = await createStudy(content, images);
+        result = await createStudy(sanitizedContent, images);
         
         if (isMounted.current && result) {
           const newStudyId = result?.id || result?.studyId;
@@ -232,8 +241,9 @@ export function useWritePage() {
       setErrorMessage('');
       setModals(prev => ({ ...prev, edit: false }));
       
-      const images = extractImagesFromContent(content);
-      await updateStudy(id, content, images);
+      const sanitizedContent = sanitizeHtml(content);
+      const images = extractImagesFromContent(sanitizedContent);
+      await updateStudy(id, sanitizedContent, images);
       
       if (isMounted.current) {
         setSavedStudyId(id);
