@@ -171,10 +171,10 @@ export default function StudyApiTest({ onResult }) {
       name: 'presignUrl',
       label: '이미지 업로드 URL 발급',
       method: 'POST',
-      endpoint: '/storage/presign',
+      endpoint: '/api/storage/presign-put',
       action: () => executeTest(
         'presignUrl',
-        () => fetch('http://15.164.125.28:8080/storage/presign', {
+        () => fetch('http://15.164.125.28:8080/api/storage/presign-put', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
@@ -186,7 +186,7 @@ export default function StudyApiTest({ onResult }) {
           })
         }).then(res => res.json()),
         'POST',
-        '/storage/presign'
+        '/api/storage/presign-put'
       )
     },
     {

@@ -5,14 +5,17 @@ import { MODAL_SIZES } from '../../../constants/sizes.js';
 import { CONFIG } from '../../../constants/config.js';
 import { COLORS } from "../../../utils/colors.js";
 import { usePrimaryButtonHover } from "../../../hooks/useHoverStyle.js";
+import { useAuthState } from "../../../hooks/useAuth.js";
 
 export default function ProjectDetailModal({ isOpen, onClose, projectIndex, project }) {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthState();
   
   // 호버 효과 훅 사용
   const primaryButtonHover = usePrimaryButtonHover(COLORS.PRIMARY);
 
-  const handleExplore = () => {
+  const handlePrimaryAction = () => {
+    // 로그인 상태와 관계없이 동일한 프로젝트 상세 페이지로 이동
     navigate(`/project/${projectIndex + 1}`);
     onClose();
   };
@@ -54,10 +57,10 @@ export default function ProjectDetailModal({ isOpen, onClose, projectIndex, proj
 
         {/* 하단 버튼 그룹 */}
         <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-24">
-          {/* ✅ 확인(구경하기): WritePageLayout처럼 hover 시 보라 배경 + 흰 글자 */}
+          {/* 로그인 상태에 따라 버튼 텍스트 변경 */}
           <Button
             variant="outline"
-            onClick={handleExplore}
+            onClick={handlePrimaryAction}
             className="font-medium h-10 w-[150px]"
             style={{
               ...btnStyle,
@@ -70,7 +73,7 @@ export default function ProjectDetailModal({ isOpen, onClose, projectIndex, proj
             }}
             {...primaryButtonHover}
           >
-            구경하기
+            {isAuthenticated ? '신청하기' : '구경하기'}
           </Button>
           {/* ✅ 취소(닫기): WritePageLayout과 같은 닫기 동작 */}
           <Button

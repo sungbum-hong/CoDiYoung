@@ -1,4 +1,5 @@
 import { AuthService } from './authService.js';
+import { ImageService } from './imageService.js';
 
 const BASE_URL = 'http://15.164.125.28:8080';
 
@@ -75,8 +76,8 @@ export class ProjectService {
     throw error;
   }
 
-  // 공통 응답 처리
-  static async handleResponse(response, errorMessage = 'API 요청 실패') {
+  // 공통 응답 처리 (OpenAPI 스키마 대응 개선)
+  static async handleResponse(response, errorMessage = 'API 요청 실패', expectedSchema = null) {
     if (!response.ok) {
       let errorData = {};
       let errorText = '';
@@ -114,7 +115,18 @@ export class ProjectService {
         // JSON 형태인지 확인 (첫 글자가 { 또는 [로 시작)
         const trimmedText = text.trim();
         if (trimmedText.startsWith('{') || trimmedText.startsWith('[')) {
-          return JSON.parse(text);
+          const parsedData = JSON.parse(text);
+          
+          // 특정 응답 스키마에 대한 검증 및 처리
+          if (expectedSchema === 'ProjectCompleteResponse') {
+            // ProjectCompleteResponse 구조 검증
+            if (parsedData.success !== undefined && parsedData.data !== undefined) {
+              console.log('ProjectCompleteResponse 구조 확인됨:', parsedData);
+              return parsedData;
+            }
+          }
+          
+          return parsedData;
         } else {
           // JSON이 아닌 텍스트지만 Content-Type이 JSON인 경우
           console.log('서버가 텍스트를 JSON Content-Type으로 반환:', text);
@@ -204,31 +216,7 @@ export class ProjectService {
    * @returns {string} imageKey - 업로드된 이미지의 키
    */
   static async uploadProjectImage(file) {
-    try {
-      console.log('=== 프로젝트 이미지 업로드 시작 ===');
-      console.log('파일 정보:', {
-        name: file.name,
-        type: file.type,
-        size: file.size
-      });
-      
-      // 1. Presigned URL 발급
-      const presignData = await this.getPresignedUploadUrl(file.name, file.type);
-      const { url: uploadUrl, key: imageKey } = presignData;
-      
-      if (!uploadUrl || !imageKey) {
-        throw new Error('Presigned URL 또는 이미지 키를 받지 못했습니다.');
-      }
-      
-      // 2. S3에 직접 업로드
-      await this.uploadImageToS3(uploadUrl, file, file.type);
-      
-      console.log('이미지 업로드 완료, 키:', imageKey);
-      return imageKey;
-    } catch (error) {
-      console.error('이미지 업로드 프로세스 실패:', error);
-      throw new Error(`이미지 업로드 실패: ${error.message}`);
-    }
+    return ImageService.uploadImage(file);
   }
 
   /**
@@ -272,9 +260,17 @@ export class ProjectService {
       console.log('프로젝트 기본 데이터:', projectData);
       console.log('이미지 파일:', imageFile ? `${imageFile.name} (${imageFile.size}bytes)` : '없음');
       
+      // 1. 데이터 유효성 검사
+      this.validateProjectData(projectData);
+      
+      // 2. 이미지 파일 검증 (있는 경우)
+      if (imageFile) {
+        this.validateImageFile(imageFile);
+      }
+      
       let finalProjectData = { ...projectData };
       
-      // 이미지가 있으면 먼저 업로드
+      // 3. 이미지가 있으면 먼저 업로드
       if (imageFile) {
         console.log('이미지 업로드 중...');
         const imageKey = await this.uploadProjectImage(imageFile);
@@ -314,8 +310,9 @@ export class ProjectService {
   }
 
   /**
-   * 프로젝트 조회 (단일)
+   * 단일 프로젝트 조회 (OneProjectResponse 스키마)
    * @param {number} projectId - 프로젝트 ID
+   * @returns {Object} OneProjectResponse - content, leaderImage, memberBriefs, techs(배열) 포함
    */
   static async getProject(projectId) {
     try {
@@ -327,18 +324,24 @@ export class ProjectService {
         headers: this.getCommonHeaders(true, false) // 인증 선택사항
       });
 
-      return await this.handleResponse(response, '프로젝트 조회 실패');
+      const result = await this.handleResponse(response, '프로젝트 조회 실패');
+      
+      // OpenAPI 스키마: OneProjectResponse
+      // 필드: id, title, content, slogan, leaderImage, memberBriefs, techs(배열)
+      console.log('단일 프로젝트 조회 결과 (OneProjectResponse 스키마):', result);
+      return result;
     } catch (error) {
       this.handleApiError(error);
     }
   }
 
   /**
-   * 모든 프로젝트 조회 (페이징 지원)
+   * 모든 프로젝트 조회 (AllProjectResponse 스키마, 페이징 지원)
    * @param {Object} options - 페이징 옵션
    * @param {number} options.page - 페이지 번호 (0부터 시작)
    * @param {number} options.size - 페이지 크기
    * @param {string[]} options.sort - 정렬 조건 배열
+   * @returns {Object} AllProjectResponse - id, slogan, title, imageKey, createdAt 포함
    */
   static async getAllProjects(options = {}) {
     try {
@@ -367,7 +370,12 @@ export class ProjectService {
         headers: this.getCommonHeaders(true, false) // 인증 선택사항
       });
 
-      return await this.handleResponse(response, '프로젝트 목록 조회 실패');
+      const result = await this.handleResponse(response, '프로젝트 목록 조회 실패');
+      
+      // OpenAPI 스키마: AllProjectResponse
+      // 필드: id, slogan, title, imageKey, createdAt
+      console.log('전체 프로젝트 조회 결과 (AllProjectResponse 스키마):', result);
+      return result;
     } catch (error) {
       this.handleApiError(error);
     }
@@ -424,12 +432,29 @@ export class ProjectService {
       console.log('프로젝트 ID:', projectId);
       console.log('신청 데이터:', applicationData);
       
+      // 1. 신청 데이터 유효성 검사
+      this.validateApplicationData(applicationData);
+      
+      // 2. techs 필드 정규화 (문자열로) & projectId 중복 제거
+      const normalizedData = {
+        ...applicationData,
+        techs: this.normalizeTechsToString(applicationData.techs)
+      };
+      
+      // URL 파라미터에 이미 projectId가 있으므로 body에서 제거
+      if (normalizedData.projectId !== undefined) {
+        console.log('요청 본문에서 projectId 제거 (URL 파라미터로 대체)');
+        delete normalizedData.projectId;
+      }
+      
+      console.log('정규화된 신청 데이터:', normalizedData);
+      
       const headers = this.getCommonHeaders();
 
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_APPLY}/${projectId}`, {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify(applicationData),
+        body: JSON.stringify(normalizedData),
         mode: 'cors',
         credentials: 'include'
       });
@@ -475,7 +500,7 @@ export class ProjectService {
         headers: this.getCommonHeaders()
       });
 
-      return await this.handleResponse(response, '프로젝트 완료 처리 실패');
+      return await this.handleResponse(response, '프로젝트 완료 처리 실패', 'ProjectCompleteResponse');
     } catch (error) {
       console.error('프로젝트 완료 처리 에러:', error);
       this.handleApiError(error);
@@ -599,6 +624,30 @@ export class ProjectService {
   // === 유틸리티 메서드 ===
 
   /**
+   * techs 필드 데이터 타입 정규화
+   * @param {string|string[]} techs - 기술 스택 (문자열 또는 배열)
+   * @returns {string} 정규화된 문자열
+   */
+  static normalizeTechsToString(techs) {
+    if (Array.isArray(techs)) {
+      return techs.join(', ');
+    }
+    return techs || '';
+  }
+
+  /**
+   * techs 필드 데이터 타입 정규화 (배열로)
+   * @param {string|string[]} techs - 기술 스택 (문자열 또는 배열)
+   * @returns {string[]} 정규화된 배열
+   */
+  static normalizeTechsToArray(techs) {
+    if (typeof techs === 'string') {
+      return techs.split(',').map(tech => tech.trim()).filter(tech => tech.length > 0);
+    }
+    return Array.isArray(techs) ? techs : [];
+  }
+
+  /**
    * 파일 유효성 검사
    * @param {File} file - 검사할 파일
    * @param {number} maxSize - 최대 파일 크기 (바이트)
@@ -621,7 +670,7 @@ export class ProjectService {
   }
 
   /**
-   * 프로젝트 데이터 유효성 검사
+   * 프로젝트 생성 데이터 유효성 검사 (CreateProjectRequest 스키마 기준)
    * @param {Object} projectData - 검사할 프로젝트 데이터
    */
   static validateProjectData(projectData) {
@@ -632,14 +681,74 @@ export class ProjectService {
       throw new Error(`필수 필드가 누락되었습니다: ${missing.join(', ')}`);
     }
 
-
-    if (projectData.title.length > 100) {
-      throw new Error('제목은 100자 이하여야 합니다.');
+    // 필드별 타입 및 길이 검증
+    if (typeof projectData.title !== 'string' || projectData.title.length > 100) {
+      throw new Error('제목은 100자 이하의 문자열이어야 합니다.');
     }
 
-    if (projectData.description.length > 1000) {
-      throw new Error('설명은 1000자 이하여야 합니다.');
+    if (typeof projectData.description !== 'string' || projectData.description.length > 1000) {
+      throw new Error('설명은 1000자 이하의 문자열이어야 합니다.');
     }
+
+    if (typeof projectData.capacity !== 'number' || projectData.capacity < 1) {
+      throw new Error('모집인원은 1 이상의 숫자여야 합니다.');
+    }
+
+    // 선택적 필드 검증
+    if (projectData.positions && !Array.isArray(projectData.positions)) {
+      throw new Error('positions는 배열이어야 합니다.');
+    }
+
+    if (projectData.techs && !Array.isArray(projectData.techs)) {
+      throw new Error('techs는 배열이어야 합니다.');
+    }
+
+    if (projectData.questions && !Array.isArray(projectData.questions)) {
+      throw new Error('questions는 배열이어야 합니다.');
+    }
+
+    return true;
+  }
+
+  /**
+   * 프로젝트 신청 데이터 유효성 검사 (ApplyProjectRequest 스키마 기준)
+   * @param {Object} applicationData - 검사할 신청 데이터
+   */
+  static validateApplicationData(applicationData) {
+    const required = ['position', 'techs', 'answers'];
+    const missing = required.filter(field => !applicationData[field]);
+    
+    if (missing.length > 0) {
+      throw new Error(`필수 필드가 누락되었습니다: ${missing.join(', ')}`);
+    }
+
+    // 필드별 타입 검증
+    if (typeof applicationData.position !== 'string') {
+      throw new Error('position은 문자열이어야 합니다.');
+    }
+
+    if (typeof applicationData.techs !== 'string') {
+      throw new Error('techs는 문자열이어야 합니다.');
+    }
+
+    if (!Array.isArray(applicationData.answers)) {
+      throw new Error('answers는 배열이어야 합니다.');
+    }
+
+    // projectId는 선택사항 (URL 파라미터로 전달되므로)
+    if (applicationData.projectId !== undefined && typeof applicationData.projectId !== 'number') {
+      throw new Error('projectId는 숫자여야 합니다.');
+    }
+
+    // answers 배열 내부 검증
+    applicationData.answers.forEach((answer, index) => {
+      if (typeof answer.questionId !== 'number') {
+        throw new Error(`answers[${index}].questionId는 숫자여야 합니다.`);
+      }
+      if (typeof answer.answer !== 'string') {
+        throw new Error(`answers[${index}].answer는 문자열이어야 합니다.`);
+      }
+    });
 
     return true;
   }

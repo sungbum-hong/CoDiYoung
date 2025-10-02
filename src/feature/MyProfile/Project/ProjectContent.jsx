@@ -106,7 +106,7 @@ export default function ProjectContent() {
     }
   };
 
-  // 프로젝트 완료 핸들러 (백엔드 의존적 처리)
+  // 프로젝트 완료 핸들러 - 개선된 처리 로직
   const handleProjectComplete = async () => {
     if (!progressingProjects || progressingProjects.length === 0) {
       alert('완료할 프로젝트가 없습니다.');
@@ -118,39 +118,93 @@ export default function ProjectContent() {
 
     console.log('=== 프로젝트 완료 처리 시작 ===');
     console.log('프로젝트 ID:', projectId);
-    console.log('현재 사용자 역할: 백엔드에서 자동 판단');
+    console.log('프로젝트 정보:', project);
 
-    // 백엔드에서 완료 처리 (명세서대로)
+    // 백엔드 API 호출로 완료 처리
     const result = await completeProject(projectId, {
       onSuccess: async (apiResult, completionResult) => {
-        console.log('프로젝트 완료 처리 성공:', apiResult);
-        console.log('완료 상태:', completionResult);
+        console.log('=== 완료 처리 성공 ===');
+        console.log('API 응답:', apiResult);
+        console.log('처리된 결과:', completionResult);
         
-        // 완료 상태에 따른 UI 업데이트
+        // OpenAPI 응답 구조 기반 상태 업데이트
+        const { data } = apiResult || {};
+        const { userRole, completedMembers, totalMembers, completionRate } = data || {};
+        
+        console.log(`사용자 역할: ${userRole}, 완료 멤버: ${completedMembers}/${totalMembers}, 완료율: ${Math.round((completionRate || 0) * 100)}%`);
+        
+        // OpenAPI 응답 기반 상태에 따른 UI 업데이트
         if (completionResult.isWaiting) {
-          // 대기 상태로 표시
+          // 팀원이 완료하고 팀장의 최종 승인 대기
           setProjectCompletionState(prev => ({
             ...prev,
             [projectId]: {
-              status: 'waiting',
+              status: 'member_completed', // 팀원 완료 상태
               message: completionResult.message,
+              userRole,
+              completedMembers,
+              totalMembers,
+              completionRate,
               timestamp: new Date().toISOString()
             }
           }));
+          
+          // 팀원 완료 시에는 데이터 새로고침 하지 않음 (프로젝트가 사라지는 것을 방지)
+          console.log('팀원 완료 처리 - 프로젝트 목록 유지');
+          
         } else if (completionResult.isCompleted) {
-          // 완료된 경우 - 프로젝트 목록에서 제거됨
+          // 프로젝트 완전 완료 - 상태 초기화 후 데이터 새로고침
           setProjectCompletionState(prev => {
             const newState = { ...prev };
             delete newState[projectId];
             return newState;
           });
+          
+          // 최종 완료 시에만 데이터 새로고침
+          await fetchAllProjects();
+          console.log('프로젝트 최종 완료 - 데이터 새로고침 완료');
+          
+        } else if (completionResult.isPartial) {
+          // 팀장 관점: 일부 팀원만 완료, 나머지 팀원들 완료 대기 중
+          setProjectCompletionState(prev => ({
+            ...prev,
+            [projectId]: {
+              status: 'waiting_members', // 팀원들 완료 대기 상태
+              message: completionResult.message,
+              userRole,
+              completedMembers,
+              totalMembers,
+              completionRate,
+              timestamp: new Date().toISOString()
+            }
+          }));
+          
+          // 부분 완료 시에는 데이터 새로고침 하지 않음
+          console.log('팀장 부분 완료 처리 - 프로젝트 목록 유지');
+          
+        } else {
+          // 기타 상태 - 기본 처리
+          setProjectCompletionState(prev => ({
+            ...prev,
+            [projectId]: {
+              status: 'in_progress',
+              message: completionResult.message || '진행 중',
+              userRole,
+              completedMembers,
+              totalMembers,
+              completionRate,
+              timestamp: new Date().toISOString()
+            }
+          }));
+          
+          // 기타 상태는 안전하게 새로고침
+          await fetchAllProjects();
+          console.log('기타 상태 처리 - 데이터 새로고침 완료');
         }
-        
-        await fetchAllProjects();
-        console.log('데이터 새로고침 완료');
       },
       onError: (error, errorResult) => {
-        console.error('프로젝트 완료 처리 실패:', error);
+        console.error('=== 완료 처리 실패 ===');
+        console.error('에러:', error);
         console.error('에러 상세:', errorResult);
         
         // 에러 상태 설정
@@ -158,14 +212,14 @@ export default function ProjectContent() {
           ...prev,
           [projectId]: {
             status: 'error',
-            message: errorResult.error || error.message,
+            message: errorResult?.error || error.message,
             timestamp: new Date().toISOString()
           }
         }));
       }
     });
 
-    console.log('프로젝트 완료 처리 결과:', result);
+    console.log('프로젝트 완료 처리 최종 결과:', result);
   };
 
   if (showCreateForm) {
@@ -340,35 +394,133 @@ export default function ProjectContent() {
                       );
                     })()}
                     
-                    {/* 완료 버튼 - 승인된 팀원이 있을 때만 표시 */}
+                    {/* 완료 버튼 - 개선된 상태 표시 */}
                     {(() => {
                       const project = progressingProjects[0];
                       const projectId = project.id;
-                      const applicantCount = projectApplicants[projectId]?.length || 0;
                       const memberCount = project.memberCount || 0;
+                      const completionState = projectCompletionState[projectId];
+                      
+                      // 현재 사용자가 프로젝트 팀장인지 확인
+                      const isProjectLeader = user && project && (
+                        project.creatorId === user.id || 
+                        project.leaderId === user.id ||
+                        project.userId === user.id ||
+                        project.ownerId === user.id
+                      );
+                      
+                      // 현재 사용자가 신청 중인 상태인지 확인 (아직 승인되지 않음)
+                      const isApplicant = appliedProjects && appliedProjects.length > 0 && 
+                        appliedProjects.some(applied => applied.id === projectId);
                       
                       // 승인된 팀원이 있는지 확인 (멤버수가 1보다 크면 팀장 외에 팀원이 있다는 뜻)
                       const hasApprovedMembers = memberCount > 1;
-                      const completionState = projectCompletionState[projectId];
                       
-                      if (!hasApprovedMembers) return null; // 승인된 팀원이 없으면 완료 버튼 표시 안함
+                      // 완료 버튼 접근 권한 체크 (비즈니스 로직)
+                      // 1. 신청자는 완료 버튼 접근 불가
+                      // 2. 반드시 승인된 팀원이 있어야 완료 가능 (팀장 혼자는 완료 불가)
+                      // 3. 현재 사용자가 팀장이거나 승인된 팀원이어야 함
+                      const canAccessCompleteButton = !isApplicant && hasApprovedMembers;
+                      
+                      // 디버그: 완료 버튼 권한 체크 정보
+                      console.log('=== 완료 버튼 권한 체크 ===', {
+                        canAccessCompleteButton,
+                        isApplicant,
+                        isProjectLeader, 
+                        hasApprovedMembers,
+                        memberCount,
+                        userId: user?.id,
+                        project: {
+                          id: project?.id,
+                          creatorId: project?.creatorId,
+                          leaderId: project?.leaderId,
+                          userId: project?.userId,
+                          ownerId: project?.ownerId
+                        }
+                      });
+                      
+                      if (!canAccessCompleteButton) {
+                        console.log('완료 버튼 접근 불가 - 숨김 처리');
+                        return null; // 신청자이거나 권한이 없으면 완료 버튼 표시 안함
+                      }
                       
                       // 완료 상태에 따른 버튼 렌더링
-                      if (completionState?.status === 'waiting') {
-                        // 팀원이 완료하고 팀장 완료 대기 중
+                      if (completionState?.status === 'member_completed') {
+                        // 팀원이 완료 버튼을 눌러서 대기 상태 (개인 완료 완료)
+                        const { completedMembers = 0, totalMembers = 0, completionRate = 0 } = completionState;
+                        const percentage = Math.round(completionRate * 100);
+                        
                         return (
                           <div className="flex flex-col items-center gap-1">
                             <button
                               disabled={true}
                               className="w-[58px] h-[58px] rounded-full bg-orange-400 
-                               flex items-center justify-center cursor-not-allowed"
-                              title="팀장의 최종 완료를 기다리는 중입니다"
+                               flex items-center justify-center cursor-not-allowed relative"
+                              title={`완료 완료! 팀장의 최종 승인을 기다리는 중입니다 (${completedMembers}/${totalMembers}명 완료, ${percentage}%)`}
                             >
                               <ClockIcon className="w-7 h-7 text-white animate-pulse" />
+                              <div className="absolute -bottom-1 -right-1 bg-white text-orange-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                {percentage}
+                              </div>
                             </button>
-                            <span className="text-xs text-orange-600 font-medium">대기중</span>
+                            <span className="text-xs text-orange-600 font-medium">
+                              완료대기 ({completedMembers}/{totalMembers})
+                            </span>
                           </div>
                         );
+                      } else if (completionState?.status === 'waiting_members') {
+                        // 팀장 관점: 일부 팀원은 완료했지만 나머지 팀원들이 아직 완료하지 않음
+                        const { completedMembers = 0, totalMembers = 0, completionRate = 0 } = completionState;
+                        const percentage = Math.round(completionRate * 100);
+                        const allMembersCompleted = completedMembers >= totalMembers - 1; // 팀장 제외한 모든 팀원 완료
+                        
+                        if (allMembersCompleted && isProjectLeader) {
+                          // 모든 팀원이 완료했으면 팀장 최종 완료 버튼 활성화
+                          return (
+                            <div className="flex flex-col items-center gap-1">
+                              <button
+                                onClick={handleProjectComplete}
+                                disabled={isAnyLoading}
+                                className={`w-[58px] h-[58px] rounded-full bg-green-500 hover:bg-green-600 
+                                 flex items-center justify-center transition-all hover:scale-105 relative
+                                 ${isAnyLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                title={isAnyLoading ? "처리 중..." : `모든 팀원이 완료했습니다! 최종 승인하세요 (${completedMembers}/${totalMembers-1}명 완료)`}
+                              >
+                                {isAnyLoading ? (
+                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                                ) : (
+                                  <CheckCircleIcon className="w-7 h-7 text-white" />
+                                )}
+                                <div className="absolute -bottom-1 -right-1 bg-white text-green-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                  100
+                                </div>
+                              </button>
+                              <span className="text-xs text-green-600 font-medium">
+                                최종승인
+                              </span>
+                            </div>
+                          );
+                        } else {
+                          // 아직 일부 팀원이 완료하지 않음
+                          return (
+                            <div className="flex flex-col items-center gap-1">
+                              <button
+                                disabled={true}
+                                className="w-[58px] h-[58px] rounded-full bg-blue-400 
+                                 flex items-center justify-center cursor-not-allowed relative"
+                                title={`팀원들의 완료를 기다리는 중입니다 (${completedMembers}/${totalMembers-1}명 완료, ${percentage}%)`}
+                              >
+                                <ClockIcon className="w-7 h-7 text-white animate-pulse" />
+                                <div className="absolute -bottom-1 -right-1 bg-white text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                  {percentage}
+                                </div>
+                              </button>
+                              <span className="text-xs text-blue-600 font-medium">
+                                대기중 ({completedMembers}/{totalMembers-1})
+                              </span>
+                            </div>
+                          );
+                        }
                       } else if (completionState?.status === 'error') {
                         // 완료 처리 중 에러 발생
                         return (
@@ -379,7 +531,7 @@ export default function ProjectContent() {
                               className={`w-[58px] h-[58px] rounded-full bg-red-500 hover:bg-red-600 
                                flex items-center justify-center transition-all hover:scale-105
                                ${isAnyLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              title={`완료 실패: ${completionState.message}`}
+                              title={`완료 실패: ${completionState.message || '알 수 없는 오류'}`}
                             >
                               {isAnyLoading ? (
                                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
@@ -391,22 +543,29 @@ export default function ProjectContent() {
                           </div>
                         );
                       } else {
-                        // 일반 완료 버튼 - 백엔드에서 팀장/팀원 구분하여 처리
+                        // 일반 완료 버튼 - 백엔드에서 역할과 상태 자동 판단
                         return (
-                          <button
-                            onClick={handleProjectComplete}
-                            disabled={isAnyLoading}
-                            className={`w-[58px] h-[58px] rounded-full bg-green-500 hover:bg-green-600 
-                             flex items-center justify-center transition-all hover:scale-105
-                             ${isAnyLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            title={isAnyLoading ? "처리 중..." : "프로젝트 완료"}
-                          >
-                            {isAnyLoading ? (
-                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                            ) : (
-                              <CheckCircleIcon className="w-7 h-7 text-white" />
-                            )}
-                          </button>
+                          <div className="flex flex-col items-center gap-1">
+                            <button
+                              onClick={handleProjectComplete}
+                              disabled={isAnyLoading}
+                              className={`w-[58px] h-[58px] rounded-full bg-green-500 hover:bg-green-600 
+                               flex items-center justify-center transition-all hover:scale-105
+                               ${isAnyLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              title={isAnyLoading ? "처리 중..." : 
+                                isProjectLeader 
+                                  ? "프로젝트 완료 (팀장: 모든 팀원 완료 후 최종 승인)" 
+                                  : "프로젝트 완료 (팀원: 완료 표시 후 팀장 승인 대기)"
+                              }
+                            >
+                              {isAnyLoading ? (
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                              ) : (
+                                <CheckCircleIcon className="w-7 h-7 text-white" />
+                              )}
+                            </button>
+                            <span className="text-xs text-green-600 font-medium">완료</span>
+                          </div>
                         );
                       }
                     })()}

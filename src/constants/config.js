@@ -140,6 +140,8 @@ export const CONFIG = {
       LOGIN: 'http://15.164.125.28:8080/api/auth/login',
       LOGOUT: 'http://15.164.125.28:8080/api/auth/logout', 
       PROFILE: 'http://15.164.125.28:8080/api/auth/profile',
+      SIGNUP: 'http://15.164.125.28:8080/api/auth/join',
+      SIGNUP_ADMIN: 'http://15.164.125.28:8080/api/admin/create',
     },
   },
 

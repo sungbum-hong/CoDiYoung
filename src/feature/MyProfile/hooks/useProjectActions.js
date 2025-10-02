@@ -180,52 +180,118 @@ export function useProjectActions() {
       console.log('result.data:', result?.data);
       console.log('result 키들:', result ? Object.keys(result) : 'null/undefined');
 
-      // 백엔드 응답 분석해서 상태 결정
+      // OpenAPI 명세서 기준 응답 처리 (ProjectCompleteResponse)
       let completionResult = { success: true };
       
-      // 응답 메시지 추출 (여러 가능한 구조 고려)
-      const responseMessage = result?.message || result?.data?.message || result || '';
-      console.log('추출된 응답 메시지:', responseMessage);
+      console.log('응답 구조 분석:');
+      console.log('- result.success:', result?.success);
+      console.log('- result.status:', result?.status);
+      console.log('- result.message:', result?.message);
+      console.log('- result.data:', result?.data);
       
-      if (responseMessage && typeof responseMessage === 'string') {
-        const message = responseMessage.toLowerCase();
-        console.log('소문자 변환된 메시지:', message);
+      // OpenAPI 명세서 구조에 맞는 응답 처리
+      if (result && typeof result === 'object' && result.success !== undefined) {
+        // 명세서 구조: { success, status, message, data: { userRole, completedMembers, totalMembers, completionRate } }
+        const { success, status, message, data } = result;
         
-        // 팀원이 완료한 경우 - 대기 상태
-        if (message.includes('대기') || message.includes('waiting') || message.includes('팀장')) {
+        console.log('OpenAPI 응답 구조 감지됨');
+        console.log('- 사용자 역할:', data?.userRole);
+        console.log('- 완료한 멤버:', data?.completedMembers);
+        console.log('- 전체 멤버:', data?.totalMembers);
+        console.log('- 완료율:', data?.completionRate);
+        
+        if (success) {
+          // 완료율 기반 상태 판단
+          const completionRate = data?.completionRate || 0;
+          const userRole = data?.userRole || '';
+          const completedMembers = data?.completedMembers || 0;
+          const totalMembers = data?.totalMembers || 0;
+          
+          if (completionRate >= 1.0 || completionRate === 100) {
+            // 100% 완료 - 프로젝트 완전 완료
+            completionResult = {
+              success: true,
+              isCompleted: true,
+              message: '🎉 프로젝트가 완전히 완료되었습니다!',
+              data: { userRole, completedMembers, totalMembers, completionRate }
+            };
+            console.log('→ 완전 완료 상태 (100%)');
+          } else if (userRole.toLowerCase() === 'member' || userRole.toLowerCase() === 'participant') {
+            // 팀원이 완료한 경우 - 팀장의 최종 완료 대기
+            completionResult = {
+              success: true,
+              isWaiting: true,
+              message: `✅ 완료 처리되었습니다. 팀장의 최종 완료를 기다리고 있습니다.\n(${completedMembers}/${totalMembers}명 완료, ${Math.round(completionRate * 100)}%)`,
+              data: { userRole, completedMembers, totalMembers, completionRate }
+            };
+            console.log('→ 팀원 완료 대기 상태');
+          } else if (userRole.toLowerCase() === 'leader' || userRole.toLowerCase() === 'owner') {
+            // 팀장의 경우
+            if (completedMembers < totalMembers) {
+              completionResult = {
+                success: true,
+                isPartial: true,
+                message: `⏳ 일부 팀원의 완료를 기다리고 있습니다.\n(${completedMembers}/${totalMembers}명 완료, ${Math.round(completionRate * 100)}%)`,
+                data: { userRole, completedMembers, totalMembers, completionRate }
+              };
+              console.log('→ 팀장 - 일부 완료 상태');
+            } else {
+              completionResult = {
+                success: true,
+                isCompleted: true,
+                message: '🎉 모든 팀원이 완료했습니다! 프로젝트가 완전히 완료되었습니다!',
+                data: { userRole, completedMembers, totalMembers, completionRate }
+              };
+              console.log('→ 팀장 - 최종 완료 상태');
+            }
+          } else {
+            // 기본 상태
+            completionResult = {
+              success: true,
+              message: message || '완료 처리되었습니다.',
+              data: { userRole, completedMembers, totalMembers, completionRate }
+            };
+            console.log('→ 기본 완료 상태');
+          }
+        } else {
           completionResult = {
-            success: true,
-            isWaiting: true,
-            message: '완료 처리되었습니다. 팀장의 최종 완료를 기다리고 있습니다.'
+            success: false,
+            message: message || '완료 처리에 실패했습니다.'
           };
-          console.log('→ 대기 상태로 판단');
-        }
-        // 팀장이 최종 완료한 경우
-        else if (message.includes('완료') || message.includes('complete')) {
-          completionResult = {
-            success: true,
-            isCompleted: true,
-            message: '프로젝트가 완전히 완료되었습니다!'
-          };
-          console.log('→ 완료 상태로 판단');
-        }
-        // 이미 완료한 경우
-        else if (message.includes('이미') || message.includes('already')) {
-          completionResult = {
-            success: true,
-            alreadyCompleted: true,
-            message: '이미 완료 처리된 프로젝트입니다.'
-          };
-          console.log('→ 이미 완료 상태로 판단');
-        }
-        else {
-          completionResult.message = responseMessage;
-          console.log('→ 기본 메시지 사용:', responseMessage);
+          console.log('→ 실패 상태');
         }
       } else {
-        // 기본 성공 메시지
-        completionResult.message = '완료 처리되었습니다.';
-        console.log('→ 기본 성공 메시지 사용');
+        // 기존 문자열 응답 처리 (하위 호환성)
+        const responseMessage = result?.message || result?.data?.message || result || '';
+        console.log('기존 방식 응답 처리:', responseMessage);
+        
+        if (responseMessage && typeof responseMessage === 'string') {
+          const message = responseMessage.toLowerCase();
+          
+          if (message.includes('대기') || message.includes('waiting') || message.includes('팀장')) {
+            completionResult = {
+              success: true,
+              isWaiting: true,
+              message: '완료 처리되었습니다. 팀장의 최종 완료를 기다리고 있습니다.'
+            };
+          } else if (message.includes('완료') || message.includes('complete')) {
+            completionResult = {
+              success: true,
+              isCompleted: true,
+              message: '프로젝트가 완전히 완료되었습니다!'
+            };
+          } else if (message.includes('이미') || message.includes('already')) {
+            completionResult = {
+              success: true,
+              alreadyCompleted: true,
+              message: '이미 완료 처리된 프로젝트입니다.'
+            };
+          } else {
+            completionResult.message = responseMessage;
+          }
+        } else {
+          completionResult.message = '완료 처리되었습니다.';
+        }
       }
       
       console.log('최종 completionResult:', completionResult);
@@ -237,14 +303,17 @@ export function useProjectActions() {
       // 사용자에게 적절한 메시지 표시
       console.log('Alert 표시 시작...');
       
-      // Alert 차단 대비용 강제 표시
+      // Alert 차단 대비용 강제 표시 (OpenAPI 데이터 포함)
       let alertMessage = '';
       if (completionResult.isWaiting) {
         console.log('대기 상태 Alert 표시');
-        alertMessage = '✅ ' + completionResult.message;
+        alertMessage = completionResult.message;
       } else if (completionResult.isCompleted) {
         console.log('완료 상태 Alert 표시');
-        alertMessage = '🎉 ' + completionResult.message;
+        alertMessage = completionResult.message;
+      } else if (completionResult.isPartial) {
+        console.log('부분 완료 상태 Alert 표시');
+        alertMessage = completionResult.message;
       } else if (completionResult.alreadyCompleted) {
         console.log('이미 완료 상태 Alert 표시');
         alertMessage = 'ℹ️ ' + completionResult.message;

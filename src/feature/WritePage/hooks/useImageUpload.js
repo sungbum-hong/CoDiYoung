@@ -1,4 +1,4 @@
-import { StudyService } from '../../../services/studyService.js';
+import { ImageService } from '../../../services/imageService.js';
 import { validateFileUpload } from '../utils/sanitizer.js';
 
 export const useImageUpload = (editor) => {
@@ -14,7 +14,9 @@ export const useImageUpload = (editor) => {
       try {
         validateFileUpload(file);
         
-        const imageData = await StudyService.uploadImage(file);
+        const imageKey = await ImageService.uploadImage(file);
+        const imageUrl = await ImageService.getImageUrl(imageKey);
+        const imageData = { url: imageUrl, key: imageKey };
         if (imageData.url) {
           editor.chain().focus().setImage({ 
             src: imageData.url,

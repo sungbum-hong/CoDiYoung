@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Button from '../../../ui/Button';
+import { ImageService } from '../../../services/imageService.js';
 
 export default function StorageApiTest({ onResult }) {
   const [testInputs, setTestInputs] = useState({
@@ -11,6 +12,8 @@ export default function StorageApiTest({ onResult }) {
 
   const [loading, setLoading] = useState({});
   const [individualResults, setIndividualResults] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   const executeTest = async (testName, apiCall, method, endpoint) => {
     setLoading(prev => ({ ...prev, [testName]: true }));
@@ -63,70 +66,78 @@ export default function StorageApiTest({ onResult }) {
     }
   };
 
+  // 파일 선택 핸들러
+  const handleFileSelect = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  // 파일 변경 핸들러
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      // 선택된 파일에 맞게 입력값 업데이트
+      setTestInputs(prev => ({
+        ...prev,
+        filename: file.name,
+        contentType: file.type,
+        originalFilename: file.name
+      }));
+    }
+  };
+
+  // ImageService를 사용한 실제 파일 업로드 테스트
+  const executeActualUpload = () => {
+    if (!selectedFile) {
+      alert('먼저 파일을 선택해주세요.');
+      return;
+    }
+
+    return executeTest(
+      'actualUpload',
+      async () => {
+        const key = await ImageService.uploadImage(selectedFile);
+        // 업로드 성공 시 key 업데이트
+        setTestInputs(prev => ({ ...prev, key: key }));
+        return { imageKey: key, service: 'ImageService' };
+      },
+      'ImageService.uploadImage',
+      '통합 이미지 업로드'
+    );
+  };
+
   const tests = [
     {
-      name: 'presignPost',
-      label: 'Presigned URL 발급 (POST)',
-      method: 'POST',
-      endpoint: '/storage/presign',
-      action: () => executeTest(
-        'presignPost',
-        () => fetch('http://15.164.125.28:8080/storage/presign', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-          },
-          body: JSON.stringify({
-            originalFilename: testInputs.originalFilename,
-            contentType: testInputs.contentType
-          })
-        }).then(res => res.json()),
-        'POST',
-        '/storage/presign'
-      )
-    },
-    {
       name: 'presignPut',
-      label: '이미지 업로드 presign URL 발급 (PUT)',
-      method: 'POST',
-      endpoint: '/api/storage/presign-put',
+      label: '이미지 업로드 presign URL 발급',
+      method: 'ImageService.getPresignedUploadUrl',
+      endpoint: 'Presigned URL 발급',
       action: () => executeTest(
         'presignPut',
-        () => fetch(`http://15.164.125.28:8080/api/storage/presign-put?filename=${testInputs.filename}&contentType=${testInputs.contentType}`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(res => res.json()),
-        'POST',
-        `/api/storage/presign-put?filename=${testInputs.filename}&contentType=${testInputs.contentType}`
+        () => ImageService.getPresignedUploadUrl(testInputs.filename, testInputs.contentType),
+        'ImageService.getPresignedUploadUrl',
+        'Presigned Upload URL 발급'
       )
     },
     {
-      name: 'getPublicUrl',
-      label: '공개 URL 조회',
-      method: 'GET',
-      endpoint: '/api/storage/public-url',
-      action: () => executeTest(
-        'getPublicUrl',
-        () => fetch(`http://15.164.125.28:8080/api/storage/public-url?key=${testInputs.key}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(res => res.json()),
-        'GET',
-        `/api/storage/public-url?key=${testInputs.key}`
-      )
+      name: 'actualUpload',
+      label: '실제 파일 업로드 (전체 플로우)',
+      method: 'ImageService.uploadImage',
+      endpoint: '통합 이미지 업로드',
+      action: executeActualUpload
     },
     {
       name: 'presignGet',
       label: '이미지 조회 presign URL 발급',
-      method: 'GET',
-      endpoint: '/api/storage/presign-get',
+      method: 'ImageService.getImageUrl',
+      endpoint: 'Presigned Get URL 발급',
       action: () => executeTest(
         'presignGet',
-        () => fetch(`http://15.164.125.28:8080/api/storage/presign-get?key=${testInputs.key}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
-        }).then(res => res.json()),
-        'GET',
-        `/api/storage/presign-get?key=${testInputs.key}`
+        () => ImageService.getImageUrl(testInputs.key),
+        'ImageService.getImageUrl',
+        'Presigned Get URL 발급'
       )
     }
   ];
@@ -141,33 +152,8 @@ export default function StorageApiTest({ onResult }) {
   // API별 개별 입력 폼 렌더링
   const renderApiInputs = (test) => {
     switch(test.name) {
-      case 'presignPost':
-        return (
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">원본 파일명</label>
-              <input
-                type="text"
-                value={testInputs.originalFilename}
-                onChange={(e) => setTestInputs(prev => ({ ...prev, originalFilename: e.target.value }))}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                placeholder="test-image.jpg"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">컨텐츠 타입</label>
-              <input
-                type="text"
-                value={testInputs.contentType}
-                onChange={(e) => setTestInputs(prev => ({ ...prev, contentType: e.target.value }))}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                placeholder="image/jpeg"
-              />
-            </div>
-          </div>
-        );
-        
       case 'presignPut':
+      case 'actualUpload':
         return (
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
@@ -193,7 +179,6 @@ export default function StorageApiTest({ onResult }) {
           </div>
         );
         
-      case 'getPublicUrl':
       case 'presignGet':
         return (
           <div className="mb-3">
@@ -215,6 +200,40 @@ export default function StorageApiTest({ onResult }) {
 
   return (
     <div className="space-y-6">
+      {/* 파일 선택 */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+
+      {/* 파일 선택 및 정보 */}
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <h4 className="font-medium text-gray-900 mb-3">📁 실제 파일 업로드</h4>
+        <div className="flex items-center gap-4 mb-3">
+          <Button
+            onClick={handleFileSelect}
+            variant="secondary"
+            className="text-sm"
+          >
+            이미지 파일 선택
+          </Button>
+          {selectedFile && (
+            <div className="text-sm text-gray-600">
+              선택된 파일: <span className="font-medium">{selectedFile.name}</span> 
+              ({(selectedFile.size / 1024).toFixed(1)}KB, {selectedFile.type})
+            </div>
+          )}
+        </div>
+        {selectedFile && (
+          <div className="text-xs text-gray-500">
+            ✅ 파일이 선택되었습니다. 아래 "실제 파일 업로드" 테스트를 실행하세요.
+          </div>
+        )}
+      </div>
+
       {/* 테스트 입력값 설정 */}
       <div className="bg-gray-50 p-4 rounded-lg">
         <h4 className="font-medium text-gray-900 mb-3">테스트 입력값 설정</h4>
@@ -308,11 +327,15 @@ export default function StorageApiTest({ onResult }) {
             
             <Button
               onClick={test.action}
-              disabled={loading[test.name]}
+              disabled={loading[test.name] || (test.name === 'actualUpload' && !selectedFile)}
               variant="outline"
-              className="w-full mt-3 text-sm"
+              className={`w-full mt-3 text-sm ${
+                test.name === 'actualUpload' && !selectedFile ? 'opacity-50' : ''
+              }`}
             >
-              {loading[test.name] ? '테스트 중...' : '테스트 실행'}
+              {loading[test.name] ? '테스트 중...' : 
+               test.name === 'actualUpload' && !selectedFile ? '파일을 먼저 선택하세요' :
+               '테스트 실행'}
             </Button>
             
             {/* 개별 테스트 결과 표시 */}
