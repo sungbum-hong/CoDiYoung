@@ -186,7 +186,7 @@ export default function StudyCategory() {
                 })
               ) : (
                 <div className="text-gray-500 text-sm">
-                  등록된 스터디가 없습니다.
+                  등록된 스터디 맴버가 없습니다.
                 </div>
               )}
             </div>

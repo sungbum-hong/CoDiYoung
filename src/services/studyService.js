@@ -1,5 +1,6 @@
 import { MESSAGES } from '../constants/messages.js';
 import { AuthService } from './authService.js';
+import { ImageService } from './imageService.js';
 
 const BASE_URL = 'http://15.164.125.28:8080';
 
@@ -15,7 +16,7 @@ const ENDPOINTS = {
   STUDY_GET_GROUPED: '/api/study/category/grouped',
 
   // 이미지 관련
-  STORAGE_PRESIGN: '/storage/presign',
+  STORAGE_PRESIGN_PUT: '/api/storage/presign-put',
   STORAGE_PRESIGN_GET: '/api/storage/presign-get',
   STORAGE_PUBLIC_URL: '/api/storage/public-url'
 };
@@ -230,14 +231,19 @@ export class StudyService {
 
   // === 이미지 업로드 관련 메서드 ===
 
-  static async getPresignedPutUrl(originalFilename, contentType) {
-    const url = `${BASE_URL}${ENDPOINTS.STORAGE_PRESIGN}`;
-    const requestBody = { originalFilename, contentType };
+  static async getPresignedPutUrl(filename, contentType) {
+    // 쿼리 파라미터로 전송 (API 스펙에 맞게)
+    const params = new URLSearchParams({
+      filename: filename,
+      contentType: contentType
+    });
+    
+    const url = `${BASE_URL}${ENDPOINTS.STORAGE_PRESIGN_PUT}?${params}`;
+    console.log('StudyService - Presigned PUT URL 요청:', url);
 
     return this.optimizedFetch(url, {
       method: 'POST',
-      headers: this.getCommonHeaders(),
-      body: JSON.stringify(requestBody)
+      headers: this.getCommonHeaders(false, true) // Content-Type 제거, 인증만 포함
     }, false);
   }
 
@@ -514,19 +520,13 @@ export class StudyService {
    * @returns {Promise<Array>} 업로드 결과 배열
    */
   static async uploadImagesInBatch(files, onProgress = null) {
-    const uploadPromises = files.map(async (file, index) => {
-      try {
-        const key = await this.uploadImageComplete(file);
-        if (onProgress) {
-          onProgress(index + 1, files.length);
-        }
-        return { success: true, key, file };
-      } catch (error) {
-        return { success: false, error: error.message, file };
-      }
-    });
-
-    return Promise.all(uploadPromises);
+    try {
+      const keys = await ImageService.uploadImages(files, onProgress);
+      return keys.map((key, index) => ({ success: true, key, file: files[index] }));
+    } catch (error) {
+      console.error('배치 이미지 업로드 실패:', error);
+      throw error;
+    }
   }
 }
 

@@ -266,6 +266,55 @@ export class AuthService {
     }
   }
 
+  // === 유틸리티 메서드 ===
+
+  /**
+   * 회원가입 데이터 유효성 검사 (OpenAPI SignUpRequest 스키마 기준)
+   * @param {Object} signUpData - 검사할 회원가입 데이터
+   */
+  static validateSignUpData(signUpData) {
+    const required = ['email', 'password', 'nickname'];
+    const missing = required.filter(field => !signUpData[field]);
+    
+    if (missing.length > 0) {
+      throw new Error(`필수 필드가 누락되었습니다: ${missing.join(', ')}`);
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(signUpData.email)) {
+      throw new Error('올바른 이메일 형식이 아닙니다.');
+    }
+
+    // 비밀번호 길이 검증
+    if (signUpData.password.length < 8) {
+      throw new Error('비밀번호는 8자 이상이어야 합니다.');
+    }
+
+    // 닉네임 길이 검증
+    if (signUpData.nickname.length < 2 || signUpData.nickname.length > 50) {
+      throw new Error('닉네임은 2-50자 사이여야 합니다.');
+    }
+
+    // 전화번호 검증 (선택사항)
+    if (signUpData.phoneNumber) {
+      const phoneRegex = /^[0-9-+() ]+$/;
+      if (!phoneRegex.test(signUpData.phoneNumber)) {
+        throw new Error('올바른 전화번호 형식이 아닙니다.');
+      }
+    }
+
+    // 사용자 카테고리 검증 (선택사항)
+    if (signUpData.userCategory) {
+      const validCategories = ['video', 'coding', 'design'];
+      if (!validCategories.includes(signUpData.userCategory.toLowerCase())) {
+        throw new Error(`유효하지 않은 사용자 카테고리입니다. (허용: ${validCategories.join(', ')})`);
+      }
+    }
+
+    return true;
+  }
+
   // 앱 시작 시 토큰 유효성 검사
   static initializeTokenCheck() {
     const token = localStorage.getItem('auth_token');
@@ -277,6 +326,157 @@ export class AuthService {
         console.log('유효한 토큰 발견, 만료 타이머 설정');
         this.setupTokenExpirationTimer(token);
       }
+    }
+  }
+
+  // 회원가입 (Admin 방식: /api/admin/create - Query Parameter)
+  static async signUpAdmin(signUpData) {
+    try {
+      console.log('=== AuthService.signUpAdmin 호출 ===');
+      console.log('회원가입 데이터 (Admin):', signUpData);
+      
+      // 1. 데이터 유효성 검사
+      this.validateSignUpData(signUpData);
+      
+      // 2. OpenAPI 명세서 기준: Query Parameter로 전송
+      const params = new URLSearchParams({
+        email: signUpData.email,
+        password: signUpData.password,
+        phoneNumber: signUpData.phoneNumber || '',
+        userCategory: signUpData.userCategory || 'coding',
+        nickname: signUpData.nickname
+      });
+      
+      console.log('Query 파라미터:', params.toString());
+      
+      const response = await fetch(`${CONFIG.API.AUTH.SIGNUP_ADMIN}?${params}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        mode: 'cors'
+      });
+      
+      console.log('회원가입 응답 상태 (Admin):', response.status);
+      console.log('회원가입 응답 헤더:', Object.fromEntries(response.headers.entries()));
+      
+      if (!response.ok) {
+        let errorData = {};
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType && contentType.includes('application/json')) {
+          errorData = await response.json().catch(() => ({}));
+        } else {
+          const textError = await response.text().catch(() => '');
+          errorData = { message: textError };
+        }
+        
+        // 상태 코드별 에러 처리
+        if (response.status === 400) {
+          throw new Error(errorData.message || '입력 데이터가 올바르지 않습니다.');
+        }
+        
+        if (response.status === 409) {
+          throw new Error('이미 존재하는 이메일입니다.');
+        }
+        
+        throw new Error(errorData.message || '회원가입에 실패했습니다.');
+      }
+      
+      // 성공 응답 처리 (OpenAPI 명세서: string 응답)
+      const responseText = await response.text();
+      console.log('회원가입 성공 응답 (Admin):', responseText);
+      
+      return {
+        success: true,
+        message: responseText || '회원가입이 완료되었습니다.',
+        data: signUpData.email
+      };
+    } catch (error) {
+      console.error('회원가입 에러 (Admin):', error);
+      
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error(MESSAGES.ERRORS.NETWORK_ERROR);
+      }
+      
+      throw error;
+    }
+  }
+
+  // 회원가입 (일반 방식: /api/auth/join - Request Body)
+  static async signUp(signUpData) {
+    try {
+      console.log('=== AuthService.signUp 호출 ===');
+      console.log('회원가입 데이터:', signUpData);
+      
+      // 1. 데이터 유효성 검사
+      this.validateSignUpData(signUpData);
+      
+      // 2. OpenAPI 명세서 기준: Request Body로 전송
+      const requestBody = {
+        email: signUpData.email,
+        password: signUpData.password,
+        phoneNumber: signUpData.phoneNumber || '',
+        userCategory: signUpData.userCategory || 'coding',
+        nickname: signUpData.nickname
+      };
+      
+      console.log('Request Body:', requestBody);
+      
+      const response = await fetch(CONFIG.API.AUTH.SIGNUP, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        mode: 'cors',
+        body: JSON.stringify(requestBody)
+      });
+      
+      console.log('회원가입 응답 상태:', response.status);
+      console.log('회원가입 응답 헤더:', Object.fromEntries(response.headers.entries()));
+      
+      if (!response.ok) {
+        let errorData = {};
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType && contentType.includes('application/json')) {
+          errorData = await response.json().catch(() => ({}));
+        } else {
+          const textError = await response.text().catch(() => '');
+          errorData = { message: textError };
+        }
+        
+        // 상태 코드별 에러 처리
+        if (response.status === 400) {
+          throw new Error(errorData.message || '입력 데이터가 올바르지 않습니다.');
+        }
+        
+        if (response.status === 409) {
+          throw new Error('이미 존재하는 이메일입니다.');
+        }
+        
+        throw new Error(errorData.message || '회원가입에 실패했습니다.');
+      }
+      
+      // 성공 응답 처리 (OpenAPI 명세서: string 응답)
+      const responseText = await response.text();
+      console.log('회원가입 성공 응답:', responseText);
+      
+      return {
+        success: true,
+        message: responseText || '회원가입이 완료되었습니다.',
+        data: signUpData.email
+      };
+    } catch (error) {
+      console.error('회원가입 에러:', error);
+      
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error(MESSAGES.ERRORS.NETWORK_ERROR);
+      }
+      
+      throw error;
     }
   }
 

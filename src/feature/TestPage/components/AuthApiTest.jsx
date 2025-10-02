@@ -7,6 +7,8 @@ export default function AuthApiTest({ onResult }) {
     email: 'test@test.com',
     password: 'testpassword',
     nickname: 'testuser',
+    phoneNumber: '010-1234-5678',
+    userCategory: 'coding',
     newPassword: 'newpassword123',
     currentPassword: 'testpassword',
     imageKey: 'user/test-image.png'
@@ -83,45 +85,38 @@ export default function AuthApiTest({ onResult }) {
   const tests = [
     {
       name: 'signup',
-      label: '회원가입',
+      label: '회원가입 (일반: /api/auth/join)',
       method: 'POST',
       endpoint: '/api/auth/join',
       action: () => executeTest(
         'signup',
-        async () => {
-          const requestData = {
-            email: testInputs.email,
-            password: testInputs.password,
-            nickname: testInputs.nickname
-          };
-          
-          console.log('회원가입 요청 데이터:', requestData);
-          
-          const response = await fetch('http://15.164.125.28:8080/api/auth/join', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestData)
-          });
-          
-          console.log('회원가입 응답 상태:', response.status);
-          console.log('회원가입 응답 헤더:', Object.fromEntries(response.headers.entries()));
-          
-          const responseText = await response.text();
-          console.log('회원가입 응답 본문:', responseText);
-          
-          // 실제로는 중복 에러일 수 있으므로 응답 내용 확인
-          if (responseText.includes('중복') || responseText.includes('duplicate') || responseText.includes('already')) {
-            throw new Error(`중복 오류: ${responseText}`);
-          }
-          
-          return {
-            status: response.status,
-            body: responseText,
-            success: response.ok
-          };
-        },
+        () => AuthService.signUp({
+          email: testInputs.email,
+          password: testInputs.password,
+          nickname: testInputs.nickname,
+          phoneNumber: testInputs.phoneNumber || '',
+          userCategory: testInputs.userCategory || 'coding'
+        }),
         'POST',
         '/api/auth/join'
+      )
+    },
+    {
+      name: 'signup_admin',
+      label: '회원가입 (Admin: /api/admin/create)',
+      method: 'POST',
+      endpoint: '/api/admin/create',
+      action: () => executeTest(
+        'signup_admin',
+        () => AuthService.signUpAdmin({
+          email: testInputs.email,
+          password: testInputs.password,
+          nickname: testInputs.nickname,
+          phoneNumber: testInputs.phoneNumber || '',
+          userCategory: testInputs.userCategory || 'coding'
+        }),
+        'POST',
+        '/api/admin/create'
       )
     },
     {
@@ -337,7 +332,7 @@ export default function AuthApiTest({ onResult }) {
         return (
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">이메일</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">이메일 *</label>
               <input
                 type="email"
                 value={testInputs.email}
@@ -347,7 +342,7 @@ export default function AuthApiTest({ onResult }) {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">비밀번호</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">비밀번호 *</label>
               <input
                 type="password"
                 value={testInputs.password}
@@ -356,8 +351,8 @@ export default function AuthApiTest({ onResult }) {
                 placeholder="password"
               />
             </div>
-            <div className="col-span-2">
-              <label className="block text-xs font-medium text-gray-700 mb-1">닉네임</label>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">닉네임 *</label>
               <input
                 type="text"
                 value={testInputs.nickname}
@@ -365,6 +360,86 @@ export default function AuthApiTest({ onResult }) {
                 className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
                 placeholder="testuser"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">전화번호</label>
+              <input
+                type="text"
+                value={testInputs.phoneNumber}
+                onChange={(e) => setTestInputs(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                placeholder="010-1234-5678"
+              />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1">사용자 카테고리</label>
+              <select
+                value={testInputs.userCategory}
+                onChange={(e) => setTestInputs(prev => ({ ...prev, userCategory: e.target.value }))}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+              >
+                <option value="coding">코딩</option>
+                <option value="design">디자인</option>
+                <option value="video">영상편집</option>
+              </select>
+            </div>
+          </div>
+        );
+
+      case 'signup_admin':
+        return (
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">이메일 *</label>
+              <input
+                type="email"
+                value={testInputs.email}
+                onChange={(e) => setTestInputs(prev => ({ ...prev, email: e.target.value }))}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                placeholder="test@test.com"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">비밀번호 *</label>
+              <input
+                type="password"
+                value={testInputs.password}
+                onChange={(e) => setTestInputs(prev => ({ ...prev, password: e.target.value }))}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                placeholder="password"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">닉네임 *</label>
+              <input
+                type="text"
+                value={testInputs.nickname}
+                onChange={(e) => setTestInputs(prev => ({ ...prev, nickname: e.target.value }))}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                placeholder="testuser"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">전화번호</label>
+              <input
+                type="text"
+                value={testInputs.phoneNumber}
+                onChange={(e) => setTestInputs(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                placeholder="010-1234-5678"
+              />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1">사용자 카테고리</label>
+              <select
+                value={testInputs.userCategory}
+                onChange={(e) => setTestInputs(prev => ({ ...prev, userCategory: e.target.value }))}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+              >
+                <option value="coding">코딩</option>
+                <option value="design">디자인</option>
+                <option value="video">영상편집</option>
+              </select>
             </div>
           </div>
         );
@@ -490,7 +565,7 @@ export default function AuthApiTest({ onResult }) {
             랜덤 데이터 생성
           </Button>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               이메일
@@ -526,6 +601,32 @@ export default function AuthApiTest({ onResult }) {
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
               placeholder="testuser"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              전화번호
+            </label>
+            <input
+              type="text"
+              value={testInputs.phoneNumber}
+              onChange={(e) => setTestInputs(prev => ({ ...prev, phoneNumber: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              placeholder="010-1234-5678"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              사용자 카테고리
+            </label>
+            <select
+              value={testInputs.userCategory}
+              onChange={(e) => setTestInputs(prev => ({ ...prev, userCategory: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+            >
+              <option value="coding">코딩</option>
+              <option value="design">디자인</option>
+              <option value="video">영상편집</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
