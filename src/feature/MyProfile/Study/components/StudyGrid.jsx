@@ -1,5 +1,6 @@
 import { COLORS } from '../../../../utils/colors';
 import useStudyUIStore from '../../../../stores/studyUIStore.js';
+import { getFirstImageUrl } from '../../../../utils/imageUtils.js';
 
 export default function StudyGrid({ 
   studyData, 
@@ -34,7 +35,7 @@ export default function StudyGrid({
         const borderColor = COLORS.GRAY_300;
         const backgroundColor =  COLORS.WHITE;
         const firstChar = hasStudy ? getFirstChar(hasStudy.content) : '';
-        const firstImage = hasStudy ? getFirstImage(hasStudy.content) : null;
+        const firstImage = hasStudy ? getFirstImageUrl(hasStudy.images) : null;
         
         return (
           <div

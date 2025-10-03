@@ -76,7 +76,12 @@ export class UserProfileService {
 
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
-      return response.json();
+      try {
+        return await response.json();
+      } catch (e) {
+        console.error('JSON 파싱 실패:', e);
+        return { success: true };
+      }
     } else {
       const text = await response.text();
       return text || { success: true };
@@ -477,7 +482,7 @@ export class UserProfileService {
         `${BASE_URL}${ENDPOINTS.STORAGE_PRESIGN_GET}?${params}`,
         {
           method: 'GET',
-          headers: this.getCommonHeaders(false, false) // 인증 불필요
+          headers: this.getCommonHeaders(false, true) // 인증 필요
         }
       );
 

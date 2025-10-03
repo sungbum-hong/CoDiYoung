@@ -5,7 +5,6 @@ import ScrollArrowButton from "./components/ScrollArrowButton.jsx";
 import { CONFIG } from '../../constants/config.js';
 import { COLORS } from '../../utils/colors.js';
 import { MESSAGES } from '../../constants/messages.js';
-import { USE_MOCK_DATA } from '../../mock-logic/index.js';
 import { useBackgroundHover } from '../../hooks/useHoverStyle.js';
 import { useProjectData } from './hooks/useProjectData.js';
 import { useScrollNavigation } from './hooks/useScrollNavigation.js';
@@ -13,13 +12,12 @@ import { useProjectModal } from './hooks/useProjectModal.js';
 
 export default function ProjectSection({
   title = MESSAGES.SECTIONS.PROJECT_LIST,
-  itemCount = CONFIG.DEFAULTS.PROJECT_COUNT,
 }) {
   // 프로젝트 데이터 훅
   const { projects } = useProjectData();
   
   // 스크롤 네비게이션 훅
-  const { scrollRef, currentPage, totalPages, scroll, onScroll } = useScrollNavigation(itemCount);
+  const { scrollRef, currentPage, totalPages, scroll, onScroll } = useScrollNavigation(projects.length);
   
   // 모달 관리 훅
   const { 
@@ -67,8 +65,10 @@ export default function ProjectSection({
           // 스크롤바 감추기(FF/IE/Edge)
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
-          // 뷰포트 폭 고정(열 * 카드너비 + 간격)
-          width: `calc(${CONFIG.LAYOUT.GRID.PROJECT_COLUMNS} * ${CONFIG.CARD.PROJECT.WIDTH}px + (${CONFIG.LAYOUT.GRID.PROJECT_COLUMNS} - 1) * ${CONFIG.CARD.PROJECT.GAP}px)`,
+          // 뷰포트 폭을 프로젝트 개수에 맞게 조정 (최대 CONFIG.LAYOUT.GRID.PROJECT_COLUMNS개까지)
+          width: projects.length > 0 
+            ? `calc(${Math.min(projects.length, CONFIG.LAYOUT.GRID.PROJECT_COLUMNS)} * ${CONFIG.CARD.PROJECT.WIDTH}px + (${Math.min(projects.length, CONFIG.LAYOUT.GRID.PROJECT_COLUMNS) - 1} * ${CONFIG.CARD.PROJECT.GAP}px))`
+            : `calc(${CONFIG.LAYOUT.GRID.PROJECT_COLUMNS} * ${CONFIG.CARD.PROJECT.WIDTH}px + (${CONFIG.LAYOUT.GRID.PROJECT_COLUMNS} - 1) * ${CONFIG.CARD.PROJECT.GAP}px)`,
           margin: '0 auto',
           gap: gap,
         }}
@@ -78,20 +78,15 @@ export default function ProjectSection({
           .scrollbar-hide::-webkit-scrollbar { display: none; height: 0; width: 0; }
         `}</style>
 
-        {Array.from({ length: itemCount }).map((_, i) => {
-          // Mock 데이터가 있으면 해당 인덱스의 프로젝트 정보 사용, 없으면 기본값
-          const project = USE_MOCK_DATA && projects[i] ? projects[i] : null;
-          
-          return (
-            <ProjectCard
-              key={i}
-              index={i}
-              project={project}
-              onProjectClick={handleProjectClick}
-              onCardKeyDown={onCardKeyDown}
-            />
-          );
-        })}
+        {projects.map((project, i) => (
+          <ProjectCard
+            key={project?.id || i}
+            index={i}
+            project={project}
+            onProjectClick={handleProjectClick}
+            onCardKeyDown={onCardKeyDown}
+          />
+        ))}
       </div>
 
       {/* 화살표 버튼 */}
@@ -105,7 +100,7 @@ export default function ProjectSection({
         isOpen={isModalOpen}
         onClose={closeModal}
         projectIndex={selectedProjectIndex}
-        project={USE_MOCK_DATA && projects[selectedProjectIndex] ? projects[selectedProjectIndex] : null}
+        project={projects[selectedProjectIndex] || null}
       />
     </section>
   );

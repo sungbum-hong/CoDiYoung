@@ -47,7 +47,7 @@ const isValidYouTubeUrl = (url) => {
 const sanitizeConfig = {
   ALLOWED_TAGS,
   ALLOWED_ATTR: ALLOWED_ATTRIBUTES,
-  ALLOW_DATA_ATTR: false,
+  ALLOW_DATA_ATTR: true,  // Allow data-* attributes for image keys
   FORBID_SCRIPT: true,
   FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input', 'button'],
   FORBID_ATTR: ['onload', 'onerror', 'onclick', 'onmouseover', 'onfocus', 'onblur'],

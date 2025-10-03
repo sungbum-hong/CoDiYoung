@@ -6,7 +6,7 @@ import { useHorizontalScroll } from "./hooks/useHorizontalScroll.js";
 
 export default function StudySection() {
   const { 
-    study: { count: studyCount },
+    study: { count: studyCount, items: studyItems },
     openStudyModal
   } = useStudyChannelStore();
 
@@ -42,9 +42,12 @@ export default function StudySection() {
                      snap-x snap-mandatory px-12 py-2 min-h-[104px]
                      [-ms-overflow-style:'none'] [scrollbar-width:'none'] [&::-webkit-scrollbar]:hidden"
         >
-          {Array.from({ length: studyCount }).map((_, idx) => (
-            <div key={idx} className="snap-start">
-              <StudyCard onClick={() => openModal(idx)} />
+          {studyItems.map((study, idx) => (
+            <div key={study?.studyId || idx} className="snap-start">
+              <StudyCard 
+                study={study}
+                onClick={() => openModal(idx)} 
+              />
             </div>
           ))}
         </div>
@@ -64,10 +67,7 @@ export default function StudySection() {
         )}
       </div>
 
-      <StudyModal>
-        <h3 className="text-lg font-semibold mb-4">스터디 상세 정보</h3>
-        <p>스터디에 대한 상세 정보가 여기에 표시됩니다.</p>
-      </StudyModal>
+      <StudyModal />
     </section>
   );
 }

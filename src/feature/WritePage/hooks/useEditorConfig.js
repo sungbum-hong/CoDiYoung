@@ -3,7 +3,6 @@ import { useEditor } from '@tiptap/react';
 import { AllSelection, NodeSelection } from '@tiptap/pm/state';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
-import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { createLowlight } from 'lowlight';
@@ -17,6 +16,7 @@ import { TableHeader } from '@tiptap/extension-table-header';
 import { TableCell } from '@tiptap/extension-table-cell';
 
 import YouTube from '../extensions/YouTube.js';
+import CustomImage from '../extensions/CustomImage.js';
 
 // 언어 imports
 import javascript from 'highlight.js/lib/languages/javascript';
@@ -124,7 +124,13 @@ export const useEditorConfig = (content, onChange) => {
           class: 'text-blue-600 underline hover:text-blue-800',
         },
       }),
-      Image,
+      CustomImage.configure({
+        HTMLAttributes: {
+          class: 'editor-image',
+        },
+        allowBase64: false,
+        inline: false,
+      }),
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
