@@ -15,7 +15,8 @@ export default function StudyChannelPage() {
     setAttendance, 
     setStudyCount, 
     setProjectCount,
-    setProjectItems 
+    setProjectItems,
+    setStudyItems 
   } = useStudyChannelStore();
 
   // 사용자별 스터디 채널 데이터 조회
@@ -30,6 +31,8 @@ export default function StudyChannelPage() {
     if (userChannelData) {
       // 실제 API 데이터 사용
       console.log('=== 스터디 채널 데이터 로드 ===', userChannelData);
+      console.log('studies 객체:', userChannelData.studies);
+      console.log('studies 전체 구조:', JSON.stringify(userChannelData.studies, null, 2));
       
       setProfile({ 
         category: userChannelData.category || '코딩',
@@ -43,8 +46,25 @@ export default function StudyChannelPage() {
         setAttendance({ filled: filledDays });
       }
       
-      // 스터디 수 설정
+      // 스터디 데이터 설정 (API 스펙에 맞춰 수정)
+      const studyData = userChannelData.studies?.content || [];
+      console.log('=== 스터디 데이터 설정 ===');
+      console.log('studyData:', studyData);
+      console.log('첫 번째 스터디:', studyData[0]);
+      console.log('첫 번째 스터디 이미지:', studyData[0]?.images);
+      
+      // 실제 API 데이터 사용 (images 필드는 없으므로 content만 사용)
+      const processedStudyData = studyData.map(study => ({
+        ...study,
+        images: [], // API에서 images 필드를 제공하지 않으므로 빈 배열
+        createdAt: new Date().toISOString() // createdAt도 없으므로 현재 시간 사용
+      }));
+      
       setStudyCount(userChannelData.studies?.totalElements || 0);
+      setStudyItems(processedStudyData);
+      
+      console.log('=== 최종 설정된 스터디 데이터 ===');
+      console.log('processedStudyData:', processedStudyData);
       
       // 완료된 프로젝트 데이터 설정
       const completedProjects = userChannelData.completedProject || [];
@@ -55,7 +75,7 @@ export default function StudyChannelPage() {
       setProjectCount(completedProjects.length);
       setProjectItems(completedProjects);
     }
-  }, [userChannelData, setProfile, setAttendance, setStudyCount, setProjectCount, setProjectItems]);
+  }, [userChannelData, setProfile, setAttendance, setStudyCount, setProjectCount, setProjectItems, setStudyItems]);
 
   // 로딩 상태
   if (isLoading) {

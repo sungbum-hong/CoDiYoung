@@ -1,9 +1,14 @@
 // components/ProfileSidebar.jsx - 기존 레이아웃 구조 유지
+import { useState, useEffect } from "react";
 import { COLORS } from "../../utils/colors";
 import { MESSAGES } from "../../constants/messages";
 import Button from "../../ui/Button";
+import { UserProfileService } from "../../services/userProfileService";
 
 export default function ProfileSidebar({ activeSection, onSectionChange }) {
+  const [profileImage, setProfileImage] = useState(null);
+  const [nickname, setNickname] = useState('');
+  
   const menuItems = [
     MESSAGES.SECTIONS.PROFILE_INFO,
     MESSAGES.SECTIONS.STUDY_LIST,
@@ -11,13 +16,39 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
     MESSAGES.SECTIONS.ATTENDANCE_CHECK,
   ];
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profileData = await UserProfileService.getMyProfile();
+        
+        if (profileData.imageKey) {
+          // imageKey가 이미 완전한 URL인지 확인
+          if (profileData.imageKey.startsWith('http')) {
+            setProfileImage(profileData.imageKey);
+          } else {
+            const imageUrl = await UserProfileService.getImageUrl(profileData.imageKey);
+            setProfileImage(imageUrl);
+          }
+        }
+        
+        if (profileData.nickName) {
+          setNickname(profileData.nickName);
+        }
+      } catch (error) {
+        console.error('프로필 정보 로딩 실패:', error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
   return (
     <aside className="w-full md:w-1/3 bg-white min-h-screen flex flex-col items-center justify-start pt-22 px-4">
-      {/* 아바타 - 움직임만 해결, 반응형 유지 */}
+      {/* 아바타 - 실제 프로필 이미지 또는 기본 이니셜 */}
       <div
-        className="rounded-full flex items-center justify-center font-semibold text-lg mb-12 flex-shrink-0"
+        className="rounded-full flex items-center justify-center font-semibold text-lg mb-12 flex-shrink-0 overflow-hidden"
         style={{
-          backgroundColor: COLORS.GRAY_300,
+          backgroundColor: profileImage ? 'transparent' : COLORS.GRAY_300,
           width: 'min(20vw, 180px)',     
           height: 'min(20vw, 180px)',     
           aspectRatio: '1/1',
@@ -27,7 +58,15 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
           maxHeight: '180px',
         }}
       >
-        U1
+        {profileImage ? (
+          <img 
+            src={profileImage} 
+            alt="프로필 이미지"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span>{nickname ? nickname.charAt(0).toUpperCase() : 'U'}</span>
+        )}
       </div>
 
       {/* 네비게이션 - 기존 구조 유지하면서 안정화 */}
@@ -78,9 +117,9 @@ export function GridLayoutSidebar({ activeSection, onSectionChange }) {
       {/* 아바타 영역 */}
       <div className="flex justify-center">
         <div
-          className="rounded-full flex items-center justify-center font-semibold text-lg"
+          className="rounded-full flex items-center justify-center font-semibold text-lg overflow-hidden"
           style={{
-            backgroundColor: COLORS.GRAY_300,
+            backgroundColor: profileImage ? 'transparent' : COLORS.GRAY_300,
             width: 'min(20vw, 180px)',
             height: 'min(20vw, 180px)',
             aspectRatio: '1/1',
@@ -88,7 +127,15 @@ export function GridLayoutSidebar({ activeSection, onSectionChange }) {
             minHeight: '80px',
           }}
         >
-          U1
+          {profileImage ? (
+            <img 
+              src={profileImage} 
+              alt="프로필 이미지"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span>{nickname ? nickname.charAt(0).toUpperCase() : 'U'}</span>
+          )}
         </div>
       </div>
 
@@ -142,18 +189,26 @@ export function MinimalFixSidebar({ activeSection, onSectionChange }) {
         willChange: 'auto',
       }}
     >
-      {/* 아바타 - 기존과 동일하되 contain 추가 */}
+      {/* 아바타 - 실제 프로필 이미지 또는 기본 이니셜 */}
       <div
-        className="rounded-full flex items-center justify-center font-semibold text-lg mb-12"
+        className="rounded-full flex items-center justify-center font-semibold text-lg mb-12 overflow-hidden"
         style={{
-          backgroundColor: COLORS.GRAY_300,
+          backgroundColor: profileImage ? 'transparent' : COLORS.GRAY_300,
           width: 'min(20vw, 180px)',
           height: 'min(20vw, 180px)',
           aspectRatio: '1/1',
           contain: 'layout size', // ✅ 레이아웃 격리
         }}
       >
-        U1
+        {profileImage ? (
+          <img 
+            src={profileImage} 
+            alt="프로필 이미지"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span>{nickname ? nickname.charAt(0).toUpperCase() : 'U'}</span>
+        )}
       </div>
 
       {/* 네비게이션 - 기존과 거의 동일 */}

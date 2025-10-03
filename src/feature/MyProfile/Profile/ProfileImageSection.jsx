@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Button from "../../../ui/Button.jsx";
 import { COLORS } from "../../../utils/colors.js";
 import { MESSAGES } from "../../../constants/messages.js";
@@ -13,6 +13,28 @@ export default function ProfileImageSection() {
   const fileInputRef = useRef(null);
   
   const { user, updateUserProfile } = useAuthState();
+
+  // 컴포넌트 마운트 시 기존 프로필 이미지 로드
+  useEffect(() => {
+    const loadCurrentProfileImage = async () => {
+      try {
+        const profileData = await UserProfileService.getMyProfile();
+        if (profileData.imageKey) {
+          // imageKey가 이미 완전한 URL인지 확인
+          if (profileData.imageKey.startsWith('http')) {
+            setProfileImage(profileData.imageKey);
+          } else {
+            const imageUrl = await UserProfileService.getImageUrl(profileData.imageKey);
+            setProfileImage(imageUrl);
+          }
+        }
+      } catch (error) {
+        console.error('기존 프로필 이미지 로드 실패:', error);
+      }
+    };
+
+    loadCurrentProfileImage();
+  }, []);
 
   const handleToggle = () => {
     setIsEditing((prev) => !prev);
@@ -48,12 +70,17 @@ export default function ProfileImageSection() {
       console.log('업로드된 이미지 키:', imageKey);
 
       // 프로필 이미지 업데이트 API 호출
-      await UserProfileService.updateProfileImage(imageKey);
+      await UserProfileService.updateProfileImage({ imageKey });
       console.log('프로필 이미지 업데이트 완료');
 
       // 프로필 이미지 URL 가져오기 (표시용)
-      const imageUrl = await UserProfileService.getImageUrl(imageKey);
-      setProfileImage(imageUrl);
+      // imageKey가 이미 완전한 URL인지 확인
+      if (imageKey.startsWith('http')) {
+        setProfileImage(imageKey);
+      } else {
+        const imageUrl = await UserProfileService.getImageUrl(imageKey);
+        setProfileImage(imageUrl);
+      }
 
       // 사용자 정보 업데이트 (AuthContext)
       if (updateUserProfile) {
@@ -107,12 +134,7 @@ export default function ProfileImageSection() {
 
   // 현재 프로필 이미지 URL 가져오기
   const getCurrentProfileImageUrl = () => {
-    if (profileImage) return profileImage;
-    if (user?.profileImage) {
-      // 이미지 키가 있으면 URL로 변환 (실제로는 getImageUrl 호출해야 하지만 동기적으로 처리 어려움)
-      return user.profileImage;
-    }
-    return null;
+    return profileImage;
   };
 
   return (

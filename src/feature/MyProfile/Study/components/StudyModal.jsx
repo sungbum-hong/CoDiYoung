@@ -4,6 +4,7 @@ import { COLORS } from '../../../../utils/colors';
 import useStudyUIStore from '../../../../stores/studyUIStore.js';
 // 새로운 훅 import
 import { useStudyDetail } from '../../../../hooks/useStudyQueries.js';
+import { mapImagesToContent } from '../../../../utils/imageUtils.js';
 
 export default function StudyModal({ onEdit }) {
   const {
@@ -30,6 +31,7 @@ export default function StudyModal({ onEdit }) {
   const handleClose = () => {
     closeModal('study');
   };
+
 
   // 수정 버튼 클릭 처리
   const handleEdit = () => {
@@ -90,26 +92,18 @@ export default function StudyModal({ onEdit }) {
               <h3 className="text-lg font-semibold mb-4">
                 스터디 {(selectedIndex ?? 0) + 1}
               </h3>
-              <div className="flex justify-center items-center h-64">
-                {/* 이미지가 있는 경우 */}
-                {selectedStudy.images && selectedStudy.images.length > 0 ? (
-                  <img
-                    src={selectedStudy.images[0].url}
-                    alt="스터디 이미지"
-                    className="max-w-full max-h-full object-contain rounded-lg"
-                    onError={(e) => {
-                      console.error('이미지 로드 실패:', e);
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  /* 이미지가 없는 경우 텍스트 내용 표시 */
-                  <div className="text-gray-500 max-w-full px-4">
-                    <p className="text-base leading-relaxed whitespace-pre-wrap">
-                      {selectedStudy.content || '내용이 없습니다.'}
-                    </p>
-                  </div>
-                )}
+              <div className="flex justify-center items-start h-64 overflow-auto">
+                {/* 실제 HTML 콘텐츠 렌더링 */}
+                <div 
+                  className="prose prose-sm max-w-full px-4 text-gray-700"
+                  dangerouslySetInnerHTML={{
+                    __html: mapImagesToContent(selectedStudy.content, selectedStudy.images) || '내용이 없습니다.'
+                  }}
+                  style={{
+                    maxWidth: '100%',
+                    wordBreak: 'break-word'
+                  }}
+                />
               </div>
               
               {/* 작성 날짜 표시 */}

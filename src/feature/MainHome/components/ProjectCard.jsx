@@ -1,7 +1,7 @@
+import { useState, useEffect } from 'react';
 import { CONFIG } from '../../../constants/config.js';
 import { COLORS } from '../../../utils/colors.js';
-import { USE_MOCK_DATA } from '../../../mock-logic/index.js';
-import { useBackgroundHover } from '../../../hooks/useHoverStyle.js';
+import { ProjectService } from '../../../services/projectService.js';
 
 export default function ProjectCard({ 
   index, 
@@ -9,8 +9,29 @@ export default function ProjectCard({
   onProjectClick, 
   onCardKeyDown 
 }) {
-  const projectCardHover = useBackgroundHover(COLORS.GRAY_300, COLORS.GRAY_400);
+  const [projectImageUrl, setProjectImageUrl] = useState(null);
   const cardWidth = CONFIG.CARD.PROJECT.WIDTH;
+
+  // 프로젝트 이미지 URL 로드
+  useEffect(() => {
+    const loadProjectImage = async () => {
+      if (!project?.imageKey) return;
+
+      try {
+        // imageKey가 이미 완전한 URL인지 확인
+        if (project.imageKey.startsWith('http')) {
+          setProjectImageUrl(project.imageKey);
+        } else {
+          const imageUrl = await ProjectService.getImageUrl(project.imageKey);
+          setProjectImageUrl(imageUrl);
+        }
+      } catch (error) {
+        console.error(`프로젝트 이미지 로드 실패:`, error);
+      }
+    };
+
+    loadProjectImage();
+  }, [project?.imageKey]);
 
   return (
     <div className="flex-shrink-0 flex flex-col items-center">
@@ -18,21 +39,20 @@ export default function ProjectCard({
         role="button"
         tabIndex={0}
         onKeyDown={(e) => onCardKeyDown(e, index)}
-        className="flex flex-col items-center justify-center cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 p-4"
+        className="flex flex-col items-center justify-center cursor-pointer transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 hover:shadow-lg"
         style={{
           width: cardWidth,
           height: CONFIG.CARD.PROJECT.HEIGHT,
           borderRadius: CONFIG.BORDER_RADIUS.MEDIUM,
-          backgroundColor: COLORS.GRAY_300,
+          backgroundColor: projectImageUrl ? 'transparent' : COLORS.GRAY_100,
         }}
         onClick={() => onProjectClick(index)}
-        {...projectCardHover}
         aria-label={project ? `${project.title} 상세 보기` : `프로젝트 ${index + 1} 상세 보기`}
       >
         <div className="text-center w-full h-full flex flex-col items-center justify-center relative overflow-hidden">
-          {project?.imageKey ? (
+          {projectImageUrl ? (
             <img 
-              src={project.imageKey.startsWith('http') ? project.imageKey : `http://15.164.125.28:8080/storage/${project.imageKey}`}
+              src={projectImageUrl}
               alt={project?.title || '프로젝트 이미지'}
               className="w-full h-full object-cover"
               style={{ borderRadius: CONFIG.BORDER_RADIUS.MEDIUM }}
@@ -43,10 +63,15 @@ export default function ProjectCard({
             />
           ) : null}
           <div 
-            className={`text-sm font-medium w-full h-full flex items-center justify-center ${project?.imageKey ? 'hidden' : 'flex'}`}
+            className={`text-sm font-medium w-full h-full flex items-center justify-center ${projectImageUrl ? 'hidden' : 'flex'}`}
             style={{ color: COLORS.GRAY_600 }}
           >
             프로젝트 {index + 1}
+            {project?.imageKey && !projectImageUrl && (
+              <div className="text-xs text-red-500 mt-1">
+                이미지 로딩 중...
+              </div>
+            )}
           </div>
         </div>
       </div>

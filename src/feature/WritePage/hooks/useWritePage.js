@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MESSAGES } from '../../../constants/messages.js';
 import { sanitizeHtml } from '../utils/sanitizer.js';
+import { mapImagesToContent } from '../../../utils/imageUtils.js';
 
 // React Query 훅들 사용
 import { 
@@ -101,7 +102,8 @@ export function useWritePage() {
   // 스터디 데이터 초기화 (한 번만 실행)
   useEffect(() => {
     if (studyData && !isInitialized && isMounted.current) {
-      setContent(studyData.content || '');
+      const contentWithImages = mapImagesToContent(studyData.content, studyData.images);
+      setContent(contentWithImages || '');
       setIsInitialized(true);
     }
   }, [studyData, isInitialized]);
