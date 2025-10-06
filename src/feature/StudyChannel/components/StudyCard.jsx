@@ -17,6 +17,8 @@ export default function StudyCard({ onClick, study }) {
   
   const firstChar = study?.content ? getFirstChar(study.content) : '';
 
+  console.log(`StudyCard - studyId: ${study?.studyId}, firstChar: "${firstChar}", hasImage: ${!!firstImageUrl}`);
+
   return (
     <div
       onClick={onClick}

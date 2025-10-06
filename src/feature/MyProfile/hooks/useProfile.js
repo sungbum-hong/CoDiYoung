@@ -26,10 +26,10 @@ export function useProfile() {
     },
     refetchOnWindowFocus: false,
     select: (data) => {
-      // API 응답 구조에 맞춰 정규화
+      // API 응답 구조 그대로 사용 (nickName 유지)
       return {
         imageKey: data?.imageKey || '',
-        nickname: data?.nickName || '', // nickName -> nickname으로 정규화
+        nickName: data?.nickName || '', // API 스펙대로 nickName 유지
         email: data?.email || '',
         profileImageUrl: data?.imageKey ? `이미지_URL_생성_로직(${data.imageKey})` : null
       };
@@ -67,7 +67,7 @@ export function useUpdateNickname() {
       // Optimistic update 적용
       queryClient.setQueryData(PROFILE_QUERY_KEYS.detail(), (oldData) => ({
         ...oldData,
-        nickname: newNickname.trim()
+        nickName: newNickname.trim() // API 스펙에 맞춰 nickName 사용
       }));
 
       return { previousProfile };

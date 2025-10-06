@@ -10,12 +10,13 @@ import { validateKakaoOpenTalkLink, validateProjectForm } from "./utils/projectV
 export default function ProjectCreateForm({ onBack }) {
   const [formData, setFormData] = useState({
     projectName: '',
+    description: '',
     participants: '',
     deadline: null,
     position: [],
     tech: [],
     slogan: '',
-    motivation: '',
+    questions: '',
     openTalkLink: ''
   });
 
@@ -46,14 +47,23 @@ export default function ProjectCreateForm({ onBack }) {
       // API 명세서에 맞는 데이터 구조로 변환
       const projectData = {
         title: formData.projectName,
-        description: formData.motivation,
+        description: formData.description,
         imageKey: uploadedImage?.key || "",
         slogan: formData.slogan,
-        capacity: formData.participants,
+        capacity: parseInt(formData.participants) || 0,
         positions: formData.position,
         techs: formData.tech,
-        questions: formData.slogan ? [formData.slogan] : [], // 질문 배열
-        kakaoLink: formData.openTalkLink
+        questions: formData.questions ? [formData.questions] : [],
+        kakaoLink: formData.openTalkLink,
+        completeDay: formData.deadline ? 
+          // 로컬 시간 기준으로 YYYY-MM-DD 형식 생성
+          `${formData.deadline.getFullYear()}-${String(formData.deadline.getMonth() + 1).padStart(2, '0')}-${String(formData.deadline.getDate()).padStart(2, '0')}`
+          : 
+          // 기본값을 현재 날짜로 설정
+          (() => {
+            const today = new Date();
+            return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+          })()
       };
 
       console.log('프로젝트 생성 데이터:', projectData);

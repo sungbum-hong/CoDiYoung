@@ -22,7 +22,7 @@ export default function ProjectSection({
   // 모달 관리 훅
   const { 
     isModalOpen, 
-    selectedProjectIndex, 
+    selectedProjectId, 
     handleProjectClick, 
     closeModal, 
     handleMoreClick, 
@@ -99,8 +99,8 @@ export default function ProjectSection({
       <ProjectDetailModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        projectIndex={selectedProjectIndex}
-        project={projects[selectedProjectIndex] || null}
+        projectId={selectedProjectId}
+        project={projects.find(p => p?.id === selectedProjectId) || null}
       />
     </section>
   );

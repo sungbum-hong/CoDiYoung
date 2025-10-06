@@ -13,7 +13,7 @@ export const validateKakaoOpenTalkLink = (url) => {
       return { isValid: false, message: '참여 인원을 선택해주세요.' };
     }
   
-    if (!formData.motivation.trim()) {
+    if (!formData.description.trim()) {
       return { isValid: false, message: '프로젝트 설명을 입력해주세요.' };
     }
   
@@ -28,7 +28,7 @@ export const validateKakaoOpenTalkLink = (url) => {
       return { isValid: false, message: '프로젝트 명은 100자 이하여야 합니다.' };
     }
   
-    if (formData.motivation.length > 1000) {
+    if (formData.description.length > 1000) {
       return { isValid: false, message: '프로젝트 설명은 1000자 이하여야 합니다.' };
     }
   

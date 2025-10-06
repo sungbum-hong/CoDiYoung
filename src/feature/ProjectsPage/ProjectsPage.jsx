@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import { COLORS } from '../../utils/colors';
 import { CONFIG } from '../../constants/config';
-import { MockProjectService, USE_MOCK_DATA } from '../../mock-logic/index.js';
+// import { MockProjectService, USE_MOCK_DATA } from '../../mock-logic/index.js';
 
 export default function ProjectsPage() {
   const navigate = useNavigate();
@@ -21,21 +21,8 @@ export default function ProjectsPage() {
   // Mock 데이터 조회
   useEffect(() => {
     const fetchProjects = async () => {
-      if (!USE_MOCK_DATA) {
-        setIsLoading(false);
-        return;
-      }
-      
-      try {
-        const response = await MockProjectService.getAllProjects();
-        console.log('전체 프로젝트 데이터:', response);
-        setProjects(response || []);
-      } catch (error) {
-        console.error('프로젝트 조회 실패:', error);
-        setProjects([]);
-      } finally {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
+      return;
     };
 
     fetchProjects();
@@ -101,7 +88,7 @@ export default function ProjectsPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-32 gap-y-8">
           {Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => {
             const globalIndex = (currentPage - 1) * ITEMS_PER_PAGE + index;
-            const project = USE_MOCK_DATA && projects[globalIndex] ? projects[globalIndex] : null;
+            const project = null;
             const projectId = project?.id || globalIndex + 1;
             
             return (

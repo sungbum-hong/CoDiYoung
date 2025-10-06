@@ -1,7 +1,17 @@
 import { COLORS } from '../../../utils/colors.js';
+import { useAuthState } from '../../../hooks/useAuth.js';
 
 export default function ProjectInfo({ project, position = "left" }) {
   const positionStyle = position === "left" ? { left: "198px" } : {};
+  const { user } = useAuthState();
+  
+  // 현재 사용자가 프로젝트 팀장인지 확인
+  const isProjectLeader = user && project && (
+    project.creatorId === user.id || 
+    project.leaderId === user.id ||
+    project.userId === user.id ||
+    project.ownerId === user.id
+  );
 
   return (
     <div className="absolute space-y-1" style={{ ...positionStyle, top: "13px" }}>
@@ -9,7 +19,7 @@ export default function ProjectInfo({ project, position = "left" }) {
         프로젝트 명: {project.title || ""}
       </div>
       <div className="text-xs font-bold">
-        참여 인원: {project.memberCount ?? 0}/{project.capacity ?? 0}명
+        참여 인원: {project.memberBriefs?.length ?? project.memberCount ?? 0}/{project.capacity ?? 0}명
       </div>
       <div className="text-xs font-bold">
         포지션:{" "}
