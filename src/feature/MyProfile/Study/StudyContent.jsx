@@ -210,13 +210,6 @@ export default function StudyContent() {
           </div>
         )}
 
-        {/* 데이터는 있지만 비어있는 경우 */}
-        {!isLoading && !error && studyResponse && studyResponse.isEmpty && (
-          <div className="text-center py-16 text-gray-500">
-            <p className="text-lg mb-2">아직 작성된 스터디가 없습니다.</p>
-            <p className="text-sm">첫 번째 스터디를 작성해보세요!</p>
-          </div>
-        )}
       </div>
 
       {/* 상세 모달 */}

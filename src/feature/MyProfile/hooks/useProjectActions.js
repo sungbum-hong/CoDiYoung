@@ -199,6 +199,8 @@ export function useProjectActions() {
         console.log('- 완료한 멤버:', data?.completedMembers);
         console.log('- 전체 멤버:', data?.totalMembers);
         console.log('- 완료율:', data?.completionRate);
+        console.log('- 완료율 타입:', typeof data?.completionRate);
+        console.log('- 완료율 * 100:', (data?.completionRate || 0) * 100);
         
         if (success) {
           // 완료율 기반 상태 판단
@@ -207,27 +209,20 @@ export function useProjectActions() {
           const completedMembers = data?.completedMembers || 0;
           const totalMembers = data?.totalMembers || 0;
           
-          if (completionRate >= 1.0 || completionRate === 100) {
-            // 100% 완료 - 프로젝트 완전 완료
-            completionResult = {
-              success: true,
-              isCompleted: true,
-              message: '🎉 프로젝트가 완전히 완료되었습니다!',
-              data: { userRole, completedMembers, totalMembers, completionRate }
-            };
-            console.log('→ 완전 완료 상태 (100%)');
-          } else if (userRole.toLowerCase() === 'member' || userRole.toLowerCase() === 'participant') {
-            // 팀원이 완료한 경우 - 팀장의 최종 완료 대기
-            completionResult = {
-              success: true,
-              isWaiting: true,
-              message: `✅ 완료 처리되었습니다. 팀장의 최종 완료를 기다리고 있습니다.\n(${completedMembers}/${totalMembers}명 완료, ${Math.round(completionRate * 100)}%)`,
-              data: { userRole, completedMembers, totalMembers, completionRate }
-            };
-            console.log('→ 팀원 완료 대기 상태');
-          } else if (userRole.toLowerCase() === 'leader' || userRole.toLowerCase() === 'owner') {
+          // 사용자 역할에 따른 처리 (완료율보다 역할 우선)
+          if (userRole.toLowerCase() === 'leader' || userRole.toLowerCase() === 'owner') {
             // 팀장의 경우
-            if (completedMembers < totalMembers) {
+            if (completionRate >= 1.0) {
+              // 팀장이 마지막에 완료하여 100% 달성
+              completionResult = {
+                success: true,
+                isCompleted: true,
+                message: '🎉 프로젝트가 완전히 완료되었습니다!',
+                data: { userRole, completedMembers, totalMembers, completionRate }
+              };
+              console.log('→ 팀장 - 최종 완료 상태 (100%)');
+            } else {
+              // 팀장이 완료했지만 아직 100% 아님
               completionResult = {
                 success: true,
                 isPartial: true,
@@ -235,23 +230,21 @@ export function useProjectActions() {
                 data: { userRole, completedMembers, totalMembers, completionRate }
               };
               console.log('→ 팀장 - 일부 완료 상태');
-            } else {
-              completionResult = {
-                success: true,
-                isCompleted: true,
-                message: '🎉 모든 팀원이 완료했습니다! 프로젝트가 완전히 완료되었습니다!',
-                data: { userRole, completedMembers, totalMembers, completionRate }
-              };
-              console.log('→ 팀장 - 최종 완료 상태');
             }
           } else {
-            // 기본 상태
+            // 팀원이거나 기타 역할인 경우 - 완료율에 관계없이 항상 대기 상태
+            // API 데이터가 잘못된 경우를 대비해서 임시 계산값 사용
+            const actualCompletedMembers = completedMembers === 0 ? 1 : completedMembers; // 팀원이 방금 완료했으므로 최소 1명
+            const actualCompletionRate = completionRate === 0 ? (actualCompletedMembers / totalMembers) : completionRate;
+            
             completionResult = {
               success: true,
-              message: message || '완료 처리되었습니다.',
-              data: { userRole, completedMembers, totalMembers, completionRate }
+              isWaiting: true,
+              message: `✅ 완료 처리되었습니다. 팀장의 최종 완료를 기다리고 있습니다.\n(${actualCompletedMembers}/${totalMembers}명 완료, ${Math.round(actualCompletionRate * 100)}%)`,
+              data: { userRole, completedMembers: actualCompletedMembers, totalMembers, completionRate: actualCompletionRate }
             };
-            console.log('→ 기본 완료 상태');
+            console.log('→ 팀원/기타 역할 완료 대기 상태');
+            console.log('보정된 완료 정보:', { actualCompletedMembers, actualCompletionRate });
           }
         } else {
           completionResult = {

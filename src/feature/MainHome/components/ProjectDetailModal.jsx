@@ -7,7 +7,7 @@ import { COLORS } from "../../../utils/colors.js";
 import { usePrimaryButtonHover } from "../../../hooks/useHoverStyle.js";
 import { useAuthState } from "../../../hooks/useAuth.js";
 
-export default function ProjectDetailModal({ isOpen, onClose, projectIndex, project }) {
+export default function ProjectDetailModal({ isOpen, onClose, projectId, project }) {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthState();
   
@@ -16,7 +16,7 @@ export default function ProjectDetailModal({ isOpen, onClose, projectIndex, proj
 
   const handlePrimaryAction = () => {
     // 로그인 상태와 관계없이 동일한 프로젝트 상세 페이지로 이동
-    navigate(`/project/${projectIndex + 1}`);
+    navigate(`/project/${projectId}`);
     onClose();
   };
 

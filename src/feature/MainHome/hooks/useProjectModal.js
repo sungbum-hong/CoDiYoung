@@ -5,10 +5,10 @@ import { ROUTES } from "../../../constants/routes.js";
 export function useProjectModal() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
 
-  const handleProjectClick = (index) => {
-    setSelectedProjectIndex(index);
+  const handleProjectClick = (projectId) => {
+    setSelectedProjectId(projectId);
     setIsModalOpen(true);
   };
 
@@ -20,16 +20,16 @@ export function useProjectModal() {
     navigate(ROUTES.PROJECTS);
   };
 
-  const onCardKeyDown = (e, index) => {
+  const onCardKeyDown = (e, projectId) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      handleProjectClick(index);
+      handleProjectClick(projectId);
     }
   };
 
   return {
     isModalOpen,
-    selectedProjectIndex,
+    selectedProjectId,
     handleProjectClick,
     closeModal,
     handleMoreClick,

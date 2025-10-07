@@ -49,9 +49,9 @@ export default function StudyChannelPage() {
       // 스터디 데이터 설정 (API 스펙에 맞춰 수정)
       const studyData = userChannelData.studies?.content || [];
       console.log('=== 스터디 데이터 설정 ===');
-      console.log('studyData:', studyData);
+      console.log('원본 studyData:', studyData);
+      console.log('studyData 길이:', studyData.length);
       console.log('첫 번째 스터디:', studyData[0]);
-      console.log('첫 번째 스터디 이미지:', studyData[0]?.images);
       
       // 실제 API 데이터 사용 (images 필드는 없으므로 content만 사용)
       const processedStudyData = studyData.map(study => ({

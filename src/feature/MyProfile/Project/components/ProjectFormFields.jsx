@@ -29,6 +29,15 @@ export default function ProjectFormFields({ formData, onInputChange, onDatePicke
         onChange={(e) => onInputChange('projectName', e.target.value)}
         className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)]"
       />
+
+      {/* 프로젝트 내용 */}
+      <textarea
+        placeholder="프로젝트 내용을 자세히 적어주세요"
+        value={formData.description}
+        onChange={(e) => onInputChange('description', e.target.value)}
+        className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)] resize-none h-20"
+        rows={3}
+      />
       
       {/* 참여 인원 */}
       <Dropdown
@@ -82,11 +91,11 @@ export default function ProjectFormFields({ formData, onInputChange, onDatePicke
         className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)]"
       />
 
-      {/* 지원동기 */}
+      {/* 질문 */}
       <textarea
-        placeholder="질문"
-        value={formData.motivation}
-        onChange={(e) => onInputChange('motivation', e.target.value)}
+        placeholder="지원자에게 물어볼 질문을 적어주세요 (예: 이 프로젝트에 지원한 동기는 무엇인가요?)"
+        value={formData.questions}
+        onChange={(e) => onInputChange('questions', e.target.value)}
         className="w-full border-2 border-[var(--color-primary)] rounded-md p-2 text-center placeholder-[var(--color-gray-400)] resize-none h-20"
         rows={3}
       />

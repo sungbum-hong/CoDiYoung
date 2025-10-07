@@ -79,13 +79,8 @@ export default function ApplicationModal({ onClose, project, projectName = "프�
             questions.map((question, index) => (
               <div key={question.id || index}>
                 <label className="block text-sm font-medium mb-2" style={{ color: COLORS.GRAY_700 }}>
-                  질문 {index + 1}
+                  {question.content || question}
                 </label>
-                <div className="mb-2 p-3 bg-gray-50 rounded-md border" style={{ borderColor: COLORS.GRAY_300 }}>
-                  <p className="text-sm" style={{ color: COLORS.GRAY_700 }}>
-                    {description || question.description || question.content || question}
-                  </p>
-                </div>
                 <textarea
                   className="question-textarea w-full border-2 rounded-md p-3 resize-none transition-all duration-200 focus:outline-none min-h-[44px] overflow-hidden"
                   style={{ 

@@ -134,7 +134,7 @@ export default function ProjectDatePickerModal({ isOpen, onClose, selectedDate, 
       </div>
 
       {/* DatePicker 커스텀 스타일 */}
-      <style jsx global>{`
+      <style>{`
         .custom-calendar {
           border: none;
           border-radius: 12px;
@@ -202,10 +202,9 @@ export default function ProjectDatePickerModal({ isOpen, onClose, selectedDate, 
           font-weight: bold;
         }
 
-        /* 30일 이후 날짜들 (비활성화된 날짜) */
         .custom-calendar .react-datepicker__day--disabled {
-          color: #d1d5db !important; /* gray-300 */
-          background-color: #f9fafb !important; /* gray-50 */
+          color: #d1d5db !important;
+          background-color: #f9fafb !important;
           cursor: not-allowed !important;
           opacity: 0.6 !important;
         }

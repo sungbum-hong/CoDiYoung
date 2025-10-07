@@ -16,6 +16,23 @@ export default function ProjectContent() {
   // 인증 상태
   const { user, isAuthenticated } = useAuthState();
   
+  // 디버깅: user 정보 확인 및 강제 로드
+  useEffect(() => {
+    console.log('=== ProjectContent user 상태 ===');
+    console.log('user:', user);
+    console.log('isAuthenticated:', isAuthenticated);
+    console.log('user?.id:', user?.id);
+    
+    // user 정보가 없으면 AuthService에서 직접 가져오기
+    if (isAuthenticated && !user?.id) {
+      console.log('user 정보 없음 - AuthService에서 로드 시도');
+      import('../../../services/authService.js').then(({ AuthService }) => {
+        const currentUser = AuthService.getCurrentUser();
+        console.log('AuthService.getCurrentUser():', currentUser);
+      });
+    }
+  }, [user, isAuthenticated]);
+  
   // 프로젝트 데이터 훅
   const { progressingProjects, appliedProjects, isLoading, fetchAllProjects } = useProjectData();
   
@@ -398,7 +415,7 @@ export default function ProjectContent() {
                     {(() => {
                       const project = progressingProjects[0];
                       const projectId = project.id;
-                      const memberCount = project.memberCount || 0;
+                      const memberCount = project.memberBriefs?.length || project.memberCount || 0;
                       const completionState = projectCompletionState[projectId];
                       
                       // 현재 사용자가 프로젝트 팀장인지 확인
@@ -409,26 +426,34 @@ export default function ProjectContent() {
                         project.ownerId === user.id
                       );
                       
+                      // 현재 사용자가 이 프로젝트의 멤버인지 확인 (memberBriefs에서 확인)
+                      const isProjectMember = user && project.memberBriefs?.some(member => member.userId === user.id);
+                      
                       // 현재 사용자가 신청 중인 상태인지 확인 (아직 승인되지 않음)
                       const isApplicant = appliedProjects && appliedProjects.length > 0 && 
                         appliedProjects.some(applied => applied.id === projectId);
                       
-                      // 승인된 팀원이 있는지 확인 (멤버수가 1보다 크면 팀장 외에 팀원이 있다는 뜻)
-                      const hasApprovedMembers = memberCount > 1;
+                      // 승인된 팀원이 있는지 확인 (멤버수가 2명 이상이면 팀장 외에 팀원이 있다는 뜻)
+                      const hasApprovedMembers = memberCount >= 2;
                       
-                      // 완료 버튼 접근 권한 체크 (비즈니스 로직)
+                      // 완료 버튼 접근 권한 체크 (임시로 완화된 로직)
                       // 1. 신청자는 완료 버튼 접근 불가
-                      // 2. 반드시 승인된 팀원이 있어야 완료 가능 (팀장 혼자는 완료 불가)
-                      // 3. 현재 사용자가 팀장이거나 승인된 팀원이어야 함
-                      const canAccessCompleteButton = !isApplicant && hasApprovedMembers;
+                      // 2. 인증된 사용자여야 함 (user?.id 체크 임시 제거)
+                      // 3. 팀이 구성되어 있어야 함
+                      const canAccessCompleteButton = !isApplicant && isAuthenticated && hasApprovedMembers;
                       
                       // 디버그: 완료 버튼 권한 체크 정보
                       console.log('=== 완료 버튼 권한 체크 ===', {
                         canAccessCompleteButton,
                         isApplicant,
-                        isProjectLeader, 
+                        isProjectLeader,
+                        isProjectMember,
                         hasApprovedMembers,
                         memberCount,
+                        memberBriefs: project?.memberBriefs,
+                        complicatedCount: project?.complicatedCount,
+                        totalMembers: project?.memberBriefs?.length,
+                        completionProgress: `${project?.complicatedCount || 0}/${project?.memberBriefs?.length || 0}`,
                         userId: user?.id,
                         project: {
                           id: project?.id,
@@ -441,6 +466,12 @@ export default function ProjectContent() {
                       
                       if (!canAccessCompleteButton) {
                         console.log('완료 버튼 접근 불가 - 숨김 처리');
+                        console.log('실패 이유:', {
+                          isApplicant: isApplicant ? '신청자임' : '신청자 아님',
+                          isAuthenticated: isAuthenticated ? '인증됨' : '인증 안됨', 
+                          hasUserId: user?.id ? '유저ID 있음' : '유저ID 없음',
+                          userIdValue: user?.id
+                        });
                         return null; // 신청자이거나 권한이 없으면 완료 버튼 표시 안함
                       }
                       
@@ -448,23 +479,24 @@ export default function ProjectContent() {
                       if (completionState?.status === 'member_completed') {
                         // 팀원이 완료 버튼을 눌러서 대기 상태 (개인 완료 완료)
                         const { completedMembers = 0, totalMembers = 0, completionRate = 0 } = completionState;
-                        const percentage = Math.round(completionRate * 100);
+                        // 실제 프로젝트 데이터 사용
+                        const actualCompleted = project?.complicatedCount || completedMembers;
+                        const actualTotal = project?.memberBriefs?.length || totalMembers;
+                        const actualRate = actualTotal > 0 ? (actualCompleted / actualTotal) : completionRate;
+                        const percentage = Math.round(actualRate * 100);
                         
                         return (
                           <div className="flex flex-col items-center gap-1">
                             <button
                               disabled={true}
                               className="w-[58px] h-[58px] rounded-full bg-orange-400 
-                               flex items-center justify-center cursor-not-allowed relative"
-                              title={`완료 완료! 팀장의 최종 승인을 기다리는 중입니다 (${completedMembers}/${totalMembers}명 완료, ${percentage}%)`}
+                               flex items-center justify-center cursor-not-allowed"
+                              title={`완료 완료! 팀장의 최종 승인을 기다리는 중입니다 (${actualCompleted}/${actualTotal}명 완료, ${percentage}%)`}
                             >
                               <ClockIcon className="w-7 h-7 text-white animate-pulse" />
-                              <div className="absolute -bottom-1 -right-1 bg-white text-orange-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                                {percentage}
-                              </div>
                             </button>
                             <span className="text-xs text-orange-600 font-medium">
-                              완료대기 ({completedMembers}/{totalMembers})
+                              대기중 {actualCompleted}/{actualTotal}({percentage}%)
                             </span>
                           </div>
                         );
@@ -482,7 +514,7 @@ export default function ProjectContent() {
                                 onClick={handleProjectComplete}
                                 disabled={isAnyLoading}
                                 className={`w-[58px] h-[58px] rounded-full bg-green-500 hover:bg-green-600 
-                                 flex items-center justify-center transition-all hover:scale-105 relative
+                                 flex items-center justify-center transition-all hover:scale-105
                                  ${isAnyLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 title={isAnyLoading ? "처리 중..." : `모든 팀원이 완료했습니다! 최종 승인하세요 (${completedMembers}/${totalMembers-1}명 완료)`}
                               >
@@ -491,9 +523,6 @@ export default function ProjectContent() {
                                 ) : (
                                   <CheckCircleIcon className="w-7 h-7 text-white" />
                                 )}
-                                <div className="absolute -bottom-1 -right-1 bg-white text-green-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                                  100
-                                </div>
                               </button>
                               <span className="text-xs text-green-600 font-medium">
                                 최종승인
@@ -507,16 +536,13 @@ export default function ProjectContent() {
                               <button
                                 disabled={true}
                                 className="w-[58px] h-[58px] rounded-full bg-blue-400 
-                                 flex items-center justify-center cursor-not-allowed relative"
+                                 flex items-center justify-center cursor-not-allowed"
                                 title={`팀원들의 완료를 기다리는 중입니다 (${completedMembers}/${totalMembers-1}명 완료, ${percentage}%)`}
                               >
                                 <ClockIcon className="w-7 h-7 text-white animate-pulse" />
-                                <div className="absolute -bottom-1 -right-1 bg-white text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                                  {percentage}
-                                </div>
                               </button>
                               <span className="text-xs text-blue-600 font-medium">
-                                대기중 ({completedMembers}/{totalMembers-1})
+                                대기중 {completedMembers}/{totalMembers}({percentage}%)
                               </span>
                             </div>
                           );
@@ -543,40 +569,69 @@ export default function ProjectContent() {
                           </div>
                         );
                       } else {
-                        // 일반 완료 버튼 - 백엔드에서 역할과 상태 자동 판단
-                        return (
-                          <div className="flex flex-col items-center gap-1">
-                            <button
-                              onClick={handleProjectComplete}
-                              disabled={isAnyLoading}
-                              className={`w-[58px] h-[58px] rounded-full bg-green-500 hover:bg-green-600 
-                               flex items-center justify-center transition-all hover:scale-105
-                               ${isAnyLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              title={isAnyLoading ? "처리 중..." : 
-                                isProjectLeader 
-                                  ? "프로젝트 완료 (팀장: 모든 팀원 완료 후 최종 승인)" 
-                                  : "프로젝트 완료 (팀원: 완료 표시 후 팀장 승인 대기)"
-                              }
-                            >
-                              {isAnyLoading ? (
-                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                              ) : (
-                                <CheckCircleIcon className="w-7 h-7 text-white" />
-                              )}
-                            </button>
-                            <span className="text-xs text-green-600 font-medium">완료</span>
-                          </div>
-                        );
+                        // 일반 완료 버튼 - 역할별 구분
+                        const actualCompleted = project?.complicatedCount || 0;
+                        const actualTotal = project?.memberBriefs?.length || 0;
+                        const actualRate = actualTotal > 0 ? (actualCompleted / actualTotal) : 0;
+                        const percentage = Math.round(actualRate * 100);
+                        
+                        if (isProjectLeader) {
+                          // 팀장: 완료 버튼
+                          return (
+                            <div className="flex flex-col items-center gap-1">
+                              <button
+                                onClick={handleProjectComplete}
+                                disabled={isAnyLoading}
+                                className={`w-[58px] h-[58px] rounded-full bg-green-500 hover:bg-green-600 
+                                 flex items-center justify-center transition-all hover:scale-105
+                                 ${isAnyLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                title={isAnyLoading ? "처리 중..." : `프로젝트 완료 (팀장: 모든 팀원 완료 후 최종 승인) - 현재 ${actualCompleted}/${actualTotal}명 완료`}
+                              >
+                                {isAnyLoading ? (
+                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                                ) : (
+                                  <CheckCircleIcon className="w-7 h-7 text-white" />
+                                )}
+                              </button>
+                              <span className="text-xs text-green-600 font-medium">
+                                완료 {actualCompleted}/{actualTotal}명
+                              </span>
+                            </div>
+                          );
+                        } else {
+                          // 팀원: 대기중 버튼으로 표시
+                          return (
+                            <div className="flex flex-col items-center gap-1">
+                              <button
+                                onClick={handleProjectComplete}
+                                disabled={isAnyLoading}
+                                className={`w-[58px] h-[58px] rounded-full bg-orange-500 hover:bg-orange-600 
+                                 flex items-center justify-center transition-all hover:scale-105
+                                 ${isAnyLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                title={isAnyLoading ? "처리 중..." : `프로젝트 완료 (팀원: 완료 표시 후 팀장 승인 대기) - 현재 ${actualCompleted}/${actualTotal}명 완료`}
+                              >
+                                {isAnyLoading ? (
+                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                                ) : (
+                                  <ClockIcon className="w-7 h-7 text-white" />
+                                )}
+                              </button>
+                              <span className="text-xs text-orange-600 font-medium">
+                                대기중
+                              </span>
+                            </div>
+                          );
+                        }
                       }
                     })()}
                     
                     {/* 취소 버튼 - 조건부 표시 */}
                     {(() => {
                       const project = progressingProjects[0];
-                      const memberCount = project.memberCount || 0;
+                      const memberCount = project.memberBriefs?.length || project.memberCount || 0;
                       
                       // 승인된 팀원이 있으면 취소 버튼 숨김 (팀장 혼자인 경우에만 취소 가능)
-                      const hasApprovedMembers = memberCount > 1;
+                      const hasApprovedMembers = memberCount >= 2;
                       
                       if (hasApprovedMembers) {
                         return null; // 팀원이 있으면 취소 버튼 숨김
