@@ -249,7 +249,7 @@ export default function ProfileImageSection() {
             )}
           </div>
           
-          <Button variant="secondary" onClick={handleToggle} className="h-8 text-xs">
+          <Button variant="secondary" onClick={handleToggle}  className="!h-8 !text-xs disabled:opacity-50">
             {MESSAGES.UI.EDIT}
           </Button>
         </div>

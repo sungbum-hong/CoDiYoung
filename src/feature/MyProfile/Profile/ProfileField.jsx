@@ -119,7 +119,7 @@ export default function ProfileField({ label, value, onUpdate }) {
               disabled={label === "비밀번호"}
               className="!h-8 !text-xs disabled:opacity-50"
             >
-              {label === "비밀번호" ? "변경 불가" : MESSAGES.UI.EDIT}
+              {label === "비밀번호" ? "변경" : MESSAGES.UI.EDIT}
             </Button>
           </div>
         </div>
