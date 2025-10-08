@@ -140,7 +140,7 @@ export default function ProfileImageSection() {
   return (
     <div
       className={`border rounded-lg transition-all duration-300 flex items-center p-6 ${
-        isEditing ? "h-32" : "h-20"
+        isEditing ? "h-21" : "h-12"
       }`}
       style={{ borderColor: COLORS.PRIMARY }}
     >
