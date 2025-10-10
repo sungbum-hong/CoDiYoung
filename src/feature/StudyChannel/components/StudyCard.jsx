@@ -1,10 +1,60 @@
 import { COLORS } from "../../../utils/colors.js";
 import { getFirstImageUrl } from "../../../utils/imageUtils.js";
 
-export default function StudyCard({ onClick, study }) {
-  // 스터디 데이터에서 첫 번째 이미지 URL 가져오기
-  const firstImageUrl = study?.images ? getFirstImageUrl(study.images) : null;
+// HTML 콘텐츠에서 data-key 속성을 가진 첫 번째 이미지의 key 추출
+const getFirstImageFromContent = (content) => {
+  if (!content) return null;
   
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+    const imgWithDataKey = doc.querySelector('img[data-key]');
+    
+    if (imgWithDataKey) {
+      const dataKey = imgWithDataKey.getAttribute('data-key');
+      console.log('🔍 [StudyCard] 발견된 이미지 key:', dataKey);
+      
+      // data-key를 실제 이미지 URL로 변환
+      return `http://15.164.125.28:8080/api/storage/public-url?key=${encodeURIComponent(dataKey)}`;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('StudyCard 이미지 추출 실패:', error);
+    return null;
+  }
+};
+
+export default function StudyCard({ onClick, study }) {
+  console.log('🔍 [StudyCard] 전체 study 객체:', study);
+  
+  // 새로운 API 응답 구조에서 이미지 추출
+  const getImageFromNewAPI = () => {
+    console.log('🔍 [StudyCard] 이미지 추출 시작');
+    console.log('- study?.firstImage:', study?.firstImage);
+    console.log('- study?.images:', study?.images);
+    console.log('- study?.content:', study?.content ? 'HTML 컨텐츠 있음' : '컨텐츠 없음');
+    
+    // 새 API 응답에서 firstImage 필드 사용
+    if (study?.firstImage) {
+      console.log('✅ [StudyCard] firstImage 필드 사용:', study.firstImage);
+      return study.firstImage;
+    }
+    
+    // 기존 images 배열 방식도 지원
+    if (study?.images) {
+      const imageUrl = getFirstImageUrl(study.images);
+      console.log('✅ [StudyCard] images 배열에서 추출:', imageUrl);
+      return imageUrl;
+    }
+    
+    // HTML 콘텐츠에서 이미지 추출 (fallback)
+    const htmlImageUrl = getFirstImageFromContent(study?.content);
+    console.log('✅ [StudyCard] HTML에서 추출:', htmlImageUrl);
+    return htmlImageUrl;
+  };
+  
+  const firstImageUrl = getImageFromNewAPI();
   
   // 텍스트 내용에서 첫 글자 추출
   const getFirstChar = (htmlContent) => {
@@ -17,7 +67,7 @@ export default function StudyCard({ onClick, study }) {
   
   const firstChar = study?.content ? getFirstChar(study.content) : '';
 
-  console.log(`StudyCard - studyId: ${study?.studyId}, firstChar: "${firstChar}", hasImage: ${!!firstImageUrl}`);
+  console.log(`🔍 [StudyCard] 최종 결과 - studyId: ${study?.studyId}, firstChar: "${firstChar}", hasImage: ${!!firstImageUrl}, finalImageUrl: ${firstImageUrl}`);
 
   return (
     <div
@@ -32,8 +82,16 @@ export default function StudyCard({ onClick, study }) {
           alt="스터디 이미지"
           className="w-full h-full object-cover"
           onError={(e) => {
+            console.error('🚨 [StudyCard] 이미지 로드 실패:', firstImageUrl);
+            console.error('- 에러 이벤트:', e);
             e.target.style.display = 'none';
-            e.target.nextSibling.style.display = 'flex';
+            const fallbackDiv = e.target.nextSibling;
+            if (fallbackDiv) {
+              fallbackDiv.style.display = 'flex';
+            }
+          }}
+          onLoad={() => {
+            console.log('✅ [StudyCard] 이미지 로드 성공:', firstImageUrl);
           }}
         />
       ) : null}

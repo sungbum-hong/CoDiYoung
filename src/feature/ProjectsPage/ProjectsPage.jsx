@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
-import { COLORS } from '../../utils/colors';
-import { CONFIG } from '../../constants/config';
-// import { MockProjectService, USE_MOCK_DATA } from '../../mock-logic/index.js';
 
 export default function ProjectsPage() {
   const navigate = useNavigate();

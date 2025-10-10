@@ -370,7 +370,7 @@ export class StudyService {
     
     return this.optimizedFetch(url, {
       method: 'GET',
-      headers: this.getCommonHeaders(true, true) // 인증 필수로 변경
+      headers: this.getCommonHeaders(true, false) // 인증 선택적으로 변경
     });
   }
 

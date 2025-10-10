@@ -21,9 +21,7 @@ export function useProjectMapping(project) {
     slogan: projectData.slogan || '프로젝트 슬로건', 
     leadImage: projectData.leaderImage || '',
     members: projectData.memberBriefs || [],
-    tech: projectData.techs && projectData.techs.length > 0 
-      ? projectData.techs 
-      : ['React', 'Node.js'], // 임시 테스트 데이터
+    tech: projectData.techs || [],
     description: projectData.content || '프로젝트 설명 또는 이미지가 들어갈 영역입니다.',
     projectId: projectData.id
   };

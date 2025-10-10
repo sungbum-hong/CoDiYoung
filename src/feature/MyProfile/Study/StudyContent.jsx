@@ -7,6 +7,8 @@ import DatePickerModal from "./DatePickerModal";
 // React Query & Zustand - 새로운 훅 사용
 import { useUserStudies } from "../../../hooks/useStudyQueries.js";
 import useStudyUIStore from "../../../stores/studyUIStore.js";
+import { useProfile } from "../hooks/useProfile.js";
+import { UserProfileService } from "../../../services/userProfileService.js";
 
 // 분리된 컴포넌트들 import
 import StudyGrid from "./components/StudyGrid.jsx";
@@ -16,6 +18,9 @@ import NavigationButtons from "./components/NavigationButtons.jsx";
 export default function StudyContent() {
   const TOTAL_ITEMS = 30; // 30개 고정
   const navigate = useNavigate();
+  
+  // 유저 프로필 정보 조회
+  const { data: userProfile, isLoading: isProfileLoading } = useProfile();
   
   // 새로운 React Query 훅 사용 - /api/study/users/studies API 호출
   const { 
@@ -55,6 +60,24 @@ export default function StudyContent() {
     
     return paddedData;
   }, [studyResponse?.studies]);
+
+  // 유저 프로필 이미지 URL 생성
+  const profileImageUrl = useMemo(() => {
+    console.log('🖼️ [StudyContent] 프로필 이미지 URL 생성:', {
+      userProfile,
+      imageKey: userProfile?.imageKey,
+      hasImageKey: !!userProfile?.imageKey
+    });
+    
+    if (!userProfile?.imageKey) {
+      console.log('⚠️ [StudyContent] imageKey 없음, 프로필 이미지 URL null 반환');
+      return null;
+    }
+    
+    const url = UserProfileService.getProfileImageUrl(userProfile.imageKey);
+    console.log('✅ [StudyContent] 프로필 이미지 URL 생성됨:', url);
+    return url;
+  }, [userProfile?.imageKey]);
 
   // 로딩 중이거나 에러가 있을 때 처리
   const displayData = useMemo(() => {
@@ -148,13 +171,22 @@ export default function StudyContent() {
 
   // 디버깅을 위한 정보 (개발 환경에서만)
   if (process.env.NODE_ENV === 'development') {
-    console.log('StudyContent 상태:', {
+    console.log('📊 [StudyContent] 전체 상태:', {
       isLoading,
       error: error?.message,
       totalStudies: studyResponse?.totalElements || 0,
       studiesInCurrentPage: studyResponse?.studies?.length || 0,
       hasNext: studyResponse?.hasNext || false,
-      currentPage: studyResponse?.currentPage || 0
+      currentPage: studyResponse?.currentPage || 0,
+      userProfile: userProfile,
+      profileImageUrl: profileImageUrl,
+      isProfileLoading
+    });
+    
+    console.log('📝 [StudyContent] 스터디 데이터 샘플:', {
+      firstStudy: studyResponse?.studies?.[0],
+      studyDataLength: displayData.length,
+      displayDataSample: displayData.slice(0, 3)
     });
   }
 
@@ -187,6 +219,8 @@ export default function StudyContent() {
           onItemClick={handleItemClick}
           error={error}
           onRetry={refetch} // 재시도 기능 추가
+          userProfile={userProfile}
+          profileImageUrl={profileImageUrl}
         />
 
         {/* 로딩 또는 에러 상태 표시 */}

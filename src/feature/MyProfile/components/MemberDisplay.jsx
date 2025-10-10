@@ -1,3 +1,5 @@
+import TechStack from '../../../components/TechStack.jsx';
+
 export default function MemberDisplay({ project, position = "left" }) {
   const positionStyle = position === "left" ? { left: "20px" } : {};
 
@@ -41,18 +43,24 @@ export default function MemberDisplay({ project, position = "left" }) {
         기술
       </div>
 
-      {/* 기술 동그라미 */}
+      {/* 기술 스택 아이콘들 */}
       <div
         className="absolute"
-        style={{ ...positionStyle, top: "205px" }}
+        style={{ ...positionStyle, top: "205px", maxWidth: "200px" }}
       >
-        <div className="w-[38px] h-[38px] rounded-full bg-gray-300 flex items-center justify-center text-xs">
-          {project.techs &&
-          Array.isArray(project.techs) &&
-          project.techs.length > 0
-            ? project.techs[0].slice(0, 2)
-            : "미설정"}
-        </div>
+        {project.techs ? (
+          <TechStack 
+            techs={project.techs} 
+            displayMode="minimal" 
+            size="sm" 
+            maxItems={3}
+            className="flex-wrap"
+          />
+        ) : (
+          <div className="w-[38px] h-[38px] rounded-full bg-gray-300 flex items-center justify-center text-xs">
+            미설정
+          </div>
+        )}
       </div>
     </>
   );

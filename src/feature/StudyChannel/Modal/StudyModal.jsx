@@ -43,35 +43,36 @@ export default function StudyModal({ children }) {
       >
         <div className="w-full h-full p-6 bg-white overflow-auto">
           {currentStudy ? (
-            <div className="h-full flex flex-col">
-              <h3 className="text-lg font-semibold mb-4">
-                스터디 {currentIndex + 1}
-              </h3>
-              
-              <div className="flex-1 flex items-start justify-center">
-                <div 
-                  className="prose prose-sm max-w-full text-gray-700"
-                  dangerouslySetInnerHTML={{
-                    __html: mapImagesToContent(currentStudy.content, currentStudy.images) || '내용이 없습니다.'
-                  }}
-                  style={{
-                    maxWidth: '100%',
-                    wordBreak: 'break-word'
+            <div className="h-full flex items-center justify-center">
+              {/* 이미지 우선 표시, 없으면 텍스트 컨텐츠 표시 */}
+              {currentStudy.firstImage ? (
+                <img 
+                  src={currentStudy.firstImage}
+                  alt="스터디 이미지"
+                  className="max-w-full max-h-full object-contain rounded-lg"
+                  onError={(e) => {
+                    console.error('🚨 [StudyModal] 이미지 로드 실패:', currentStudy.firstImage);
+                    // 이미지 로드 실패시 텍스트 컨텐츠로 대체
+                    e.target.style.display = 'none';
+                    const fallbackDiv = e.target.nextSibling;
+                    if (fallbackDiv) {
+                      fallbackDiv.style.display = 'block';
+                    }
                   }}
                 />
-              </div>
+              ) : null}
               
-              {/* 작성 날짜 표시 */}
-              {currentStudy.createdAt && (
-                <div className="mt-4 text-sm text-gray-400 text-center">
-                  {new Date(currentStudy.createdAt).toLocaleDateString('ko-KR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    weekday: 'short'
-                  })}
-                </div>
-              )}
+              {/* 이미지가 없거나 로드 실패시 텍스트 컨텐츠 표시 */}
+              <div 
+                className={`prose prose-sm max-w-full text-gray-700 ${currentStudy.firstImage ? 'hidden' : 'block'}`}
+                dangerouslySetInnerHTML={{
+                  __html: mapImagesToContent(currentStudy.content, currentStudy.images) || '내용이 없습니다.'
+                }}
+                style={{
+                  maxWidth: '100%',
+                  wordBreak: 'break-word'
+                }}
+              />
             </div>
           ) : (
             <div className="h-full flex items-center justify-center">
