@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { COLORS } from "../../../utils/colors.js";
+import { getTechIcon } from "../../../utils/techIcons.js";
 
 export default function MultiSelectDropdown({ options, value = [], onChange, placeholder, className = "" }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +29,8 @@ export default function MultiSelectDropdown({ options, value = [], onChange, pla
             <div className="flex flex-wrap gap-1">
               {value.map((val) => {
                 const option = options.find(opt => opt.value === val);
+                const techIconInfo = getTechIcon(val);
+                const IconComponent = techIconInfo?.icon;
                 return (
                   <span
                     key={val}
@@ -38,6 +41,13 @@ export default function MultiSelectDropdown({ options, value = [], onChange, pla
                       toggleOption(val);
                     }}
                   >
+                    {IconComponent && (
+                      <IconComponent 
+                        size={14} 
+                        className="mr-1" 
+                        style={{ color: 'white' }}
+                      />
+                    )}
                     {option?.label}
                     <span className="ml-1 text-xs opacity-70 group-hover:opacity-100">
                       ×
@@ -60,23 +70,34 @@ export default function MultiSelectDropdown({ options, value = [], onChange, pla
           className="absolute z-10 w-full mt-1 bg-white border-2 rounded-md shadow-lg max-h-48 overflow-y-auto"
           style={{ borderColor: COLORS.PRIMARY }}
         >
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => toggleOption(option.value)}
-              className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors duration-150 flex items-center"
-              style={{ 
-                backgroundColor: value.includes(option.value) ? `${COLORS.PRIMARY}20` : 'transparent',
-                color: 'black'
-              }}
-            >
-              <span className="mr-2" style={{ color: COLORS.PRIMARY }}>
-                {value.includes(option.value) ? '✓' : '○'}
-              </span>
-              {option.label}
-            </button>
-          ))}
+          {options.map((option) => {
+            const techIconInfo = getTechIcon(option.value);
+            const IconComponent = techIconInfo?.icon;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => toggleOption(option.value)}
+                className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors duration-150 flex items-center"
+                style={{ 
+                  backgroundColor: value.includes(option.value) ? `${COLORS.PRIMARY}20` : 'transparent',
+                  color: 'black'
+                }}
+              >
+                <span className="mr-2" style={{ color: COLORS.PRIMARY }}>
+                  {value.includes(option.value) ? '✓' : '○'}
+                </span>
+                {IconComponent && (
+                  <IconComponent 
+                    size={16} 
+                    className="mr-2" 
+                    style={{ color: COLORS.PRIMARY }}
+                  />
+                )}
+                {option.label}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

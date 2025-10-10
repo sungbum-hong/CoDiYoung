@@ -10,7 +10,8 @@ const useStudyChannelStore = create((set, get) => ({
   // === 출석 정보 ===
   attendance: {
     total: 30,
-    filled: 2
+    filled: 2,
+    checkedDates: [] // 체크된 날짜 번호들 (예: [9, 15, 20])
   },
   
   // === 스터디 관련 ===

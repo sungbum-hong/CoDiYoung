@@ -42,8 +42,19 @@ export default function StudyChannelPage() {
       
       // 출석 데이터 설정
       if (userChannelData.month) {
-        const filledDays = userChannelData.month.days?.filter(day => day.checked).length || 0;
-        setAttendance({ filled: filledDays });
+        // 체크된 날짜들의 날짜 번호 배열 생성
+        const checkedDates = userChannelData.month.days
+          ?.filter(day => day.checked)
+          ?.map(day => new Date(day.date).getDate()) || [];
+        
+        console.log('=== 출석 데이터 설정 ===');
+        console.log('month.days:', userChannelData.month.days);
+        console.log('체크된 날짜들:', checkedDates);
+        
+        setAttendance({ 
+          filled: checkedDates.length,
+          checkedDates: checkedDates  // 체크된 날짜 번호들 추가
+        });
       }
       
       // 스터디 데이터 설정 (API 스펙에 맞춰 수정)
@@ -53,12 +64,19 @@ export default function StudyChannelPage() {
       console.log('studyData 길이:', studyData.length);
       console.log('첫 번째 스터디:', studyData[0]);
       
-      // 실제 API 데이터 사용 (images 필드는 없으므로 content만 사용)
-      const processedStudyData = studyData.map(study => ({
-        ...study,
-        images: [], // API에서 images 필드를 제공하지 않으므로 빈 배열
-        createdAt: new Date().toISOString() // createdAt도 없으므로 현재 시간 사용
-      }));
+      // 실제 API 데이터 사용 - firstImage 필드 보존
+      const processedStudyData = studyData.map(study => {
+        console.log('🔍 [StudyChannelPage] 개별 스터디 데이터:', study);
+        console.log('- studyId:', study.studyId);
+        console.log('- firstImage:', study.firstImage);
+        console.log('- content:', study.content ? 'HTML 컨텐츠 있음' : '컨텐츠 없음');
+        
+        return {
+          ...study,
+          // firstImage 필드 보존 (새 API 스펙에 맞춤)
+          createdAt: new Date().toISOString() // createdAt도 없으므로 현재 시간 사용
+        };
+      });
       
       setStudyCount(userChannelData.studies?.totalElements || 0);
       setStudyItems(processedStudyData);
@@ -89,13 +107,13 @@ export default function StudyChannelPage() {
     );
   }
 
-  // 에러 상태
+  // 에러 상태 - 사용자를 찾을 수 없는 경우 처리
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">스터디 채널 정보를 불러오는데 실패했습니다.</p>
-          <p className="text-gray-600">{error.message}</p>
+          <p className="text-gray-600">해당 사용자의 스터디 채널을 찾을 수 없거나 공개되지 않은 채널입니다.</p>
         </div>
       </div>
     );

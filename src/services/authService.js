@@ -306,7 +306,7 @@ export class AuthService {
 
     // 사용자 카테고리 검증 (선택사항)
     if (signUpData.userCategory) {
-      const validCategories = ['video', 'coding', 'design'];
+      const validCategories = ['video_editing', 'coding', 'design'];
       if (!validCategories.includes(signUpData.userCategory.toLowerCase())) {
         throw new Error(`유효하지 않은 사용자 카테고리입니다. (허용: ${validCategories.join(', ')})`);
       }

@@ -11,10 +11,13 @@ export default function ProjectGalleryModal({
 }) {
   const { 
     modals: { project: isOpen },
-    project: { currentIndex },
+    project: { currentIndex, items: projectItems },
     closeModal,
     navigateProject 
   } = useStudyChannelStore();
+
+  // 현재 선택된 프로젝트 가져오기
+  const currentProject = projectItems[currentIndex] || null;
   
   const hoverStyle = useHoverStyle();
   
@@ -83,8 +86,27 @@ export default function ProjectGalleryModal({
             style={{ width: circleSize, height: circleSize, backgroundColor: "#fff" }}
           >
             {/* 실제 이미지가 들어갈 자리 */}
-            <div className="w-full h-full rounded-full flex items-center justify-center">
-              <span className="text-gray-500 text-lg">이미지 {currentIndex + 1}</span>
+            <div className="w-full h-full rounded-full flex items-center justify-center overflow-hidden">
+              {currentProject?.logoImageURL ? (
+                <img 
+                  src={currentProject.logoImageURL}
+                  alt={`프로젝트 ${currentProject.id} 로고`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div 
+                className={`w-full h-full flex flex-col items-center justify-center text-gray-500 ${currentProject?.logoImageURL ? 'hidden' : 'flex'}`}
+              >
+                <div className="text-6xl mb-4">📁</div>
+                <div className="text-lg">프로젝트 {currentProject?.id || currentIndex + 1}</div>
+                {!currentProject?.logoImageURL && (
+                  <div className="text-sm mt-2 text-gray-400">이미지가 없습니다</div>
+                )}
+              </div>
             </div>
 
             {/* 확인 버튼 */}

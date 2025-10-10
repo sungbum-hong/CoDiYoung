@@ -11,6 +11,7 @@ const ENDPOINTS = {
   PROJECT_GET_ALL: '/api/project/findAll',
   PROJECT_GET_PROGRESSING: '/api/project/find/progressing',
   PROJECT_GET_APPLIED: '/api/project/find/applied',
+  PROJECT_GET_COMPLETED: '/api/project/find/completedProject', // 새로 추가
   PROJECT_APPLY: '/api/project/apply',
   
   // 프로젝트 신청 관리
@@ -417,6 +418,69 @@ export class ProjectService {
 
       return await this.handleResponse(response, '신청 프로젝트 조회 실패');
     } catch (error) {
+      this.handleApiError(error);
+    }
+  }
+
+  /**
+   * 완료된 프로젝트 조회 (페이지네이션 지원)
+   * @param {Object} options - 페이징 옵션
+   * @param {number} options.page - 페이지 번호 (0부터 시작)
+   * @param {number} options.size - 페이지 크기
+   * @param {string[]} options.sort - 정렬 조건 배열
+   * @returns {Object} 완료된 프로젝트 목록 (페이지네이션 포함)
+   * 
+   * API 응답 구조:
+   * {
+   *   totalElements: number,
+   *   totalPages: number,
+   *   pageable: { paged, pageNumber, pageSize, offset, sort, unpaged },
+   *   size: number,
+   *   content: [{ id: number, logoImageURL: string }],
+   *   number: number,
+   *   sort: [{ direction, nullHandling, ascending, property, ignoreCase }],
+   *   numberOfElements: number,
+   *   first: boolean,
+   *   last: boolean,
+   *   empty: boolean
+   * }
+   */
+  static async getCompletedProjects(options = {}) {
+    try {
+      console.log('=== 완료된 프로젝트 조회 ===');
+      
+      const {
+        page = 0,
+        size = 10,
+        sort = ['createdAt,DESC']
+      } = options;
+
+      const params = new URLSearchParams();
+      params.append('page', page.toString());
+      params.append('size', size.toString());
+      
+      // 정렬 조건 추가
+      sort.forEach(sortParam => {
+        params.append('sort', sortParam);
+      });
+
+      console.log('완료된 프로젝트 페이징 파라미터:', { page, size, sort });
+      console.log('요청 URL:', `${BASE_URL}${ENDPOINTS.PROJECT_GET_COMPLETED}?${params}`);
+
+      const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET_COMPLETED}?${params}`, {
+        method: 'GET',
+        headers: this.getCommonHeaders() // 로그인된 사용자 정보 필요
+      });
+
+      const result = await this.handleResponse(response, '완료된 프로젝트 조회 실패');
+      
+      console.log('완료된 프로젝트 조회 결과:', result);
+      console.log('완료된 프로젝트 수:', result?.content?.length || 0);
+      console.log('전체 완료된 프로젝트 수:', result?.totalElements || 0);
+      
+      return result;
+    } catch (error) {
+      console.error('완료된 프로젝트 조회 에러:', error);
       this.handleApiError(error);
     }
   }

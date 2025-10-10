@@ -380,7 +380,7 @@ export default function AuthApiTest({ onResult }) {
               >
                 <option value="coding">코딩</option>
                 <option value="design">디자인</option>
-                <option value="video">영상편집</option>
+                <option value="video_editing">영상편집</option>
               </select>
             </div>
           </div>
@@ -438,7 +438,7 @@ export default function AuthApiTest({ onResult }) {
               >
                 <option value="coding">코딩</option>
                 <option value="design">디자인</option>
-                <option value="video">영상편집</option>
+                <option value="video_editing">영상편집</option>
               </select>
             </div>
           </div>
@@ -625,7 +625,7 @@ export default function AuthApiTest({ onResult }) {
             >
               <option value="coding">코딩</option>
               <option value="design">디자인</option>
-              <option value="video">영상편집</option>
+              <option value="video_editing">영상편집</option>
             </select>
           </div>
           <div>

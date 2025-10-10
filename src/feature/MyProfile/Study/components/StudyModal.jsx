@@ -88,35 +88,36 @@ export default function StudyModal({ onEdit }) {
 
           {/* 데이터가 있는 경우 */}
           {selectedStudy && !isStudyLoading && !studyError && (
-            <div>
-              <h3 className="text-lg font-semibold mb-4">
-                스터디 {(selectedIndex ?? 0) + 1}
-              </h3>
-              <div className="flex justify-center items-start h-64 overflow-auto">
-                {/* 실제 HTML 콘텐츠 렌더링 */}
-                <div 
-                  className="prose prose-sm max-w-full px-4 text-gray-700"
-                  dangerouslySetInnerHTML={{
-                    __html: mapImagesToContent(selectedStudy.content, selectedStudy.images) || '내용이 없습니다.'
-                  }}
-                  style={{
-                    maxWidth: '100%',
-                    wordBreak: 'break-word'
+            <div className="h-full flex items-center justify-center">
+              {/* 이미지 우선 표시, 없으면 텍스트 컨텐츠 표시 */}
+              {selectedStudy.firstImage ? (
+                <img 
+                  src={selectedStudy.firstImage}
+                  alt="스터디 이미지"
+                  className="max-w-full max-h-full object-contain rounded-lg"
+                  onError={(e) => {
+                    console.error('🚨 [MyProfile StudyModal] 이미지 로드 실패:', selectedStudy.firstImage);
+                    // 이미지 로드 실패시 텍스트 컨텐츠로 대체
+                    e.target.style.display = 'none';
+                    const fallbackDiv = e.target.nextSibling;
+                    if (fallbackDiv) {
+                      fallbackDiv.style.display = 'block';
+                    }
                   }}
                 />
-              </div>
+              ) : null}
               
-              {/* 작성 날짜 표시 */}
-              {selectedStudy.createdAt && (
-                <div className="mt-4 text-sm text-gray-400">
-                  {new Date(selectedStudy.createdAt).toLocaleDateString('ko-KR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    weekday: 'short'
-                  })}
-                </div>
-              )}
+              {/* 이미지가 없거나 로드 실패시 텍스트 컨텐츠 표시 */}
+              <div 
+                className={`prose prose-sm max-w-full px-4 text-gray-700 overflow-auto ${selectedStudy.firstImage ? 'hidden' : 'block'}`}
+                dangerouslySetInnerHTML={{
+                  __html: mapImagesToContent(selectedStudy.content, selectedStudy.images) || '내용이 없습니다.'
+                }}
+                style={{
+                  maxWidth: '100%',
+                  wordBreak: 'break-word'
+                }}
+              />
             </div>
           )}
 

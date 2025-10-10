@@ -2,6 +2,7 @@ import { useState } from "react";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Button from "../../../../ui/Button";
 import { ProjectService } from "../../../../services/projectService.js";
+import TechStack from "../../../../components/TechStack.jsx";
 
 export default function ApplicantCard({ applicants, projectId, onApprove, onReject }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -36,6 +37,9 @@ export default function ApplicantCard({ applicants, projectId, onApprove, onReje
   console.log("프로젝트 ID:", projectId);
   console.log("포지션:", position);
   console.log("기술:", techs);
+  console.log("기술 타입:", typeof techs);
+  console.log("기술 배열 여부:", Array.isArray(techs));
+  console.log("TechStack에 전달할 데이터:", techs);
   console.log("답변 배열:", answers);
   console.log("첫 번째 답변:", firstAnswer);
   
@@ -133,7 +137,19 @@ export default function ApplicantCard({ applicants, projectId, onApprove, onReje
             <p className="font-semibold text-lg">2. 포지션: {position}</p>
           </div>
           <div>
-            <p className="font-semibold text-lg">3. 기술: {techs}</p>
+            <div className="flex items-center gap-3">
+              <p className="font-semibold text-lg">3. 기술:</p>
+              {techs && techs !== "미설정" ? (
+                <TechStack 
+                  techs={techs} 
+                  displayMode="icons" 
+                  size="sm" 
+                  className="flex-wrap"
+                />
+              ) : (
+                <span className="text-gray-500">{techs}</span>
+              )}
+            </div>
           </div>
           
           {/* 추가 질문들이 있다면 표시 */}

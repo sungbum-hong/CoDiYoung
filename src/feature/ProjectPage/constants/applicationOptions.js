@@ -8,16 +8,16 @@ export const POSITION_OPTIONS = [
 ];
 
 export const TECH_OPTIONS = [
-  { value: "react", label: "React" },
-  { value: "vue", label: "Vue.js" },
-  { value: "angular", label: "Angular" },
-  { value: "nodejs", label: "Node.js" },
-  { value: "python", label: "Python" },
-  { value: "java", label: "Java" },
-  { value: "spring", label: "Spring" },
-  { value: "javascript", label: "JavaScript" },
-  { value: "typescript", label: "TypeScript" },
-  { value: "flutter", label: "Flutter" },
-  { value: "react-native", label: "React Native" },
-  { value: "figma", label: "Figma" }
+  { value: "React", label: "React" },
+  { value: "Vue.js", label: "Vue.js" },
+  { value: "Angular", label: "Angular" },
+  { value: "Node.js", label: "Node.js" },
+  { value: "Python", label: "Python" },
+  { value: "Java", label: "Java" },
+  { value: "Spring Boot", label: "Spring Boot" },
+  { value: "JavaScript", label: "JavaScript" },
+  { value: "TypeScript", label: "TypeScript" },
+  { value: "Flutter", label: "Flutter" },
+  { value: "React Native", label: "React Native" },
+  { value: "Figma", label: "Figma" }
 ];
