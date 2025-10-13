@@ -4,12 +4,10 @@ import ApplicantCard from "./ApplicantCard.jsx";
 
 export default function ApplicantListView({ applicants = [], projectTitle, projectId, onBack }) {
   const handleApprove = (applicant) => {
-    console.log('승인:', applicant);
     // 승인 로직 구현
   };
 
   const handleReject = (applicant) => {
-    console.log('거절:', applicant);
     // 거절 로직 구현
   };
 

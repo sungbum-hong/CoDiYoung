@@ -19,14 +19,7 @@ export const TechStack = ({
 }) => {
   const techItems = formatTechStack(techs);
   
-  console.log("===== TechStack 컴포넌트 디버깅 =====");
-  console.log("받은 techs:", techs);
-  console.log("formatTechStack 결과:", techItems);
-  console.log("displayMode:", displayMode);
-  console.log("size:", size);
-  
   if (!techItems.length) {
-    console.log("techItems가 비어있음 - null 반환");
     return null;
   }
 

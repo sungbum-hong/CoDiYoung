@@ -6,34 +6,60 @@ export const useLinkHandler = (editor) => {
   const [linkData, setLinkData] = useState({ text: '', url: '' });
 
   const handleLinkClick = () => {
-    if (!editor) return;
+    console.log('🔗 [useLinkHandler] handleLinkClick 시작');
+    console.log('🔗 [useLinkHandler] 에디터 상태:', !!editor);
+    
+    if (!editor) {
+      console.log('🔗 [useLinkHandler] 에디터가 없음');
+      return;
+    }
 
     const { from, to } = editor.state.selection;
     const text = editor.state.doc.textBetween(from, to, '');
+    const currentLink = editor.getAttributes('link');
+    
+    console.log('🔗 [useLinkHandler] 선택된 텍스트:', text);
+    console.log('🔗 [useLinkHandler] 현재 링크 속성:', currentLink);
+    console.log('🔗 [useLinkHandler] 선택 범위:', { from, to });
     
     setLinkData({ 
       text: text, 
-      url: editor.getAttributes('link').href || '' 
+      url: currentLink.href || '' 
     });
     setIsLinkModalOpen(true);
+    console.log('🔗 [useLinkHandler] 링크 모달 열림');
   };
 
   const handleLinkSubmit = (linkText, linkUrl) => {
-    if (!editor) return;
+    console.log('🔗 [useLinkHandler] handleLinkSubmit 시작');
+    console.log('🔗 [useLinkHandler] 링크 텍스트:', linkText);
+    console.log('🔗 [useLinkHandler] 링크 URL:', linkUrl);
+    console.log('🔗 [useLinkHandler] 에디터 상태:', !!editor);
+    
+    if (!editor) {
+      console.log('🔗 [useLinkHandler] 에디터가 없음');
+      return;
+    }
 
     if (!linkUrl) {
+      console.log('🔗 [useLinkHandler] URL이 없어서 링크 제거');
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
       return;
     }
 
     let url = linkUrl.trim();
+    console.log('🔗 [useLinkHandler] 입력 URL (trim 후):', url);
+    
     if (!/^https?:\/\//i.test(url)) {
       url = `https://${url}`;
+      console.log('🔗 [useLinkHandler] https 추가 후 URL:', url);
     }
 
     const sanitizedUrl = sanitizeUrl(url);
+    console.log('🔗 [useLinkHandler] sanitizeUrl 결과:', sanitizedUrl);
+    
     if (!sanitizedUrl) {
-      console.warn('유효하지 않은 URL:', linkUrl);
+      console.warn('🔗 [useLinkHandler] 유효하지 않은 URL:', linkUrl);
       
       const notification = document.createElement('div');
       notification.style.cssText = `
@@ -62,9 +88,13 @@ export const useLinkHandler = (editor) => {
 
     const { from, to } = editor.state.selection;
     const hasTextSelection = from !== to;
+    console.log('🔗 [useLinkHandler] 텍스트 선택 여부:', hasTextSelection);
+    console.log('🔗 [useLinkHandler] 선택 범위:', { from, to });
 
     if (hasTextSelection) {
-      editor.chain().focus().extendMarkRange('link').setLink({ href: sanitizedUrl }).run();
+      console.log('🔗 [useLinkHandler] 선택된 텍스트에 링크 적용');
+      const result = editor.chain().focus().extendMarkRange('link').setLink({ href: sanitizedUrl }).run();
+      console.log('🔗 [useLinkHandler] setLink 결과:', result);
     } else {
       const text = linkText || sanitizedUrl;
       const sanitizedText = text.replace(/[<>"'&]/g, (char) => {
@@ -72,7 +102,12 @@ export const useLinkHandler = (editor) => {
         return entities[char];
       });
       
-      editor.chain().focus().insertContent(`<a href="${sanitizedUrl}">${sanitizedText}</a>`).run();
+      console.log('🔗 [useLinkHandler] 새로운 링크 삽입');
+      console.log('🔗 [useLinkHandler] 텍스트:', sanitizedText);
+      console.log('🔗 [useLinkHandler] URL:', sanitizedUrl);
+      
+      const result = editor.chain().focus().insertContent(`<a href="${sanitizedUrl}">${sanitizedText}</a>`).run();
+      console.log('🔗 [useLinkHandler] insertContent 결과:', result);
     }
   };
 

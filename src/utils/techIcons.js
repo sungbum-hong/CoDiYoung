@@ -255,7 +255,6 @@ export const formatTechStack = (techs) => {
   
   return techArray.map(techName => {
     const iconInfo = getTechIcon(techName);
-    console.log(`기술: "${techName}" -> 정규화: "${normalizeTechName(techName)}" -> 아이콘 정보:`, iconInfo);
     return {
       name: techName,
       normalizedName: normalizeTechName(techName),

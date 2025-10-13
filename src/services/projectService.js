@@ -21,6 +21,7 @@ const ENDPOINTS = {
   PROJECT_GET_QUESTIONS: '/api/projectApplication/questions',
   PROJECT_CANCEL: '/api/projectApplication/cancel',           // 추가
   PROJECT_COMPLETE: '/api/projectApplication/complete',       // 추가
+  PROJECT_DELETE_BY_LEADER: '/api/project/delete/byProjectLeader', // 프로젝트 취소(개설자전용)
   
   // 이미지 업로드 관련 (추가)
   STORAGE_PRESIGN_PUT: '/api/storage/presign-put',           // 업로드용
@@ -84,9 +85,6 @@ export class ProjectService {
       let errorText = '';
       try {
         errorText = await response.text();
-        console.log('오류 응답 원문:', errorText);
-        console.log('HTTP 상태 코드:', response.status);
-        console.log('응답 헤더:', Object.fromEntries(response.headers.entries()));
         if (errorText.trim()) {
           errorData = JSON.parse(errorText);
         }
@@ -95,21 +93,15 @@ export class ProjectService {
         console.error('파싱 실패한 텍스트:', errorText);
         errorData = { message: errorText || '서버 에러가 발생했습니다.' };
       }
-      console.log('파싱된 오류 데이터:', errorData);
-      console.log('현재 토큰:', localStorage.getItem('auth_token') ? '존재함' : '없음');
       throw new Error(errorData.message || `${errorMessage} (${response.status})`);
     }
 
     const contentType = response.headers.get('content-type');
-    console.log('응답 Content-Type:', contentType);
-    console.log('응답 상태:', response.status);
     
     if (contentType && contentType.includes('application/json')) {
       try {
         const text = await response.text();
-        console.log('JSON 응답 텍스트:', text);
         if (text.trim() === '') {
-          console.log('빈 JSON 응답 - 성공으로 처리');
           return { success: true };
         }
         
@@ -122,7 +114,6 @@ export class ProjectService {
           if (expectedSchema === 'ProjectCompleteResponse') {
             // ProjectCompleteResponse 구조 검증
             if (parsedData.success !== undefined && parsedData.data !== undefined) {
-              console.log('ProjectCompleteResponse 구조 확인됨:', parsedData);
               return parsedData;
             }
           }
@@ -130,7 +121,6 @@ export class ProjectService {
           return parsedData;
         } else {
           // JSON이 아닌 텍스트지만 Content-Type이 JSON인 경우
-          console.log('서버가 텍스트를 JSON Content-Type으로 반환:', text);
           return { success: true, message: text };
         }
       } catch (e) {
@@ -139,7 +129,6 @@ export class ProjectService {
       }
     } else {
       const text = await response.text();
-      console.log('비JSON 응답:', text);
       return text || { success: true };
     }
   }
@@ -154,8 +143,6 @@ export class ProjectService {
    */
   static async getPresignedUploadUrl(filename, contentType) {
     try {
-      console.log('=== 이미지 업로드 URL 발급 ===');
-      console.log('파일명:', filename, '타입:', contentType);
       
       const params = new URLSearchParams({
         filename: filename,
@@ -171,10 +158,8 @@ export class ProjectService {
       );
 
       const result = await this.handleResponse(response, 'Presigned URL 발급 실패');
-      console.log('Presigned URL 발급 결과:', result);
       return result;
     } catch (error) {
-      console.error('Presigned URL 발급 에러:', error);
       this.handleApiError(error);
     }
   }
@@ -187,9 +172,6 @@ export class ProjectService {
    */
   static async uploadImageToS3(presignedUrl, file, contentType) {
     try {
-      console.log('=== S3에 이미지 직접 업로드 ===');
-      console.log('업로드 URL:', presignedUrl);
-      console.log('파일 크기:', file.size, '바이트');
       
       const response = await fetch(presignedUrl, {
         method: 'PUT',
@@ -203,7 +185,6 @@ export class ProjectService {
         throw new Error(`이미지 업로드 실패: ${response.status} ${response.statusText}`);
       }
 
-      console.log('이미지 업로드 성공');
       return true;
     } catch (error) {
       console.error('이미지 업로드 에러:', error);
@@ -227,8 +208,6 @@ export class ProjectService {
    */
   static async getImageUrl(imageKey) {
     try {
-      console.log('=== 이미지 조회 URL 발급 ===');
-      console.log('이미지 키:', imageKey);
       
       const params = new URLSearchParams({ key: imageKey });
       
@@ -257,9 +236,6 @@ export class ProjectService {
    */
   static async createProject(projectData, imageFile = null) {
     try {
-      console.log('=== ProjectService.createProject 호출 ===');
-      console.log('프로젝트 기본 데이터:', projectData);
-      console.log('이미지 파일:', imageFile ? `${imageFile.name} (${imageFile.size}bytes)` : '없음');
       
       // 1. 데이터 유효성 검사
       this.validateProjectData(projectData);
@@ -273,23 +249,14 @@ export class ProjectService {
       
       // 3. 이미지가 있으면 먼저 업로드
       if (imageFile) {
-        console.log('이미지 업로드 중...');
         const imageKey = await this.uploadProjectImage(imageFile);
         finalProjectData.imageKey = imageKey;
-        console.log('이미지 업로드 완료, 키 추가됨:', imageKey);
       }
       
       const bodyString = JSON.stringify(finalProjectData);
-      console.log('최종 요청 데이터:', finalProjectData);
-      console.log('JSON 직렬화 테스트:', bodyString);
-      console.log('JSON 문자열 길이:', bodyString.length);
       
       const headers = this.getCommonHeaders();
       headers['Content-Length'] = bodyString.length.toString();
-      console.log('요청 헤더:', headers);
-
-      console.log('요청 URL:', `${BASE_URL}${ENDPOINTS.PROJECT_CREATE}`);
-      console.log('요청 메서드:', 'POST');
 
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_CREATE}`, {
         method: 'POST',
@@ -299,9 +266,6 @@ export class ProjectService {
         credentials: 'include'
       });
 
-      console.log('응답 상태:', response.status);
-      console.log('응답 헤더:', Object.fromEntries(response.headers.entries()));
-      
       return await this.handleResponse(response, '프로젝트 생성 실패');
     } catch (error) {
       console.error('프로젝트 생성 에러:', error);
@@ -317,8 +281,6 @@ export class ProjectService {
    */
   static async getProject(projectId) {
     try {
-      console.log('=== 단일 프로젝트 조회 ===');
-      console.log('프로젝트 ID:', projectId);
       
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET}/${projectId}`, {
         method: 'GET',
@@ -329,7 +291,6 @@ export class ProjectService {
       
       // OpenAPI 스키마: OneProjectResponse
       // 필드: id, title, content, slogan, leaderImage, memberBriefs, techs(배열)
-      console.log('단일 프로젝트 조회 결과 (OneProjectResponse 스키마):', result);
       return result;
     } catch (error) {
       this.handleApiError(error);
@@ -346,7 +307,6 @@ export class ProjectService {
    */
   static async getAllProjects(options = {}) {
     try {
-      console.log('=== 전체 프로젝트 조회 ===');
       
       const {
         page = 0,
@@ -363,8 +323,6 @@ export class ProjectService {
         params.append('sort', sortParam);
       });
 
-      console.log('페이징 파라미터:', { page, size, sort });
-      console.log('요청 URL:', `${BASE_URL}${ENDPOINTS.PROJECT_GET_ALL}?${params}`);
 
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET_ALL}?${params}`, {
         method: 'GET',
@@ -375,7 +333,6 @@ export class ProjectService {
       
       // OpenAPI 스키마: AllProjectResponse
       // 필드: id, slogan, title, imageKey, createdAt
-      console.log('전체 프로젝트 조회 결과 (AllProjectResponse 스키마):', result);
       return result;
     } catch (error) {
       this.handleApiError(error);
@@ -387,11 +344,7 @@ export class ProjectService {
    */
   static async getProgressingProjects() {
     try {
-      console.log('=== 진행 중인 프로젝트 조회 ===');
-      
       const headers = this.getCommonHeaders();
-      console.log('진행 프로젝트 조회 - 요청 헤더:', headers);
-      console.log('요청 URL:', `${BASE_URL}${ENDPOINTS.PROJECT_GET_PROGRESSING}`);
       
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET_PROGRESSING}`, {
         method: 'GET',
@@ -409,7 +362,6 @@ export class ProjectService {
    */
   static async getAppliedProjects() {
     try {
-      console.log('=== 신청한 프로젝트 조회 ===');
       
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET_APPLIED}`, {
         method: 'GET',
@@ -447,7 +399,6 @@ export class ProjectService {
    */
   static async getCompletedProjects(options = {}) {
     try {
-      console.log('=== 완료된 프로젝트 조회 ===');
       
       const {
         page = 0,
@@ -464,8 +415,6 @@ export class ProjectService {
         params.append('sort', sortParam);
       });
 
-      console.log('완료된 프로젝트 페이징 파라미터:', { page, size, sort });
-      console.log('요청 URL:', `${BASE_URL}${ENDPOINTS.PROJECT_GET_COMPLETED}?${params}`);
 
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET_COMPLETED}?${params}`, {
         method: 'GET',
@@ -474,9 +423,6 @@ export class ProjectService {
 
       const result = await this.handleResponse(response, '완료된 프로젝트 조회 실패');
       
-      console.log('완료된 프로젝트 조회 결과:', result);
-      console.log('완료된 프로젝트 수:', result?.content?.length || 0);
-      console.log('전체 완료된 프로젝트 수:', result?.totalElements || 0);
       
       return result;
     } catch (error) {
@@ -492,9 +438,6 @@ export class ProjectService {
    */
   static async applyToProject(projectId, applicationData) {
     try {
-      console.log('=== 프로젝트 신청 ===');
-      console.log('프로젝트 ID:', projectId);
-      console.log('신청 데이터:', applicationData);
       
       // 1. 신청 데이터 유효성 검사
       this.validateApplicationData(applicationData);
@@ -507,11 +450,8 @@ export class ProjectService {
       
       // URL 파라미터에 이미 projectId가 있으므로 body에서 제거
       if (normalizedData.projectId !== undefined) {
-        console.log('요청 본문에서 projectId 제거 (URL 파라미터로 대체)');
         delete normalizedData.projectId;
       }
-      
-      console.log('정규화된 신청 데이터:', normalizedData);
       
       const headers = this.getCommonHeaders();
 
@@ -535,8 +475,6 @@ export class ProjectService {
    */
   static async cancelProjectApplication(projectId) {
     try {
-      console.log('=== 프로젝트 신청 취소 ===');
-      console.log('프로젝트 ID:', projectId);
       
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_CANCEL}/${projectId}`, {
         method: 'POST',
@@ -556,8 +494,6 @@ export class ProjectService {
    */
   static async completeProject(projectId) {
     try {
-      console.log('=== 프로젝트 완료 처리 ===');
-      console.log('프로젝트 ID:', projectId);
       
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_COMPLETE}/${projectId}`, {
         method: 'POST',
@@ -579,23 +515,16 @@ export class ProjectService {
    */
   static async getProjectApplicants(projectId) {
     try {
-      console.log("===== 신청자 조회 API 호출 =====");
-      console.log(`프로젝트 ID: ${projectId}`);
-      console.log(`API 엔드포인트: GET /api/project/projectApplication/${projectId}/applicants`);
       
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET_APPLICANTS}/${projectId}/applicants`, {
         method: 'GET',
         headers: this.getCommonHeaders()
       });
 
-      console.log("===== 신청자 조회 API 응답 =====");
       const result = await this.handleResponse(response, '신청자 조회 실패');
-      console.log("신청자 데이터:", result);
-      console.log("신청자 수:", Array.isArray(result) ? result.length : 'N/A');
       
       return result;
     } catch (error) {
-      console.log("===== 신청자 조회 API 에러 =====");
       console.error("신청자 조회 실패:", error);
       this.handleApiError(error);
     }
@@ -608,22 +537,16 @@ export class ProjectService {
    */
   static async approveApplicant(projectId, userId) {
     try {
-      console.log("===== 신청자 승인 API 호출 =====");
-      console.log(`프로젝트 ID: ${projectId}, 사용자 ID: ${userId}`);
-      console.log(`API 엔드포인트: POST /api/projectApplication/${projectId}/applicants/${userId}/approve`);
       
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_APPROVE_APPLICANT}/${projectId}/applicants/${userId}/approve`, {
         method: 'POST',
         headers: this.getCommonHeaders()
       });
 
-      console.log("===== 신청자 승인 API 응답 =====");
       const result = await this.handleResponse(response, '신청자 승인 실패');
-      console.log("승인 결과:", result);
       
       return result;
     } catch (error) {
-      console.log("===== 신청자 승인 API 에러 =====");
       console.error("신청자 승인 실패:", error);
       this.handleApiError(error);
     }
@@ -636,22 +559,16 @@ export class ProjectService {
    */
   static async rejectApplicant(projectId, userId) {
     try {
-      console.log("===== 신청자 거절 API 호출 =====");
-      console.log(`프로젝트 ID: ${projectId}, 사용자 ID: ${userId}`);
-      console.log(`API 엔드포인트: POST /api/projectApplication/${projectId}/applicants/${userId}/reject`);
       
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_REJECT_APPLICANT}/${projectId}/applicants/${userId}/reject`, {
         method: 'POST',
         headers: this.getCommonHeaders()
       });
 
-      console.log("===== 신청자 거절 API 응답 =====");
       const result = await this.handleResponse(response, '신청자 거절 실패');
-      console.log("거절 결과:", result);
       
       return result;
     } catch (error) {
-      console.log("===== 신청자 거절 API 에러 =====");
       console.error("신청자 거절 실패:", error);
       this.handleApiError(error);
     }
@@ -663,24 +580,53 @@ export class ProjectService {
    */
   static async getProjectQuestions(projectId) {
     try {
-      console.log("===== 프로젝트 질문 조회 API 호출 =====");
-      console.log(`프로젝트 ID: ${projectId}`);
-      console.log(`API 엔드포인트: GET /api/projectApplication/questions/${projectId}`);
       
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET_QUESTIONS}/${projectId}`, {
         method: 'GET',
         headers: this.getCommonHeaders(true, false) // 인증 선택사항
       });
 
-      console.log("===== 프로젝트 질문 조회 API 응답 =====");
       const result = await this.handleResponse(response, '프로젝트 질문 조회 실패');
-      console.log("질문 데이터:", result);
-      console.log("질문 수:", Array.isArray(result) ? result.length : 'N/A');
       
       return result;
     } catch (error) {
-      console.log("===== 프로젝트 질문 조회 API 에러 =====");
       console.error("프로젝트 질문 조회 실패:", error);
+      this.handleApiError(error);
+    }
+  }
+
+  /**
+   * 프로젝트 취소 (개설자 전용)
+   * 팀원이 1명이라도 있으면 취소 불가능
+   * @param {number} projectId - 프로젝트 ID
+   */
+  static async deleteProjectByLeader(projectId) {
+    try {
+      
+      // 유효성 검사
+      if (!projectId || typeof projectId !== 'number') {
+        throw new Error('유효하지 않은 프로젝트 ID입니다.');
+      }
+      
+      const headers = this.getCommonHeaders();
+      
+      const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_DELETE_BY_LEADER}/${projectId}`, {
+        method: 'PUT',
+        headers: headers,
+        mode: 'cors',
+        credentials: 'include'
+      });
+
+
+      return await this.handleResponse(response, '프로젝트 취소 실패');
+    } catch (error) {
+      console.error('프로젝트 취소 API 에러:', error);
+      console.error('에러 상세:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+        projectId: projectId
+      });
       this.handleApiError(error);
     }
   }

@@ -229,7 +229,6 @@ export const useCreateStudy = () => {
       console.error('스터디 생성 실패:', error);
     },
     onSuccess: (newStudy) => {
-      console.log('스터디 생성 성공:', newStudy);
       
       // 상세 API 응답은 id 사용
       if (newStudy?.id) {
@@ -303,7 +302,6 @@ export const useUpdateStudy = () => {
       console.error('스터디 수정 실패:', error);
     },
     onSuccess: (result, { studyId, content, images }) => {
-      console.log('스터디 수정 성공:', result);
       
       // API는 문자열을 반환하므로 직접 캐시 업데이트
       queryClient.setQueryData(
@@ -389,7 +387,6 @@ export const useDeleteStudy = () => {
       console.error('스터디 삭제 실패:', error);
     },
     onSuccess: (result, studyId) => {
-      console.log('스터디 삭제 성공:', result);
       
       // 상세 캐시 제거 (상세 API는 id 사용)
       queryClient.removeQueries({

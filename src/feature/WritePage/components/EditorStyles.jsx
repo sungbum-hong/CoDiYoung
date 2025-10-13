@@ -156,6 +156,29 @@ export default function EditorStyles() {
         margin: 0;
       }
 
+      /* 링크 스타일 */
+      .ProseMirror a {
+        color: #3b82f6;
+        text-decoration: underline;
+        cursor: pointer;
+        transition: color 0.2s ease;
+      }
+
+      .ProseMirror a:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+      }
+
+      .ProseMirror a:visited {
+        color: #7c3aed;
+      }
+
+      .ProseMirror a:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+
       .ProseMirror pre {
         background: #f8f9fa;
         border-radius: 6px;

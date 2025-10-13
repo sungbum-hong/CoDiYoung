@@ -77,7 +77,6 @@ export class ImageService {
       });
 
       const url = `${BASE_URL}/api/storage/presign-put?${params}`;
-      console.log('Presigned URL 요청:', url);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -90,7 +89,6 @@ export class ImageService {
       }
 
       const data = await response.json();
-      console.log('Presigned URL 응답:', data);
 
       // 응답 구조 정규화
       if (data.uploadUrl) {
@@ -101,7 +99,6 @@ export class ImageService {
         throw new Error('Presigned URL을 찾을 수 없습니다.');
       }
     } catch (error) {
-      console.error('Presigned URL 발급 에러:', error);
       throw error;
     }
   }
@@ -114,13 +111,6 @@ export class ImageService {
    */
   static async uploadToStorage(presignedUrl, file) {
     try {
-      console.log('=== 스토리지 업로드 시작 ===');
-      console.log('업로드 URL:', presignedUrl);
-      console.log('파일 정보:', {
-        name: file.name,
-        type: file.type,
-        size: file.size
-      });
 
       // 여러 업로드 옵션 시도 (기존 서비스들의 방식을 통합)
       const uploadOptions = [
@@ -146,21 +136,10 @@ export class ImageService {
       for (let i = 0; i < uploadOptions.length; i++) {
         try {
           const option = uploadOptions[i];
-          console.log(`업로드 시도 ${i + 1}/${uploadOptions.length}:`, {
-            method: option.method,
-            hasContentType: !!option.headers?.['Content-Type']
-          });
 
           const response = await fetch(presignedUrl, option);
-          
-          console.log('업로드 응답:', {
-            status: response.status,
-            statusText: response.statusText,
-            ok: response.ok
-          });
 
           if (response.ok) {
-            console.log('✅ 업로드 성공');
             return true;
           } else {
             const errorText = await response.text().catch(() => '');
@@ -168,11 +147,9 @@ export class ImageService {
           }
         } catch (error) {
           lastError = error;
-          console.warn(`업로드 시도 ${i + 1} 실패:`, error.message);
           
           // 마지막 시도가 아니면 계속 진행
           if (i < uploadOptions.length - 1) {
-            console.log('다음 옵션으로 재시도...');
             continue;
           }
         }
@@ -182,7 +159,6 @@ export class ImageService {
       throw lastError;
       
     } catch (error) {
-      console.error('스토리지 업로드 실패:', error);
       
       // CORS 오류 처리
       if (error.message.includes('CORS') || 
@@ -203,16 +179,9 @@ export class ImageService {
    */
   static async uploadImage(file, options = {}) {
     try {
-      console.log('=== 이미지 업로드 시작 ===');
       
       // 1. 파일 유효성 검사
       this.validateFile(file, options);
-      
-      console.log('파일 정보:', {
-        name: file.name,
-        type: file.type,
-        size: file.size
-      });
       
       // 2. Presigned URL 발급
       const { url: uploadUrl, key: imageKey } = await this.getPresignedUploadUrl(file.name, file.type);
@@ -224,11 +193,9 @@ export class ImageService {
       // 3. 스토리지에 직접 업로드
       await this.uploadToStorage(uploadUrl, file);
       
-      console.log('✅ 이미지 업로드 완료, 키:', imageKey);
       return imageKey;
       
     } catch (error) {
-      console.error('이미지 업로드 실패:', error);
       throw error;
     }
   }
@@ -245,7 +212,6 @@ export class ImageService {
       }
 
       const url = `${BASE_URL}/api/storage/presign-get?key=${encodeURIComponent(key)}`;
-      console.log('이미지 URL 요청:', url);
       
       const response = await fetch(url, {
         method: 'GET',
@@ -258,12 +224,10 @@ export class ImageService {
       }
 
       const data = await response.json();
-      console.log('이미지 URL 응답:', data);
       
       return data.url || data.downloadUrl;
       
     } catch (error) {
-      console.error('이미지 URL 발급 실패:', error);
       throw error;
     }
   }
@@ -279,12 +243,10 @@ export class ImageService {
     const results = [];
     const totalCount = files.length;
     
-    console.log(`=== 배치 이미지 업로드 시작 (${totalCount}개) ===`);
     
     for (let i = 0; i < files.length; i++) {
       try {
         const file = files[i];
-        console.log(`이미지 ${i + 1}/${totalCount} 업로드 중:`, file.name);
         
         const imageKey = await this.uploadImage(file, options);
         results.push(imageKey);
@@ -293,15 +255,11 @@ export class ImageService {
           onProgress(i + 1, totalCount);
         }
         
-        console.log(`✅ 이미지 ${i + 1}/${totalCount} 업로드 완료`);
-        
       } catch (error) {
-        console.error(`❌ 이미지 ${i + 1} 업로드 실패:`, error);
         throw new Error(`이미지 "${files[i].name}" 업로드 실패: ${error.message}`);
       }
     }
     
-    console.log(`✅ 모든 이미지 업로드 완료 (${results.length}개)`);
     return results;
   }
 

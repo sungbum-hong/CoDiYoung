@@ -87,10 +87,6 @@ export default function AttendanceStars() {
                       }`
                 }
                 onClick={() => {
-                  // 디버깅용 (개발 환경에서만)
-                  if (process.env.NODE_ENV === 'development') {
-                    console.log(`Day ${dayNumber}: ${isAttended ? '출석' : '미출석'}`);
-                  }
                 }}
               >
                 ★

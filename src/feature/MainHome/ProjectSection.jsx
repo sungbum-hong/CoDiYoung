@@ -69,6 +69,8 @@ export default function ProjectSection({
           width: projects.length > 0 
             ? `calc(${Math.min(projects.length, CONFIG.LAYOUT.GRID.PROJECT_COLUMNS)} * ${CONFIG.CARD.PROJECT.WIDTH}px + (${Math.min(projects.length, CONFIG.LAYOUT.GRID.PROJECT_COLUMNS) - 1} * ${CONFIG.CARD.PROJECT.GAP}px))`
             : `calc(${CONFIG.LAYOUT.GRID.PROJECT_COLUMNS} * ${CONFIG.CARD.PROJECT.WIDTH}px + (${CONFIG.LAYOUT.GRID.PROJECT_COLUMNS} - 1) * ${CONFIG.CARD.PROJECT.GAP}px)`,
+          // 프로젝트가 있든 없든 일정한 높이 유지 (카드 높이 + 하단 정보 영역)
+          minHeight: `${CONFIG.CARD.PROJECT.HEIGHT + 60}px`, // 카드 256px + 텍스트 영역 60px
           margin: '0 auto',
           gap: gap,
         }}
@@ -78,15 +80,28 @@ export default function ProjectSection({
           .scrollbar-hide::-webkit-scrollbar { display: none; height: 0; width: 0; }
         `}</style>
 
-        {projects.map((project, i) => (
-          <ProjectCard
-            key={project?.id || i}
-            index={i}
-            project={project}
-            onProjectClick={handleProjectClick}
-            onCardKeyDown={onCardKeyDown}
-          />
-        ))}
+        {projects.length > 0 ? (
+          projects.map((project, i) => (
+            <ProjectCard
+              key={project?.id || i}
+              index={i}
+              project={project}
+              onProjectClick={handleProjectClick}
+              onCardKeyDown={onCardKeyDown}
+            />
+          ))
+        ) : (
+          // 프로젝트가 없을 때 빈 공간 유지
+          <div 
+            className="flex items-center justify-center w-full text-gray-500"
+            style={{ 
+              height: `${CONFIG.CARD.PROJECT.HEIGHT + 60}px`,
+              fontSize: '16px'
+            }}
+          >
+            프로젝트가 없습니다
+          </div>
+        )}
       </div>
 
       {/* 화살표 버튼 */}

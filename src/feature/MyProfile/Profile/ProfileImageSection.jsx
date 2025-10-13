@@ -62,16 +62,12 @@ export default function ProfileImageSection() {
       setIsUploading(true);
       setImageError(null);
 
-      console.log('=== 프로필 이미지 업로드 시작 ===');
-      console.log('파일 정보:', { name: file.name, size: file.size, type: file.type });
 
       // 이미지 업로드
       const imageKey = await UserProfileService.uploadImageFile(file);
-      console.log('업로드된 이미지 키:', imageKey);
 
       // 프로필 이미지 업데이트 API 호출
       await UserProfileService.updateProfileImage({ imageKey });
-      console.log('프로필 이미지 업데이트 완료');
 
       // 프로필 이미지 URL 가져오기 (표시용)
       // imageKey가 이미 완전한 URL인지 확인

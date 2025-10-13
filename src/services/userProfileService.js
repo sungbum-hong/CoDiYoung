@@ -252,7 +252,6 @@ export class UserProfileService {
       });
       
       const url = `${BASE_URL}${ENDPOINTS.STORAGE_PRESIGN_PUT}?${params}`;
-      console.log('Presigned PUT URL 요청:', url);
       
       const response = await fetch(url, {
         method: 'POST',
@@ -273,9 +272,6 @@ export class UserProfileService {
    */
   static async getPresignedUrl(originalFilename, contentType) {
     try {
-      console.log('=== 대체 Presigned URL 발급 시작 ===');
-      console.log('API:', `${BASE_URL}${ENDPOINTS.STORAGE_PRESIGN}`);
-      console.log('Request Body:', { originalFilename, contentType });
       
       const response = await fetch(`${BASE_URL}${ENDPOINTS.STORAGE_PRESIGN}`, {
         method: 'POST',
@@ -284,10 +280,8 @@ export class UserProfileService {
       });
 
       const result = await this.handleResponse(response, '대체 Presigned URL 발급 실패');
-      console.log('대체 API 응답:', result);
       return result;
     } catch (error) {
-      console.error('대체 Presigned URL 발급 실패:', error);
       this.handleApiError(error, 'getPresignedUrl');
     }
   }
@@ -305,10 +299,6 @@ export class UserProfileService {
   // 이전 버전 (주석 처리)
   static async _uploadImageToS3_old(presignedUrl, file) {
     try {
-      console.log('=== S3 업로드 시작 ===');
-      console.log('Presigned URL:', presignedUrl);
-      console.log('파일 타입:', file.type);
-      console.log('파일 크기:', file.size);
 
       // presigned URL 업로드 방식 시도 (PUT이 표준)
       const uploadOptions = [
@@ -346,20 +336,12 @@ export class UserProfileService {
       for (let i = 0; i < uploadOptions.length; i++) {
         try {
           const option = uploadOptions[i];
-          console.log(`업로드 시도 ${i + 1}:`, option);
-          console.log(`✅ 업로드 시 Content-Type:`, option.headers?.['Content-Type'] || 'auto-detected');
-          console.log(`📤 전송할 헤더들:`, option.headers || '헤더 없음');
-          console.log(`📤 요청 방식:`, option.method);
-          console.log(`📤 요청 URL:`, presignedUrl);
           
           const response = await fetch(presignedUrl, option);
           
-          console.log('응답 상태:', response.status);
-          console.log('응답 타입:', response.type);
           
           // no-cors 모드에서는 response.ok를 확인할 수 없음
           if (uploadOptions[i].mode === 'no-cors') {
-            console.log('no-cors 모드 업로드 완료 (상태 확인 불가)');
             return true;
           }
           
@@ -368,11 +350,9 @@ export class UserProfileService {
             throw new Error(`업로드 실패 (${response.status}): ${errorText || response.statusText}`);
           }
 
-          console.log('업로드 성공!');
           return true;
           
         } catch (error) {
-          console.log(`시도 ${i + 1} 실패:`, error.message);
           lastError = error;
           
           // CORS 에러가 아니면 다음 시도 안 함
@@ -385,7 +365,6 @@ export class UserProfileService {
       throw lastError;
       
     } catch (error) {
-      console.error('모든 업로드 시도 실패:', error);
       
       if (error.message.includes('CORS') || error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
         throw new Error('CORS 정책으로 인해 이미지 업로드에 실패했습니다. 백엔드 팀에 CORS 설정 확인을 요청하세요.');
@@ -401,9 +380,6 @@ export class UserProfileService {
    */
   static async uploadImageFile(file) {
     try {
-      console.log('=== 이미지 업로드 프로세스 시작 ===');
-      console.log('파일 정보:', { name: file.name, size: file.size, type: file.type });
-      console.log('✅ Presigned URL 요청할 contentType:', file.type);
 
       // 1. Presigned URL 발급 (/api/storage/presign-put 사용)
       const presignResponse = await fetch(`${BASE_URL}/api/storage/presign-put?filename=${encodeURIComponent(file.name)}&contentType=${encodeURIComponent(file.type)}`, {
@@ -417,10 +393,6 @@ export class UserProfileService {
       
       const presignedData = await presignResponse.json();
       
-      console.log('=== Presigned URL 응답 분석 ===');
-      console.log('전체 응답:', presignedData);
-      console.log('응답 타입:', typeof presignedData);
-      console.log('응답 키들:', presignedData ? Object.keys(presignedData) : 'null/undefined');
       
       // 응답 구조에 따른 데이터 추출 (StorageApiTest.jsx와 동일한 방식)
       let uploadUrl, imageKey;
@@ -432,7 +404,6 @@ export class UserProfileService {
         uploadUrl = presignedData.uploadUrl;
         imageKey = presignedData.key;
       } else {
-        console.log('응답 구조를 파악할 수 없음:', JSON.stringify(presignedData, null, 2));
         throw new Error('uploadUrl을 찾을 수 없습니다');
       }
       
@@ -440,28 +411,22 @@ export class UserProfileService {
         throw new Error(`Presigned URL 또는 이미지 키를 받지 못했습니다. 응답: ${JSON.stringify(presignedData)}`);
       }
       
-      console.log('추출된 데이터:', { uploadUrl: uploadUrl ? 'OK' : 'MISSING', imageKey });
-      console.log('실제 presigned URL:', uploadUrl);
       
       // CORS 테스트: presigned URL에 직접 접근 테스트
-      console.log('=== CORS 테스트: presigned URL 직접 접근 ===');
       try {
         const testResponse = await fetch(uploadUrl, {
           method: 'HEAD',
           mode: 'cors'
         });
-        console.log('HEAD 요청 성공:', testResponse.status, testResponse.statusText);
       } catch (corsError) {
-        console.log('HEAD 요청 CORS 에러:', corsError.message);
+        // CORS 에러 무시
       }
       
       // 2. S3에 직접 업로드
       await this.uploadImageToS3(uploadUrl, file);
       
-      console.log('이미지 업로드 완료, 키:', imageKey);
       return imageKey;
     } catch (error) {
-      console.error('이미지 업로드 프로세스 실패:', error);
       throw new Error(`이미지 업로드 실패: ${error.message}`);
     }
   }
@@ -473,8 +438,6 @@ export class UserProfileService {
    */
   static async getImageUrl(imageKey) {
     try {
-      console.log('=== 이미지 조회 URL 발급 ===');
-      console.log('이미지 키:', imageKey);
       
       const params = new URLSearchParams({ key: imageKey });
       
@@ -489,7 +452,6 @@ export class UserProfileService {
       const result = await this.handleResponse(response, '이미지 URL 발급 실패');
       return result.url || result;
     } catch (error) {
-      console.error('이미지 URL 발급 에러:', error);
       this.handleApiError(error, 'getImageUrl');
     }
   }
@@ -520,14 +482,11 @@ export class UserProfileService {
    */
   static async testPresignedUrlAccess() {
     try {
-      console.log('=== Presigned URL CORS 테스트 ===');
       
       // 1. Presigned URL 받기
       const response = await this.getPresignedUrl('test-cors.jpg', 'image/jpeg');
-      console.log('Presigned URL 응답:', response);
       
       const uploadUrl = response.uploadUrl;
-      console.log('테스트할 URL:', uploadUrl);
       
       // 2. HEAD 요청으로 접근 가능한지 확인
       const headResponse = await fetch(uploadUrl, {
@@ -535,16 +494,10 @@ export class UserProfileService {
         mode: 'cors'
       });
       
-      console.log('HEAD 요청 성공:', {
-        status: headResponse.status,
-        statusText: headResponse.statusText,
-        headers: Object.fromEntries(headResponse.headers.entries())
-      });
       
       return { success: true, uploadUrl, headResponse: headResponse.status };
       
     } catch (error) {
-      console.error('CORS 테스트 실패:', error);
       return { success: false, error: error.message };
     }
   }
@@ -612,7 +565,6 @@ export class UserProfileService {
       const result = await this.getPublicUrl(imageKey);
       return result.url || result;
     } catch (error) {
-      console.warn('프로필 이미지 URL 생성 실패:', error);
       return null;
     }
   }

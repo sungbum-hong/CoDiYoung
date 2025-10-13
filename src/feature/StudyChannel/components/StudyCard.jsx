@@ -12,7 +12,6 @@ const getFirstImageFromContent = (content) => {
     
     if (imgWithDataKey) {
       const dataKey = imgWithDataKey.getAttribute('data-key');
-      console.log('🔍 [StudyCard] 발견된 이미지 key:', dataKey);
       
       // data-key를 실제 이미지 URL로 변환
       return `http://15.164.125.28:8080/api/storage/public-url?key=${encodeURIComponent(dataKey)}`;
@@ -26,31 +25,23 @@ const getFirstImageFromContent = (content) => {
 };
 
 export default function StudyCard({ onClick, study }) {
-  console.log('🔍 [StudyCard] 전체 study 객체:', study);
   
   // 새로운 API 응답 구조에서 이미지 추출
   const getImageFromNewAPI = () => {
-    console.log('🔍 [StudyCard] 이미지 추출 시작');
-    console.log('- study?.firstImage:', study?.firstImage);
-    console.log('- study?.images:', study?.images);
-    console.log('- study?.content:', study?.content ? 'HTML 컨텐츠 있음' : '컨텐츠 없음');
     
     // 새 API 응답에서 firstImage 필드 사용
     if (study?.firstImage) {
-      console.log('✅ [StudyCard] firstImage 필드 사용:', study.firstImage);
       return study.firstImage;
     }
     
     // 기존 images 배열 방식도 지원
     if (study?.images) {
       const imageUrl = getFirstImageUrl(study.images);
-      console.log('✅ [StudyCard] images 배열에서 추출:', imageUrl);
       return imageUrl;
     }
     
     // HTML 콘텐츠에서 이미지 추출 (fallback)
     const htmlImageUrl = getFirstImageFromContent(study?.content);
-    console.log('✅ [StudyCard] HTML에서 추출:', htmlImageUrl);
     return htmlImageUrl;
   };
   
@@ -67,7 +58,6 @@ export default function StudyCard({ onClick, study }) {
   
   const firstChar = study?.content ? getFirstChar(study.content) : '';
 
-  console.log(`🔍 [StudyCard] 최종 결과 - studyId: ${study?.studyId}, firstChar: "${firstChar}", hasImage: ${!!firstImageUrl}, finalImageUrl: ${firstImageUrl}`);
 
   return (
     <div
@@ -91,7 +81,6 @@ export default function StudyCard({ onClick, study }) {
             }
           }}
           onLoad={() => {
-            console.log('✅ [StudyCard] 이미지 로드 성공:', firstImageUrl);
           }}
         />
       ) : null}

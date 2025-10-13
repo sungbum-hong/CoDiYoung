@@ -63,19 +63,11 @@ export default function StudyContent() {
 
   // 유저 프로필 이미지 URL 생성
   const profileImageUrl = useMemo(() => {
-    console.log('🖼️ [StudyContent] 프로필 이미지 URL 생성:', {
-      userProfile,
-      imageKey: userProfile?.imageKey,
-      hasImageKey: !!userProfile?.imageKey
-    });
-    
     if (!userProfile?.imageKey) {
-      console.log('⚠️ [StudyContent] imageKey 없음, 프로필 이미지 URL null 반환');
       return null;
     }
     
     const url = UserProfileService.getProfileImageUrl(userProfile.imageKey);
-    console.log('✅ [StudyContent] 프로필 이미지 URL 생성됨:', url);
     return url;
   }, [userProfile?.imageKey]);
 
@@ -165,29 +157,7 @@ export default function StudyContent() {
 
   // 에러 상태 처리
   if (error) {
-    console.error('스터디 목록 조회 실패:', error);
     // 에러가 있어도 UI는 계속 렌더링 (빈 상태로)
-  }
-
-  // 디버깅을 위한 정보 (개발 환경에서만)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('📊 [StudyContent] 전체 상태:', {
-      isLoading,
-      error: error?.message,
-      totalStudies: studyResponse?.totalElements || 0,
-      studiesInCurrentPage: studyResponse?.studies?.length || 0,
-      hasNext: studyResponse?.hasNext || false,
-      currentPage: studyResponse?.currentPage || 0,
-      userProfile: userProfile,
-      profileImageUrl: profileImageUrl,
-      isProfileLoading
-    });
-    
-    console.log('📝 [StudyContent] 스터디 데이터 샘플:', {
-      firstStudy: studyResponse?.studies?.[0],
-      studyDataLength: displayData.length,
-      displayDataSample: displayData.slice(0, 3)
-    });
   }
 
   return (

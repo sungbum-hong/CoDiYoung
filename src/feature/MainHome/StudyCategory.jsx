@@ -28,7 +28,6 @@ export default function StudyCategory() {
     const fetchStudyData = async () => {
       try {
         setLoading(true);
-        console.log('=== 스터디 카테고리 데이터 로드 시작 ===');
         
         const data = await StudyService.getGroupedStudies({
           codingSize: 5,
@@ -36,11 +35,6 @@ export default function StudyCategory() {
           videoSize: 5
         });
         
-        console.log('=== 스터디 카테고리 데이터 로드 성공 ===');
-        console.log('응답 데이터:', data);
-        console.log('코딩 카테고리:', data.coding?.content);
-        console.log('디자인 카테고리:', data.design?.content);
-        console.log('영상편집 카테고리:', data.video?.content);
         
         setStudyData(data);
       } catch (err) {
@@ -61,7 +55,6 @@ export default function StudyCategory() {
     const categoryData = studyData?.[key];
     const users = categoryData?.content || [];
     
-    console.log(`${config.label} 카테고리 유저 수:`, users.length);
     
     return {
       label: config.label,
@@ -162,13 +155,6 @@ export default function StudyCategory() {
                   // API 응답 구조: { userId, userImage, category }
                   // 사용자 이미지가 있으면 우선 사용, 없으면 아바타 사용
                   const avatarSrc = user.userImage || getAvatar(r.label, i);
-                  
-                  console.log(`${r.label} 카테고리 유저 ${i}:`, {
-                    userId: user.userId,
-                    userImage: user.userImage,
-                    category: user.category,
-                    avatarSrc: avatarSrc
-                  });
                   
                   return (
                     <CategoryCard

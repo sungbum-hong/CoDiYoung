@@ -2,13 +2,6 @@ import ProjectInfo from './ProjectInfo.jsx';
 import MemberDisplay from './MemberDisplay.jsx';
 
 export default function ProjectCard({ project, index }) {
-  // 디버깅을 위한 콘솔 로그
-  console.log('ProjectCard Debug:', {
-    project,
-    imageKey: project?.imageKey,
-    hasImageKey: !!project?.imageKey,
-    isValidUrl: project?.imageKey?.startsWith('http')
-  });
 
   return (
     <div key={index} className="relative w-full h-full">
