@@ -38,14 +38,10 @@ export function useProjectActions() {
       setIsLoading(true);
       setError(null);
 
-      console.log('=== 프로젝트 신청 취소 시작 ===');
-      console.log('프로젝트 ID:', projectId);
 
       // ProjectService를 통한 취소 API 호출
       const result = await ProjectService.cancelProjectApplication(projectId);
       
-      console.log('=== 프로젝트 신청 취소 성공 ===');
-      console.log('취소 결과:', result);
 
       // 성공 콜백 호출
       if (onSuccess) {
@@ -104,14 +100,10 @@ export function useProjectActions() {
       setIsLoading(true);
       setError(null);
 
-      console.log('=== 진행 프로젝트 취소 시작 ===');
-      console.log('프로젝트 ID:', projectId);
 
-      // 진행 프로젝트 취소는 별도 API가 필요할 수 있음
-      // 현재는 신청 취소와 동일한 API 사용
-      const result = await ProjectService.cancelProjectApplication(projectId);
+      // 진행 프로젝트 취소는 팀장 전용 API 사용
+      const result = await ProjectService.deleteProjectByLeader(projectId);
       
-      console.log('=== 진행 프로젝트 취소 성공 ===');
       
       if (onSuccess) {
         await onSuccess(result);
@@ -167,40 +159,19 @@ export function useProjectActions() {
       setIsLoading(true);
       setError(null);
 
-      console.log('=== 프로젝트 완료 처리 시작 ===');
-      console.log('프로젝트 ID:', projectId);
 
       const result = await ProjectService.completeProject(projectId);
       
-      console.log('=== 프로젝트 완료 처리 성공 ===');
-      console.log('완료 결과 (전체):', result);
-      console.log('결과 타입:', typeof result);
-      console.log('결과가 객체인가?', result && typeof result === 'object');
-      console.log('result.message:', result?.message);
-      console.log('result.data:', result?.data);
-      console.log('result 키들:', result ? Object.keys(result) : 'null/undefined');
 
       // OpenAPI 명세서 기준 응답 처리 (ProjectCompleteResponse)
       let completionResult = { success: true };
       
-      console.log('응답 구조 분석:');
-      console.log('- result.success:', result?.success);
-      console.log('- result.status:', result?.status);
-      console.log('- result.message:', result?.message);
-      console.log('- result.data:', result?.data);
       
       // OpenAPI 명세서 구조에 맞는 응답 처리
       if (result && typeof result === 'object' && result.success !== undefined) {
         // 명세서 구조: { success, status, message, data: { userRole, completedMembers, totalMembers, completionRate } }
         const { success, status, message, data } = result;
         
-        console.log('OpenAPI 응답 구조 감지됨');
-        console.log('- 사용자 역할:', data?.userRole);
-        console.log('- 완료한 멤버:', data?.completedMembers);
-        console.log('- 전체 멤버:', data?.totalMembers);
-        console.log('- 완료율:', data?.completionRate);
-        console.log('- 완료율 타입:', typeof data?.completionRate);
-        console.log('- 완료율 * 100:', (data?.completionRate || 0) * 100);
         
         if (success) {
           // 완료율 기반 상태 판단
@@ -220,7 +191,6 @@ export function useProjectActions() {
                 message: '🎉 프로젝트가 완전히 완료되었습니다!',
                 data: { userRole, completedMembers, totalMembers, completionRate }
               };
-              console.log('→ 팀장 - 최종 완료 상태 (100%)');
             } else {
               // 팀장이 완료했지만 아직 100% 아님
               completionResult = {
@@ -229,7 +199,6 @@ export function useProjectActions() {
                 message: `⏳ 일부 팀원의 완료를 기다리고 있습니다.\n(${completedMembers}/${totalMembers}명 완료, ${Math.round(completionRate * 100)}%)`,
                 data: { userRole, completedMembers, totalMembers, completionRate }
               };
-              console.log('→ 팀장 - 일부 완료 상태');
             }
           } else {
             // 팀원이거나 기타 역할인 경우 - 완료율에 관계없이 항상 대기 상태
@@ -243,20 +212,16 @@ export function useProjectActions() {
               message: `✅ 완료 처리되었습니다. 팀장의 최종 완료를 기다리고 있습니다.\n(${actualCompletedMembers}/${totalMembers}명 완료, ${Math.round(actualCompletionRate * 100)}%)`,
               data: { userRole, completedMembers: actualCompletedMembers, totalMembers, completionRate: actualCompletionRate }
             };
-            console.log('→ 팀원/기타 역할 완료 대기 상태');
-            console.log('보정된 완료 정보:', { actualCompletedMembers, actualCompletionRate });
           }
         } else {
           completionResult = {
             success: false,
             message: message || '완료 처리에 실패했습니다.'
           };
-          console.log('→ 실패 상태');
         }
       } else {
         // 기존 문자열 응답 처리 (하위 호환성)
         const responseMessage = result?.message || result?.data?.message || result || '';
-        console.log('기존 방식 응답 처리:', responseMessage);
         
         if (responseMessage && typeof responseMessage === 'string') {
           const message = responseMessage.toLowerCase();
@@ -287,56 +252,40 @@ export function useProjectActions() {
         }
       }
       
-      console.log('최종 completionResult:', completionResult);
 
       if (onSuccess) {
         await onSuccess(result, completionResult);
       }
 
       // 사용자에게 적절한 메시지 표시
-      console.log('Alert 표시 시작...');
       
       // Alert 차단 대비용 강제 표시 (OpenAPI 데이터 포함)
       let alertMessage = '';
       if (completionResult.isWaiting) {
-        console.log('대기 상태 Alert 표시');
         alertMessage = completionResult.message;
       } else if (completionResult.isCompleted) {
-        console.log('완료 상태 Alert 표시');
         alertMessage = completionResult.message;
       } else if (completionResult.isPartial) {
-        console.log('부분 완료 상태 Alert 표시');
         alertMessage = completionResult.message;
       } else if (completionResult.alreadyCompleted) {
-        console.log('이미 완료 상태 Alert 표시');
         alertMessage = 'ℹ️ ' + completionResult.message;
       } else {
-        console.log('기본 Alert 표시:', completionResult.message);
         alertMessage = completionResult.message;
       }
       
       // 여러 방법으로 메시지 표시 시도
       try {
-        console.log('Alert 시도 1: alert() 함수');
         alert(alertMessage);
       } catch (e) {
-        console.log('Alert 실패, 대안 시도:', e);
-        // alert이 차단된 경우 콘솔에 크게 표시
-        console.log(
-          '%c' + alertMessage,
-          'background: #4CAF50; color: white; padding: 10px 20px; font-size: 16px; font-weight: bold;'
-        );
+        // alert이 차단된 경우 다른 방법 시도
         
         // 확인을 위한 confirm도 시도
         try {
           const confirmed = confirm(alertMessage + '\n\n(확인을 누르세요)');
-          console.log('Confirm 결과:', confirmed);
         } catch (e2) {
-          console.log('Confirm도 차단됨:', e2);
         }
       }
       
-      console.log('Alert 표시 완료');
       
       return completionResult;
     } catch (error) {
@@ -362,10 +311,8 @@ export function useProjectActions() {
       const errorResult = { success: false, error: errorMessage };
       
       if (onError) {
-        console.log('onError 콜백 호출');
         onError(error, errorResult);
       } else {
-        console.log('에러 Alert 표시:', errorMessage);
         alert(`❌ 프로젝트 완료 처리에 실패했습니다.\n${errorMessage}`);
       }
       

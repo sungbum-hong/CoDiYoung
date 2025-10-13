@@ -14,11 +14,8 @@ export default function ProjectCard({ project }) {
 
   const handleApply = async () => {
     try {
-      console.log("===== 진행중인 프로젝트 중복 검사 =====");
-      
       // 진행중인 프로젝트 조회
       const progressingProjects = await ProjectService.getProgressingProjects();
-      console.log("진행중인 프로젝트:", progressingProjects);
       
       if (progressingProjects && progressingProjects.length > 0) {
         // 배열이 아닌 경우 배열로 변환
@@ -46,13 +43,10 @@ export default function ProjectCard({ project }) {
         }
       }
       
-      console.log("중복 검사 통과 - 신청 모달 열기");
       setIsApplicationModalOpen(true);
       
     } catch (error) {
-      console.error("진행중인 프로젝트 조회 실패:", error);
       // 에러가 발생해도 신청은 허용 (네트워크 문제일 수 있음)
-      console.log("에러 발생으로 중복 검사 건너뛰고 신청 모달 열기");
       setIsApplicationModalOpen(true);
     }
   };

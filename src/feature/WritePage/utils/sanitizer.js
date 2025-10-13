@@ -22,7 +22,7 @@ const ALLOWED_ATTRIBUTES = {
 };
 
 const URL_PROTOCOLS = ['http:', 'https:'];
-const YOUTUBE_DOMAINS = ['www.youtube.com', 'youtube.com', 'youtu.be'];
+const YOUTUBE_DOMAINS = ['www.youtube.com', 'youtube.com', 'youtu.be', 'm.youtube.com', 'music.youtube.com'];
 
 const isValidUrl = (url) => {
   try {
@@ -34,6 +34,13 @@ const isValidUrl = (url) => {
 };
 
 const isValidYouTubeUrl = (url) => {
+  if (!url) return false;
+  
+  // YouTube URL 정규식으로 먼저 체크 (embed URL도 허용)
+  const youtubeRegex = /^https:\/\/(?:www\.|m\.|music\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  if (youtubeRegex.test(url)) return true;
+  
+  // 기존 도메인 체크도 유지
   if (!isValidUrl(url)) return false;
   
   try {
@@ -148,8 +155,18 @@ export const sanitizeUrl = (url) => {
 };
 
 export const sanitizeYouTubeUrl = (url) => {
+  console.log('🔍 [sanitizer] sanitizeYouTubeUrl 시작, 입력 URL:', url);
+  
   const sanitizedUrl = sanitizeUrl(url);
-  return isValidYouTubeUrl(sanitizedUrl) ? sanitizedUrl : '';
+  console.log('🔍 [sanitizer] sanitizeUrl 결과:', sanitizedUrl);
+  
+  const isValid = isValidYouTubeUrl(sanitizedUrl);
+  console.log('🔍 [sanitizer] isValidYouTubeUrl 결과:', isValid);
+  
+  const finalResult = isValid ? sanitizedUrl : '';
+  console.log('🔍 [sanitizer] 최종 결과:', finalResult);
+  
+  return finalResult;
 };
 
 export const validateFileUpload = (file) => {

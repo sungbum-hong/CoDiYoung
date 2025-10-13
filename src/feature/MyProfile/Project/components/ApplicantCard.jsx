@@ -30,18 +30,6 @@ export default function ApplicantCard({ applicants, projectId, onApprove, onReje
   const position = currentApplicant?.position || "미설정";
   const techs = currentApplicant?.techs || "미설정";
   
-  console.log("===== ApplicantCard 디버깅 =====");
-  console.log("현재 신청자:", currentApplicant);
-  console.log("닉네임:", nickname);
-  console.log("사용자 ID:", currentApplicant?.userId);
-  console.log("프로젝트 ID:", projectId);
-  console.log("포지션:", position);
-  console.log("기술:", techs);
-  console.log("기술 타입:", typeof techs);
-  console.log("기술 배열 여부:", Array.isArray(techs));
-  console.log("TechStack에 전달할 데이터:", techs);
-  console.log("답변 배열:", answers);
-  console.log("첫 번째 답변:", firstAnswer);
   
   // 승인 처리
   const handleApprove = async () => {

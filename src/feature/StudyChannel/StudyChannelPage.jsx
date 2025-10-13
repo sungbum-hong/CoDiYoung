@@ -30,9 +30,6 @@ export default function StudyChannelPage() {
   useEffect(() => {
     if (userChannelData) {
       // 실제 API 데이터 사용
-      console.log('=== 스터디 채널 데이터 로드 ===', userChannelData);
-      console.log('studies 객체:', userChannelData.studies);
-      console.log('studies 전체 구조:', JSON.stringify(userChannelData.studies, null, 2));
       
       setProfile({ 
         category: userChannelData.category || '코딩',
@@ -47,9 +44,6 @@ export default function StudyChannelPage() {
           ?.filter(day => day.checked)
           ?.map(day => new Date(day.date).getDate()) || [];
         
-        console.log('=== 출석 데이터 설정 ===');
-        console.log('month.days:', userChannelData.month.days);
-        console.log('체크된 날짜들:', checkedDates);
         
         setAttendance({ 
           filled: checkedDates.length,
@@ -59,17 +53,9 @@ export default function StudyChannelPage() {
       
       // 스터디 데이터 설정 (API 스펙에 맞춰 수정)
       const studyData = userChannelData.studies?.content || [];
-      console.log('=== 스터디 데이터 설정 ===');
-      console.log('원본 studyData:', studyData);
-      console.log('studyData 길이:', studyData.length);
-      console.log('첫 번째 스터디:', studyData[0]);
       
       // 실제 API 데이터 사용 - firstImage 필드 보존
       const processedStudyData = studyData.map(study => {
-        console.log('🔍 [StudyChannelPage] 개별 스터디 데이터:', study);
-        console.log('- studyId:', study.studyId);
-        console.log('- firstImage:', study.firstImage);
-        console.log('- content:', study.content ? 'HTML 컨텐츠 있음' : '컨텐츠 없음');
         
         return {
           ...study,
@@ -81,14 +67,9 @@ export default function StudyChannelPage() {
       setStudyCount(userChannelData.studies?.totalElements || 0);
       setStudyItems(processedStudyData);
       
-      console.log('=== 최종 설정된 스터디 데이터 ===');
-      console.log('processedStudyData:', processedStudyData);
       
       // 완료된 프로젝트 데이터 설정
       const completedProjects = userChannelData.completedProject || [];
-      console.log('=== 완료된 프로젝트 데이터 설정 ===');
-      console.log('완료된 프로젝트:', completedProjects);
-      console.log('프로젝트 수:', completedProjects.length);
       
       setProjectCount(completedProjects.length);
       setProjectItems(completedProjects);

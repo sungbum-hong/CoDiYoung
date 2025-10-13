@@ -2,11 +2,6 @@ import { COLORS } from "../../../utils/colors.js";
 import TechStack from "../../../components/TechStack.jsx";
 
 export default function TechList({ tech }) {
-  console.log("===== TechList 컴포넌트 =====");
-  console.log("받은 tech props:", tech);
-  console.log("tech 타입:", typeof tech);
-  console.log("tech 배열 여부:", Array.isArray(tech));
-  console.log("tech 길이:", tech?.length);
   
   return (
     <div>

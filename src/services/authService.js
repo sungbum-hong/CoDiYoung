@@ -128,7 +128,6 @@ export class AuthService {
       
       // 토큰이 있다면 만료 체크
       if (token && this.isTokenExpired(token)) {
-        console.log('getCurrentUser: 토큰이 만료되어 정리합니다.');
         this.handleTokenExpiration();
         return null;
       }
@@ -156,7 +155,6 @@ export class AuthService {
     
     // 토큰이 있는 경우 만료 체크
     if (token && this.isTokenExpired(token)) {
-      console.log('API 요청 전: 토큰이 만료되어 정리합니다.');
       this.handleTokenExpiration();
       throw new Error('로그인이 만료되었습니다. 다시 로그인해주세요.');
     }
@@ -213,7 +211,6 @@ export class AuthService {
     const expiration = payload.exp;
     const timeUntilExpiration = (expiration - now) * 1000; // 밀리초로 변환
 
-    console.log(`토큰 만료까지 ${Math.floor(timeUntilExpiration / 1000 / 60)}분 남음`);
 
     // 만료 5분 전에 경고
     const warningTime = Math.max(timeUntilExpiration - 5 * 60 * 1000, 0);
@@ -233,7 +230,6 @@ export class AuthService {
     // 토큰 만료 시 자동 로그아웃
     if (timeUntilExpiration > 0) {
       this.expirationTimer = setTimeout(() => {
-        console.log('토큰이 만료되어 자동 로그아웃합니다.');
         this.handleTokenExpiration();
       }, timeUntilExpiration);
     } else {
@@ -244,8 +240,6 @@ export class AuthService {
 
   // 토큰 만료 처리
   static handleTokenExpiration() {
-    console.log('토큰 만료 처리 시작');
-    
     // 로컬 스토리지 정리
     this.clearUserStorage();
     
@@ -320,10 +314,8 @@ export class AuthService {
     const token = localStorage.getItem('auth_token');
     if (token) {
       if (this.isTokenExpired(token)) {
-        console.log('저장된 토큰이 만료됨, 정리합니다.');
         this.handleTokenExpiration();
       } else {
-        console.log('유효한 토큰 발견, 만료 타이머 설정');
         this.setupTokenExpirationTimer(token);
       }
     }
@@ -332,8 +324,6 @@ export class AuthService {
   // 회원가입 (Admin 방식: /api/admin/create - Query Parameter)
   static async signUpAdmin(signUpData) {
     try {
-      console.log('=== AuthService.signUpAdmin 호출 ===');
-      console.log('회원가입 데이터 (Admin):', signUpData);
       
       // 1. 데이터 유효성 검사
       this.validateSignUpData(signUpData);
@@ -347,7 +337,6 @@ export class AuthService {
         nickname: signUpData.nickname
       });
       
-      console.log('Query 파라미터:', params.toString());
       
       const response = await fetch(`${CONFIG.API.AUTH.SIGNUP_ADMIN}?${params}`, {
         method: 'POST',
@@ -358,8 +347,6 @@ export class AuthService {
         mode: 'cors'
       });
       
-      console.log('회원가입 응답 상태 (Admin):', response.status);
-      console.log('회원가입 응답 헤더:', Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         let errorData = {};
@@ -386,7 +373,6 @@ export class AuthService {
       
       // 성공 응답 처리 (OpenAPI 명세서: string 응답)
       const responseText = await response.text();
-      console.log('회원가입 성공 응답 (Admin):', responseText);
       
       return {
         success: true,
@@ -407,8 +393,6 @@ export class AuthService {
   // 회원가입 (일반 방식: /api/auth/join - Request Body)
   static async signUp(signUpData) {
     try {
-      console.log('=== AuthService.signUp 호출 ===');
-      console.log('회원가입 데이터:', signUpData);
       
       // 1. 데이터 유효성 검사
       this.validateSignUpData(signUpData);
@@ -422,7 +406,6 @@ export class AuthService {
         nickname: signUpData.nickname
       };
       
-      console.log('Request Body:', requestBody);
       
       const response = await fetch(CONFIG.API.AUTH.SIGNUP, {
         method: 'POST',
@@ -434,8 +417,6 @@ export class AuthService {
         body: JSON.stringify(requestBody)
       });
       
-      console.log('회원가입 응답 상태:', response.status);
-      console.log('회원가입 응답 헤더:', Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         let errorData = {};
@@ -462,7 +443,6 @@ export class AuthService {
       
       // 성공 응답 처리 (OpenAPI 명세서: string 응답)
       const responseText = await response.text();
-      console.log('회원가입 성공 응답:', responseText);
       
       return {
         success: true,

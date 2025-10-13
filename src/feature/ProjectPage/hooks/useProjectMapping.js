@@ -10,11 +10,6 @@ export function useProjectMapping(project) {
 
   const projectData = project || defaultProject;
 
-  console.log("===== useProjectMapping 디버깅 =====");
-  console.log("원본 프로젝트 데이터:", projectData);
-  console.log("techs 필드:", projectData.techs);
-  console.log("techs 타입:", typeof projectData.techs);
-  console.log("techs 배열 여부:", Array.isArray(projectData.techs));
 
   const mappedData = {
     name: projectData.title || '프로젝트 이름',
@@ -26,8 +21,6 @@ export function useProjectMapping(project) {
     projectId: projectData.id
   };
 
-  console.log("매핑된 tech 데이터:", mappedData.tech);
-  console.log("===========================");
 
   return mappedData;
 }

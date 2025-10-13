@@ -66,11 +66,9 @@ export default function ProjectCreateForm({ onBack }) {
           })()
       };
 
-      console.log('프로젝트 생성 데이터:', projectData);
 
       const response = await ProjectService.createProject(projectData);
       
-      console.log('프로젝트 생성 성공:', response);
       setIsSuccess(true);
       
       // 성공 후 페이지 새로고침

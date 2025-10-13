@@ -26,7 +26,6 @@ export default function ImageUploadSection({ onImageUpload }) {
       validateImageFile(file);
       setIsUploading(true);
 
-      console.log('이미지 업로드 시작:', file.name);
       
       // ProjectService의 이미지 업로드 사용
       const imageKey = await ProjectService.uploadProjectImage(file);
@@ -39,7 +38,6 @@ export default function ImageUploadSection({ onImageUpload }) {
       reader.onload = (e) => setImagePreview(e.target.result);
       reader.readAsDataURL(file);
 
-      console.log('이미지 업로드 완료:', imageKey);
     } catch (error) {
       console.error('이미지 업로드 에러:', error);
       alert('이미지 업로드에 실패했습니다: ' + error.message);

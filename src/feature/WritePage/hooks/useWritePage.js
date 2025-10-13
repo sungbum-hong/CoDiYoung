@@ -199,7 +199,6 @@ export function useWritePage() {
           // 스터디 생성 성공 후 출석 체크 시도
           try {
             await AttendanceService.checkAttendance();
-            console.log('출석 체크 완료');
           } catch (attendanceError) {
             console.warn('출석 체크 실패:', attendanceError);
             // 출석 체크 실패해도 스터디 생성은 성공으로 처리

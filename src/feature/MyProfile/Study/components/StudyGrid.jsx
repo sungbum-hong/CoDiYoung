@@ -13,7 +13,6 @@ const getFirstImageFromContent = (content) => {
     
     if (imgWithDataKey) {
       const dataKey = imgWithDataKey.getAttribute('data-key');
-      console.log('🔍 [getFirstImageFromContent] 발견된 이미지 key:', dataKey);
       
       // data-key를 실제 이미지 URL로 변환
       return `http://15.164.125.28:8080/api/storage/public-url?key=${encodeURIComponent(dataKey)}`;
@@ -35,14 +34,6 @@ export default function StudyGrid({
 }) {
   const { getFirstChar, getFirstImage } = useStudyUIStore();
   const TOTAL_ITEMS = 30;
-  
-  console.log('🎯 [StudyGrid] props 수신:', {
-    studyDataLength: studyData?.length,
-    isLoading,
-    userProfile,
-    profileImageUrl,
-    hasProfileImageUrl: !!profileImageUrl
-  });
 
   const handleKeyDown = (e, index) => {
     if (e.key === "Enter" || e.key === " ") {
@@ -90,20 +81,6 @@ export default function StudyGrid({
         
         const firstImage = getImageFromNewAPI();
         
-        // 디버깅: 첫 번째 스터디만 로그 출력
-        if (index === 0 && hasStudy) {
-          console.log('🖼️ [StudyGrid] 첫 번째 스터디 이미지 처리:', {
-            studyId: hasStudy.studyId,
-            firstImage: hasStudy.firstImage,
-            content: hasStudy.content?.substring(0, 50) + '...',
-            hasImages: !!hasStudy.images,
-            images: hasStudy.images,
-            firstChar,
-            finalFirstImage: firstImage,
-            profileImageUrl,
-            userNickName: userProfile?.nickName
-          });
-        }
         
         return (
           <div
@@ -141,10 +118,8 @@ export default function StudyGrid({
                 alt="유저 프로필 이미지"
                 className="w-full h-full object-cover"
                 onLoad={() => {
-                  console.log('✅ [StudyGrid] 프로필 이미지 로드 성공:', profileImageUrl);
                 }}
                 onError={(e) => {
-                  console.log('❌ [StudyGrid] 프로필 이미지 로드 실패:', profileImageUrl);
                   e.target.style.display = 'none';
                   if (e.target.nextSibling) {
                     e.target.nextSibling.style.display = 'flex';
@@ -156,7 +131,6 @@ export default function StudyGrid({
                 <span className="text-6xl font-bold text-gray-500">
                   {userProfile?.nickName?.charAt(0)?.toUpperCase() || 'U'}
                 </span>
-                {index === 0 && console.log('🔤 [StudyGrid] 닉네임 첫 글자 표시:', userProfile?.nickName?.charAt(0)?.toUpperCase() || 'U')}
               </div>
             ) : null}
           </div>

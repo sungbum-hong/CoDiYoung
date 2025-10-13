@@ -27,22 +27,6 @@ export default function ProjectContent() {
   // 인증 상태
   const { user, isAuthenticated } = useAuthState();
   
-  // 디버깅: user 정보 확인 및 강제 로드
-  useEffect(() => {
-    console.log('=== ProjectContent user 상태 ===');
-    console.log('user:', user);
-    console.log('isAuthenticated:', isAuthenticated);
-    console.log('user?.id:', user?.id);
-    
-    // user 정보가 없으면 AuthService에서 직접 가져오기
-    if (isAuthenticated && !user?.id) {
-      console.log('user 정보 없음 - AuthService에서 로드 시도');
-      import('../../../services/authService.js').then(({ AuthService }) => {
-        const currentUser = AuthService.getCurrentUser();
-        console.log('AuthService.getCurrentUser():', currentUser);
-      });
-    }
-  }, [user, isAuthenticated]);
   
   // 프로젝트 데이터 훅
   const { progressingProjects, appliedProjects, isLoading, fetchAllProjects } = useProjectData();
@@ -81,7 +65,6 @@ export default function ProjectContent() {
         sort: ['createdAt,DESC']
       });
       
-      console.log('완료된 프로젝트 API 응답:', response);
       
       setCompletedProjects({
         data: response.content || [],
@@ -92,7 +75,6 @@ export default function ProjectContent() {
         error: null
       });
     } catch (error) {
-      console.error('완료된 프로젝트 조회 실패:', error);
       setCompletedProjects(prev => ({
         ...prev,
         isLoading: false,
@@ -130,53 +112,52 @@ export default function ProjectContent() {
     }
 
     const projectId = appliedProjects[0].id;
-    console.log('=== 신청 프로젝트 취소 시작 ===');
-    console.log('취소할 프로젝트 ID:', projectId);
-    console.log('프로젝트 정보:', appliedProjects[0]);
-
     const success = await cancelProjectApplication(projectId, {
       onSuccess: async (result) => {
-        console.log('취소 성공, 데이터 새로고침 중...');
-        // fetchAllProjects로 데이터 새로고침
         await fetchAllProjects();
-        console.log('데이터 새로고침 완료');
+        
+        // 다른 컴포넌트에게 프로젝트 취소 알림
+        window.dispatchEvent(new CustomEvent('projectCancelled', { 
+          detail: { projectId, type: 'application' } 
+        }));
       },
       onError: (error) => {
-        console.error('취소 실패:', error);
+        // 에러는 useProjectActions 훅에서 처리됨
       }
     });
-
-    if (success) {
-      console.log('신청 프로젝트 취소 완료');
-    }
   };
 
-  // 진행 프로젝트 취소 핸들러
+  // 진행 프로젝트 취소 핸들러 (개설자 전용)
   const handleProgressingProjectCancel = async () => {
     if (!progressingProjects || progressingProjects.length === 0) {
       alert('취소할 진행 프로젝트가 없습니다.');
       return;
     }
 
-    const projectId = progressingProjects[0].id;
-    console.log('=== 진행 프로젝트 취소 시작 ===');
-    console.log('취소할 프로젝트 ID:', projectId);
-    console.log('프로젝트 정보:', progressingProjects[0]);
+    const project = progressingProjects[0];
+    const projectId = project.id;
+    const memberCount = project.memberBriefs?.length || project.memberCount || 0;
+    
+    // 팀원이 1명이라도 있으면 취소 불가능
+    if (memberCount >= 2 || (project.memberBriefs && project.memberBriefs.length > 1)) {
+      alert('팀원이 있는 프로젝트는 취소할 수 없습니다.');
+      return;
+    }
 
     const success = await cancelProgressingProject(projectId, {
+      showConfirm: false,
       onSuccess: async (result) => {
-        console.log('진행 프로젝트 취소 성공, 데이터 새로고침 중...');
         await fetchAllProjects();
-        console.log('데이터 새로고침 완료');
+        
+        // 다른 컴포넌트에게 프로젝트 취소 알림
+        window.dispatchEvent(new CustomEvent('projectCancelled', { 
+          detail: { projectId, type: 'progressing' } 
+        }));
       },
       onError: (error) => {
-        console.error('진행 프로젝트 취소 실패:', error);
+        // 에러는 useProjectActions 훅에서 처리됨
       }
     });
-
-    if (success) {
-      console.log('진행 프로젝트 취소 완료');
-    }
   };
 
   // 프로젝트 완료 핸들러 - 단순화된 처리 로직
@@ -189,16 +170,10 @@ export default function ProjectContent() {
     const project = progressingProjects[0];
     const projectId = project.id;
 
-    console.log('=== 프로젝트 완료 처리 시작 ===');
-    console.log('프로젝트 ID:', projectId);
-    console.log('프로젝트 정보:', project);
 
     // 백엔드 API 호출로 완료 처리
     const result = await completeProject(projectId, {
       onSuccess: async (apiResult, completionResult) => {
-        console.log('=== 완료 처리 성공 ===');
-        console.log('API 응답:', apiResult);
-        console.log('처리된 결과:', completionResult);
         
         // 상태 초기화
         setProjectCompletionState(prev => {
@@ -210,13 +185,8 @@ export default function ProjectContent() {
         // 항상 데이터 새로고침
         await fetchAllProjects();
         await fetchCompletedProjects(); // 완료된 프로젝트도 새로고침
-        console.log('프로젝트 완료 처리 - 데이터 새로고침 완료');
       },
       onError: (error, errorResult) => {
-        console.error('=== 완료 처리 실패 ===');
-        console.error('에러:', error);
-        console.error('에러 상세:', errorResult);
-        
         // 에러 발생시에도 새로고침
         fetchAllProjects();
         fetchCompletedProjects();
@@ -225,7 +195,6 @@ export default function ProjectContent() {
       }
     });
 
-    console.log('프로젝트 완료 처리 최종 결과:', result);
   };
 
   if (showCreateForm) {

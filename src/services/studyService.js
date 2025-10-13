@@ -239,7 +239,6 @@ export class StudyService {
     });
     
     const url = `${BASE_URL}${ENDPOINTS.STORAGE_PRESIGN_PUT}?${params}`;
-    console.log('StudyService - Presigned PUT URL 요청:', url);
 
     return this.optimizedFetch(url, {
       method: 'POST',
@@ -363,11 +362,6 @@ export class StudyService {
 
     const url = `${BASE_URL}${ENDPOINTS.STUDY_GET_USER_CHANNEL}/${userId}?${searchParams.toString()}`;
     
-    console.log('=== getUserStudyChannel API 호출 ===');
-    console.log('URL:', url);
-    console.log('userId:', userId);
-    console.log('pageable:', pageable);
-    
     return this.optimizedFetch(url, {
       method: 'GET',
       headers: this.getCommonHeaders(true, false) // 인증 선택적으로 변경
@@ -391,18 +385,11 @@ export class StudyService {
     const url = `${BASE_URL}${ENDPOINTS.STUDY_UPDATE}/${studyId}`;
     const requestBody = { content, images: formattedImages };
 
-    console.log('=== 스터디 수정 API 호출 ===');
-    console.log('URL:', url);
-    console.log('Request Body:', requestBody);
-
     const result = await this.optimizedFetch(url, {
       method: 'PUT',
       headers: this.getCommonHeaders(),
       body: JSON.stringify(requestBody)
     }, false);
-
-    console.log('=== 스터디 수정 API 응답 ===');
-    console.log('result:', result);
 
     this.clearCache('GET:/api/study');
     
@@ -476,22 +463,10 @@ export class StudyService {
 
     const url = `${BASE_URL}${ENDPOINTS.STUDY_GET_GROUPED}?${searchParams.toString()}`;
     
-    console.log('=== getGroupedStudies API 호출 ===');
-    console.log('URL:', url);
-    console.log('요청 파라미터:', queryParams);
-    console.log('엔드포인트:', ENDPOINTS.STUDY_GET_GROUPED);
-    
     const result = await this.optimizedFetch(url, {
       method: 'GET',
       headers: this.getCommonHeaders(true, false) // 인증 선택적
     });
-    
-    console.log('=== getGroupedStudies API 응답 ===');
-    console.log('응답 데이터:', result);
-    console.log('응답 타입:', typeof result);
-    console.log('coding 데이터:', result?.coding);
-    console.log('design 데이터:', result?.design);
-    console.log('video 데이터:', result?.video);
     
     return result;
   }
@@ -524,7 +499,6 @@ export class StudyService {
       const keys = await ImageService.uploadImages(files, onProgress);
       return keys.map((key, index) => ({ success: true, key, file: files[index] }));
     } catch (error) {
-      console.error('배치 이미지 업로드 실패:', error);
       throw error;
     }
   }

@@ -8,23 +8,20 @@ export default function TokenExpirationHandler() {
 
     // 토큰 만료 이벤트 리스너
     const handleTokenExpired = (event) => {
-      console.log('토큰 만료 이벤트 수신:', event.detail);
       alert(event.detail.message);
       
       // 로그인 페이지로 리다이렉트 (필요시)
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      if (window.location.pathname !== '/signin') {
+        window.location.href = '/signin';
       }
     };
 
     // 토큰 만료 경고 이벤트 리스너  
     const handleTokenExpireWarning = (event) => {
-      console.log('토큰 만료 경고:', event.detail);
       
       // 사용자에게 경고 메시지 표시
       if (confirm('로그인이 곧 만료됩니다. 계속 사용하시겠습니까?')) {
         // 사용자가 계속 사용하겠다고 하면 토큰 갱신 시도 (필요시)
-        console.log('사용자가 계속 사용 선택');
       }
     };
 

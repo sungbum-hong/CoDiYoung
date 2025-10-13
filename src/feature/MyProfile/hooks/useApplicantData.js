@@ -37,7 +37,6 @@ export function useApplicantData() {
         error.message.includes("401") ||
         error.message.includes("인증")
       ) {
-        console.log(`프로젝트 ${projectId} 신청자 조회 - 인증 필요 (무시)`);
         setProjectApplicants((prev) => ({
           ...prev,
           [projectId]: [],
@@ -50,7 +49,6 @@ export function useApplicantData() {
         error.message.includes("신청자가 없습니다") ||
         error.message.includes("404")
       ) {
-        console.log(`프로젝트 ${projectId}에 신청자가 없음 - 정상 상황`);
         setProjectApplicants((prev) => ({
           ...prev,
           [projectId]: [],
@@ -75,7 +73,6 @@ export function useApplicantData() {
         if (project.id) {
           return fetchProjectApplicants(project.id);
         } else {
-          console.log(`프로젝트 ID가 null입니다:`, project.title);
           setProjectApplicants((prev) => ({
             ...prev,
             ["no-id"]: [],
