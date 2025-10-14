@@ -1,5 +1,3 @@
-// 설정값 및 매직넘버 상수
-import { COLORS } from '../utils/colors.js';
 
 export const CONFIG = {
   // 검증 설정
