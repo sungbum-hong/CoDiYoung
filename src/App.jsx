@@ -17,7 +17,7 @@ const ProjectPageLayout = lazy(() => import("./feature/ProjectPage/ProjectPageLa
 const ProjectsPage = lazy(() => import("./feature/ProjectsPage/ProjectsPage.jsx"))
 const WritePageLayout = lazy(() => import("./feature/WritePage/WritePageLayout.jsx"))
 const MyProfileLayout = lazy(() => import("./feature/MyProfile/MyProfileLayout.jsx"))
-
+const AdminPageLayout = lazy(()=> import("./feature/admin/AdminPageLayout.jsx"))
 const router = createBrowserRouter([
   { path: "/", element: <AppLayout />, children: [
       { index: true, element: <HomePage /> },
@@ -31,6 +31,7 @@ const router = createBrowserRouter([
       { path: "/write", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout /></Suspense> },
       { path: "/write/:id", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout /></Suspense> },
       { path: "/profile", element: <Suspense fallback={<LoadingFallback />}><MyProfileLayout /></Suspense> },
+      { path: "/admin", element: <Suspense fallback={<LoadingFallback />}><AdminPageLayout /></Suspense> },
   ]},
 ])
 
