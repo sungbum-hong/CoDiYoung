@@ -169,7 +169,9 @@ export class ProjectUtils {
       return trimmed;
     }
 
-    return `http://15.164.125.28:8080/storage/${trimmed}`;
+    // CONFIG import 필요하다면 추가
+    const baseUrl = 'http://15.164.125.28:8080'; // TODO: CONFIG.API.BASE_URL 사용하도록 리팩토링
+    return `${baseUrl}/storage/${trimmed}`;
   }
 
   /**

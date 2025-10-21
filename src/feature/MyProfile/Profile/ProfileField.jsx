@@ -34,9 +34,9 @@ export default function ProfileField({ label, value, onUpdate }) {
       return;
     }
 
-    // 비밀번호는 수정 불가
-    if (label === "비밀번호") {
-      alert("비밀번호는 현재 변경할 수 없습니다.");
+    // 이메일은 수정 불가
+    if (label === "이메일") {
+      alert("이메일은 변경할 수 없습니다.");
       setIsEditing(false);
       return;
     }
@@ -44,8 +44,9 @@ export default function ProfileField({ label, value, onUpdate }) {
     try {
       if (label === "닉네임") {
         await updateNicknameMutation.mutateAsync(inputValue);
-      } else if (label === "이메일") {
-        await updateEmailMutation.mutateAsync(inputValue);
+      } else if (label === "비밀번호") {
+        // TODO: 비밀번호 변경 API 호출 로직 추가
+        alert("비밀번호 변경 기능은 아직 구현되지 않았습니다.");
       }
       setIsEditing(false);
     } catch (error) {
@@ -80,12 +81,12 @@ export default function ProfileField({ label, value, onUpdate }) {
             type={label === "비밀번호" ? "password" : "text"}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            disabled={isLoading || label === "비밀번호"}
+            disabled={isLoading || label === "이메일"}
             className="rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 flex-1 disabled:bg-gray-100"
             style={{
               border: `1px solid ${COLORS.GRAY_300}`,
             }}
-            placeholder={label === "비밀번호" ? "변경 불가" : `새로운 ${label}을 입력하세요`}
+            placeholder={label === "이메일" ? "변경 불가" : `새로운 ${label}을 입력하세요`}
           />
           <div className="flex gap-2">
             <Button
@@ -116,10 +117,10 @@ export default function ProfileField({ label, value, onUpdate }) {
             <Button
               variant="secondary"
               onClick={handleToggle}
-              disabled={label === "비밀번호"}
+              disabled={label === "이메일"}
               className="!h-8 !text-xs disabled:opacity-50"
             >
-              {label === "비밀번호" ? "변경" : MESSAGES.UI.EDIT}
+              {label === "이메일" ? "변경" : MESSAGES.UI.EDIT}
             </Button>
           </div>
         </div>

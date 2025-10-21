@@ -8,6 +8,7 @@ import { useProjectNavigation } from "../hooks/useProjectNavigation.js";
 import { useAuthState } from "../../../hooks/useAuth.js";
 import { ProjectUtils } from "./utils/ProjectUtils";
 import ProjectIcons from "./components/ProjectIcons";
+import { CONFIG } from "../../../constants/config.js";
 
 export default function ProjectContent() {
   // 팀원 완료 요청 상태 관리 (API 반영 전 즉시 UI 업데이트용)
@@ -492,9 +493,9 @@ export default function ProjectContent() {
                 className="w-16 h-16 rounded-full bg-gray-200 border-2 border-gray-300 flex items-center justify-center overflow-hidden hover:shadow-md transition-all cursor-pointer"
                 title={`완료된 프로젝트: ${project.title || `프로젝트 ${project.id}`}`}
               >
-                {project.imageKey ? (
+                {project.logoImageURL ? (
                   <img
-                    src={project.imageKey.startsWith('http') ? project.imageKey : `http://15.164.125.28:8080/storage/${project.imageKey}`}
+                    src={project.logoImageURL.startsWith('http') ? project.logoImageURL : `${CONFIG.API.BASE_URL}/storage/${project.logoImageURL}`}
                     alt={`프로젝트 ${project.title || project.id} 이미지`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -506,7 +507,7 @@ export default function ProjectContent() {
 
                 {/* 이미지 로드 실패시 또는 이미지가 없을 때 기본 표시 */}
                 <div
-                  className={`w-full h-full flex items-center justify-center text-xs font-bold text-gray-600 ${project.imageKey ? 'hidden' : 'flex'}`}
+                  className={`w-full h-full flex items-center justify-center text-xs font-bold text-gray-600 ${project.logoImageURL ? 'hidden' : 'flex'}`}
                 >
                   {project.title?.[0] || `P${project.id}`}
                 </div>
