@@ -3,13 +3,18 @@ import { COLORS } from '../../utils/colors.js';
 
 export default function Avatar({ size = 'md', src, alt }) {
   const cls = CONFIG.AVATAR_SIZES[size] || CONFIG.AVATAR_SIZES.md;
-  
+
+  // 이미지 URL 처리 (다른 컴포넌트와 동일한 방식)
+  const imageUrl = src && !src.startsWith('http')
+    ? `http://15.164.125.28:8080/storage/${src}`
+    : src;
+
   return (
-    <div 
+    <div
       className={`${cls} rounded-full flex items-center justify-center overflow-hidden`}
       style={{ backgroundColor: COLORS.GRAY_200 }}
-    > 
-      {src ? <img src={src} alt={alt || ''} className="w-full h-full object-cover" /> : null}
+    >
+      {imageUrl ? <img src={imageUrl} alt={alt || ''} className="w-full h-full object-cover" /> : null}
     </div>
   );
 }

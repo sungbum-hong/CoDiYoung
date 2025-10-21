@@ -62,11 +62,7 @@ export default function WritePageLayout() {
         </div>
       </div>
 
-      {/* 기록 모달 */}
-      <RecordModal {...getModalProps('record')} />
 
-      {/* 완료 모달 */}
-      <RecordModal {...getModalProps('complete')} />
 
       {/* 삭제 모달 */}
       <ConfirmModal 

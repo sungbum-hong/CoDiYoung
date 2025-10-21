@@ -4,127 +4,88 @@ import { useNavigate } from "react-router-dom";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import DatePickerModal from "./DatePickerModal";
 
-// React Query & Zustand - 새로운 훅 사용
+// React 19.2 Activity
+import { Activity } from "react";
+
+// React Query & Zustand
 import { useUserStudies } from "../../../hooks/useStudyQueries.js";
 import useStudyUIStore from "../../../stores/studyUIStore.js";
 import { useProfile } from "../hooks/useProfile.js";
 import { UserProfileService } from "../../../services/userProfileService.js";
 
-// 분리된 컴포넌트들 import
+// 분리된 컴포넌트
 import StudyGrid from "./components/StudyGrid.jsx";
 import StudyModal from "./components/StudyModal.jsx";
 import NavigationButtons from "./components/NavigationButtons.jsx";
 
 export default function StudyContent() {
-  const TOTAL_ITEMS = 30; // 30개 고정
+  const TOTAL_ITEMS = 30;
   const navigate = useNavigate();
+
+  // 프로필 조회
+  const { data: userProfile } = useProfile();
   
-  // 유저 프로필 정보 조회
-  const { data: userProfile, isLoading: isProfileLoading } = useProfile();
-  
-  // 새로운 React Query 훅 사용 - /api/study/users/studies API 호출
-  const { 
-    data: studyResponse, 
-    isLoading, 
-    error,
-    refetch 
-  } = useUserStudies({
+  // 스터디 조회
+  const { data: studyResponse, isLoading, error, refetch } = useUserStudies({
     page: 0, 
-    size: 30, // TOTAL_ITEMS와 동일하게 설정
+    size: TOTAL_ITEMS,
     sort: ['createdAt,DESC']
   });
 
-  // Zustand 스터디 UI 상태 관리
-  const { 
-    modals, 
-    selectedIndex,
-    openStudyModal, 
-    closeModal, 
-    openDatePickerModal,
-  } = useStudyUIStore();
+  // Zustand 스터디 UI 상태
+  const { modals, selectedIndex, openStudyModal, closeModal, openDatePickerModal } = useStudyUIStore();
 
-  // API 응답에서 실제 스터디 데이터 추출
+  // studyData 생성
   const studyData = useMemo(() => {
     if (!studyResponse?.studies) return [];
-    
-    // 30개 슬롯에 맞춰 데이터 배치 (필요시)
-    const studies = studyResponse.studies;
-    const paddedData = new Array(TOTAL_ITEMS).fill(null);
-    
-    // 실제 스터디 데이터를 앞쪽 슬롯부터 채움
-    studies.forEach((study, index) => {
-      if (index < TOTAL_ITEMS) {
-        paddedData[index] = study;
-      }
+    const padded = new Array(TOTAL_ITEMS).fill(null);
+    studyResponse.studies.forEach((study, idx) => {
+      if (idx < TOTAL_ITEMS) padded[idx] = study;
     });
-    
-    return paddedData;
+    return padded;
   }, [studyResponse?.studies]);
 
-  // 유저 프로필 이미지 URL 생성
   const profileImageUrl = useMemo(() => {
-    if (!userProfile?.imageKey) {
-      return null;
-    }
-    
-    const url = UserProfileService.getProfileImageUrl(userProfile.imageKey);
-    return url;
+    if (!userProfile?.imageKey) return null;
+    return UserProfileService.getProfileImageUrl(userProfile.imageKey);
   }, [userProfile?.imageKey]);
 
-  // 로딩 중이거나 에러가 있을 때 처리
   const displayData = useMemo(() => {
-    if (isLoading || error) {
-      return new Array(TOTAL_ITEMS).fill(null);
-    }
+    if (isLoading || error) return new Array(TOTAL_ITEMS).fill(null);
     return studyData;
   }, [studyData, isLoading, error]);
 
-  // 스터디 아이템 클릭 핸들러
   const handleItemClick = useCallback((index) => {
     const study = displayData[index];
-    if (study?.studyId) { // API 응답 구조에 맞춰 studyId 사용
-      openStudyModal(index, study.studyId);
-    }
+    if (study?.studyId) openStudyModal(index, study.studyId);
   }, [displayData, openStudyModal]);
 
-  // 달력 모달 열기
   const handleCalendarClick = useCallback(() => {
     openDatePickerModal();
   }, [openDatePickerModal]);
 
-  // 달력 모달 닫기
   const closeDatePicker = useCallback(() => {
     closeModal('datePicker');
   }, [closeModal]);
 
-  // 편집 핸들러
   const handleEdit = useCallback(() => {
     const study = displayData[selectedIndex];
-    if (study?.studyId) { // API 응답 구조에 맞춰 studyId 사용
-      navigate(`/write/${study.studyId}`);
-    }
+    if (study?.studyId) navigate(`/write/${study.studyId}`);
   }, [navigate, selectedIndex, displayData]);
 
-  // 다음/이전 스터디 슬롯 찾기 (데이터가 있는 슬롯만)
   const findNextDataSlot = useCallback((currentIndex, direction) => {
     let newIndex = currentIndex;
     let attempts = 0;
-    
     while (attempts < TOTAL_ITEMS) {
-      newIndex = direction === 'next' 
-        ? (newIndex + 1) % TOTAL_ITEMS 
+      newIndex = direction === 'next'
+        ? (newIndex + 1) % TOTAL_ITEMS
         : (newIndex - 1 + TOTAL_ITEMS) % TOTAL_ITEMS;
-      
-      if (displayData[newIndex]) {
-        return newIndex;
-      }
+      if (displayData[newIndex]) return newIndex;
       attempts++;
     }
-    
     return null;
   }, [displayData]);
 
-  // 이전 스터디로 이동
   const goPrev = useCallback(() => {
     const nextIndex = findNextDataSlot(selectedIndex, 'prev');
     if (nextIndex !== null) {
@@ -132,8 +93,7 @@ export default function StudyContent() {
       openStudyModal(nextIndex, study.studyId);
     }
   }, [selectedIndex, displayData, findNextDataSlot, openStudyModal]);
-  
-  // 다음 스터디로 이동
+
   const goNext = useCallback(() => {
     const nextIndex = findNextDataSlot(selectedIndex, 'next');
     if (nextIndex !== null) {
@@ -142,28 +102,20 @@ export default function StudyContent() {
     }
   }, [selectedIndex, displayData, findNextDataSlot, openStudyModal]);
 
-  // 달력 버튼 hover 효과
   const onCalendarEnter = useCallback((e) => {
-    const el = e.currentTarget;
-    el.style.backgroundColor = COLORS.PRIMARY;
-    el.style.color = COLORS.WHITE;
+    e.currentTarget.style.backgroundColor = COLORS.PRIMARY;
+    e.currentTarget.style.color = COLORS.WHITE;
   }, []);
   
   const onCalendarLeave = useCallback((e) => {
-    const el = e.currentTarget;
-    el.style.backgroundColor = COLORS.WHITE;
-    el.style.color = COLORS.PRIMARY;
+    e.currentTarget.style.backgroundColor = COLORS.WHITE;
+    e.currentTarget.style.color = COLORS.PRIMARY;
   }, []);
-
-  // 에러 상태 처리
-  if (error) {
-    // 에러가 있어도 UI는 계속 렌더링 (빈 상태로)
-  }
 
   return (
     <main className="flex-1 py-6 px-24 overflow-auto">
       <div className="w-full h-full">
-        {/* 상단 달력 아이콘 */}
+        {/* 달력 버튼 */}
         <div className="flex justify-end mb-12">
           <button
             onClick={handleCalendarClick}
@@ -182,18 +134,17 @@ export default function StudyContent() {
           </button>
         </div>
 
-        {/* 스터디 그리드 - 새로운 데이터 구조 사용 */}
+        {/* 스터디 그리드 */}
         <StudyGrid
           studyData={displayData}
           isLoading={isLoading}
           onItemClick={handleItemClick}
           error={error}
-          onRetry={refetch} // 재시도 기능 추가
+          onRetry={refetch}
           userProfile={userProfile}
           profileImageUrl={profileImageUrl}
         />
 
-        {/* 로딩 또는 에러 상태 표시 */}
         {isLoading && (
           <div className="text-center py-8 text-gray-500">
             스터디 목록을 불러오는 중...
@@ -202,9 +153,7 @@ export default function StudyContent() {
         
         {error && (
           <div className="text-center py-8">
-            <p className="text-red-500 mb-4">
-              스터디 목록을 불러오는데 실패했습니다.
-            </p>
+            <p className="text-red-500 mb-4">스터디 목록을 불러오는데 실패했습니다.</p>
             <button 
               onClick={refetch}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
@@ -213,15 +162,18 @@ export default function StudyContent() {
             </button>
           </div>
         )}
-
       </div>
 
-      {/* 상세 모달 */}
-      <StudyModal
-        onEdit={handleEdit}
-      />
+      {/* 모달들 - Activity 적용 */}
+      <Activity mode={modals.study ? 'visible' : 'hidden'}>
+        <StudyModal onEdit={handleEdit} />
+      </Activity>
 
-      {/* 모달 밖 화살표 버튼들 (데이터가 있는 슬롯만 이동) */}
+      <Activity mode={modals.datePicker ? 'visible' : 'hidden'}>
+        <DatePickerModal isOpen={modals.datePicker} onClose={closeDatePicker} />
+      </Activity>
+
+      {/* 화살표 버튼 */}
       <NavigationButtons
         open={modals.study}
         onPrev={goPrev}
@@ -230,9 +182,6 @@ export default function StudyContent() {
         gap={48}
         btn={40}
       />
-
-      {/* 달력 모달 */}
-      <DatePickerModal isOpen={modals.datePicker} onClose={closeDatePicker} />
     </main>
   );
 }

@@ -1,58 +1,72 @@
 import { useState } from "react";
 import Avatar from "./Avatar.jsx";
 import ApplicationModal from "./components/ApplicationModal.jsx";
+import LoginModal from "./components/LoginModal.jsx";
 import MemberList from "./components/MemberList.jsx";
 import TechList from "./components/TechList.jsx";
 import Button from "../../ui/Button.jsx";
 import { COLORS } from '../../utils/colors.js';
 import { useProjectMapping } from "./hooks/useProjectMapping.js";
-import { ProjectService } from "../../services/projectService.js";
+import { useProgressingProjects } from "../MyProfile/hooks/useMyProfileProjectQueries.js";
+import { useAuthState } from "../../hooks/useAuth.js";
 
 export default function ProjectCard({ project }) {
   const { name, slogan, leadImage, members, tech, description, projectId } = useProjectMapping(project);
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const { isAuthenticated, user } = useAuthState();
 
-  const handleApply = async () => {
+  // React Query를 사용한 진행 중인 프로젝트 조회
+  const userId = user?.userId ?? user?.id ?? null;
+  const { data: progressingProjects = [] } = useProgressingProjects(userId, {
+    enabled: isAuthenticated && !!userId
+  });
+
+  const handleApply = () => {
+    // 비로그인 시 로그인 모달 표시
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
     try {
-      // 진행중인 프로젝트 조회
-      const progressingProjects = await ProjectService.getProgressingProjects();
-      
       if (progressingProjects && progressingProjects.length > 0) {
-        // 배열이 아닌 경우 배열로 변환
-        const projectsArray = Array.isArray(progressingProjects) ? progressingProjects : [progressingProjects];
-        
         // 현재 프로젝트와 중복 확인
-        const isDuplicate = projectsArray.some(p => p.id === projectId);
-        
+        const isDuplicate = progressingProjects.some(p => p.id === projectId);
+
         if (isDuplicate) {
           alert("이미 진행중인 프로젝트입니다. 하나의 프로젝트만 진행할 수 있습니다.");
           return;
         }
-        
+
         // 다른 진행중인 프로젝트가 있는 경우 경고
-        const hasOtherProjects = projectsArray.length > 0;
-        if (hasOtherProjects) {
-          const otherProjectTitles = projectsArray.map(p => p.title).join(", ");
+        if (progressingProjects.length > 0) {
+          const otherProjectTitles = progressingProjects.map(p => p.title).join(", ");
           const confirmApply = confirm(
             `현재 진행중인 프로젝트가 있습니다: ${otherProjectTitles}\n\n새로운 프로젝트를 신청하시겠습니까?`
           );
-          
+
           if (!confirmApply) {
             return;
           }
         }
       }
-      
+
       setIsApplicationModalOpen(true);
-      
+
     } catch (error) {
       // 에러가 발생해도 신청은 허용 (네트워크 문제일 수 있음)
+      console.error('프로젝트 중복 확인 중 오류:', error);
       setIsApplicationModalOpen(true);
     }
   };
 
   const closeApplicationModal = () => {
     setIsApplicationModalOpen(false);
+  };
+
+  const closeLoginModal = () => {
+    setIsLoginModalOpen(false);
   };
 
   return (
@@ -105,12 +119,19 @@ export default function ProjectCard({ project }) {
         
         {/* ApplicationModal */}
         {isApplicationModalOpen && (
-          <ApplicationModal 
-            onClose={closeApplicationModal} 
+          <ApplicationModal
+            onClose={closeApplicationModal}
             project={project}
             projectName={name}
             projectId={projectId}
             description={description}
+          />
+        )}
+
+        {/* LoginModal */}
+        {isLoginModalOpen && (
+          <LoginModal
+            onClose={closeLoginModal}
           />
         )}
       </div>

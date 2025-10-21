@@ -1,38 +1,151 @@
-import { UserIcon, CheckCircleIcon, XMarkIcon, ClockIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import ProjectCreateForm from "./ProjectCreateForm";
 import ApplicantListView from "./components/ApplicantListView";
 import ProjectCard from "../components/ProjectCard.jsx";
-import { useProjectData } from "../hooks/useProjectData.js";
-import { useApplicantData } from "../hooks/useApplicantData.js";
+import { useMyProfileProjects, useProjectActions, useProjectApplicants, useCompletedProjects } from "../hooks/useMyProfileProjectQueries.js";
 import { useProjectNavigation } from "../hooks/useProjectNavigation.js";
-import { useProjectActions } from "../hooks/useProjectActions.js";
 import { useAuthState } from "../../../hooks/useAuth.js";
-import { ProjectService } from "../../../services/projectService.js";
+import { ProjectUtils } from "./utils/ProjectUtils";
+import ProjectIcons from "./components/ProjectIcons";
 
 export default function ProjectContent() {
-  // 프로젝트 완료 상태 관리
-  const [projectCompletionState, setProjectCompletionState] = useState({});
-  
-  // 완료된 프로젝트 상태 관리
-  const [completedProjects, setCompletedProjects] = useState({
-    data: [],
-    totalElements: 0,
-    totalPages: 0,
-    currentPage: 0,
-    isLoading: false,
-    error: null
-  });
-  
+  // 팀원 완료 요청 상태 관리 (API 반영 전 즉시 UI 업데이트용)
+  const [memberCompletionRequests, setMemberCompletionRequests] = useState({});
+
+  // 완료된 프로젝트 페이지 상태
+  const [completedProjectsPage, setCompletedProjectsPage] = useState(0);
+
   // 인증 상태
   const { user, isAuthenticated } = useAuthState();
-  
-  
-  // 프로젝트 데이터 훅
-  const { progressingProjects, appliedProjects, isLoading, fetchAllProjects } = useProjectData();
-  
-  // 신청자 데이터 훅
-  const { projectApplicants, fetchMultipleProjectApplicants } = useApplicantData();
+
+  // React Query를 사용한 프로젝트 데이터
+  const {
+    progressingProjects,
+    appliedProjects,
+    isLoading,
+    refetchAll: refetchAllProjects
+  } = useMyProfileProjects();
+
+  // 완료된 프로젝트 데이터 (페이지네이션)
+  const {
+    data: completedProjectsData,
+    isLoading: isCompletedLoading,
+    error: completedError,
+    refetch: refetchCompleted
+  } = useCompletedProjects({
+    page: completedProjectsPage,
+    size: 6,
+    userId: user?.userId ?? user?.id ?? null
+  });
+
+  // 프로젝트 액션들
+  const {
+    cancelProjectApplicationAsync,
+    cancelProgressingProjectAsync,
+    completeProjectAsync,
+    isLoading: isActionLoading
+  } = useProjectActions();
+
+  // 진행 중인 프로젝트 선택 상태
+  const [selectedProgressingProjectId, setSelectedProgressingProjectId] = useState(null);
+
+  useEffect(() => {
+    if (!progressingProjects?.length) {
+      setSelectedProgressingProjectId(null);
+      setMemberCompletionRequests({});
+      return;
+    }
+
+    setSelectedProgressingProjectId((prev) => {
+      if (prev && progressingProjects.some((project) => project.id === prev)) {
+        return prev;
+      }
+      return progressingProjects[0].id;
+    });
+  }, [progressingProjects]);
+
+  useEffect(() => {
+    if (!progressingProjects?.length) return;
+
+    setMemberCompletionRequests((prev) => {
+      const next = { ...prev };
+      const activeIds = new Set();
+
+      progressingProjects.forEach((project) => {
+        const status = (project?.currentUserStatus || '').toUpperCase();
+        const projectId = project?.id;
+        if (projectId == null) return;
+        activeIds.add(projectId);
+
+        console.log('[ProjectContent] project status', {
+          projectId,
+          title: project?.title,
+          currentUserStatus: project?.currentUserStatus
+        });
+
+        if (status === 'WAITING' || status === 'COMPLETED') {
+          next[projectId] = true;
+        }
+      });
+
+      Object.keys(next).forEach((key) => {
+        const numericKey = Number(key);
+        if (!activeIds.has(numericKey) && !activeIds.has(key)) {
+          delete next[key];
+        }
+      });
+
+      return next;
+    });
+  }, [progressingProjects]);
+
+  useEffect(() => {
+    if (progressingProjects?.length) {
+      console.log(
+        '[ProjectContent] progressingProjects memberBriefs snapshot:',
+        progressingProjects.map((project) => ({
+          id: project.id,
+          title: project.title,
+          memberBriefs: project.memberBriefs
+        }))
+      );
+      progressingProjects.forEach((project) => {
+        console.log(
+          `[ProjectContent] project ${project.id} "${project.title}" members:`,
+          Array.isArray(project.memberBriefs)
+            ? project.memberBriefs.map((member, index) => ({
+                index,
+                userId: member?.userId,
+                name: member?.name,
+                profileKey: member?.profileKey,
+                profileUrl: member?.profileUrl,
+                avatarURL: member?.avatarURL
+              }))
+            : project.memberBriefs
+        );
+        console.log(
+          `[ProjectContent] project ${project.id} "${project.title}" leaderInfoProjection:`,
+          project.leaderInfoProjection
+        );
+      });
+    } else {
+      console.log('[ProjectContent] progressingProjects empty or undefined');
+    }
+  }, [progressingProjects]);
+
+  const selectedProgressingProject = progressingProjects?.find(
+    (project) => project.id === selectedProgressingProjectId
+  );
+
+  // 진행 중인 프로젝트의 신청자 데이터
+  const isSelectedProjectLeader = ProjectUtils.isProjectLeader(user, selectedProgressingProject);
+  const {
+    data: projectApplicants = [],
+    refetch: refetchApplicants
+  } = useProjectApplicants(selectedProgressingProjectId, {
+    enabled: !!selectedProgressingProjectId && isSelectedProjectLeader
+  });
   
   // 네비게이션 훅
   const {
@@ -41,68 +154,17 @@ export default function ProjectContent() {
     currentProjectId,
     handleCreateClick,
     handleBackClick,
-    handleApplicantIconClick,
+    handleApplicantIconClick: navigateToApplicants,
     handleBackToProjects,
   } = useProjectNavigation();
-  
-  // 프로젝트 액션 훅 (취소/완료)
-  const {
-    cancelProjectApplication,
-    cancelProgressingProject,
-    completeProject,
-    isLoading: isActionLoading,
-    error: actionError
-  } = useProjectActions();
 
-  // 완료된 프로젝트 조회 함수
-  const fetchCompletedProjects = async (page = 0, size = 6) => {
-    try {
-      setCompletedProjects(prev => ({ ...prev, isLoading: true, error: null }));
-      
-      const response = await ProjectService.getCompletedProjects({
-        page,
-        size,
-        sort: ['createdAt,DESC']
-      });
-      
-      
-      setCompletedProjects({
-        data: response.content || [],
-        totalElements: response.totalElements || 0,
-        totalPages: response.totalPages || 0,
-        currentPage: response.number || 0,
-        isLoading: false,
-        error: null
-      });
-    } catch (error) {
-      setCompletedProjects(prev => ({
-        ...prev,
-        isLoading: false,
-        error: error.message
-      }));
-    }
-  };
-
-  // 페이지 변경 함수
+  // 완료된 프로젝트 페이지 변경 함수
   const handleCompletedProjectsPageChange = (newPage) => {
-    if (newPage >= 0 && newPage < completedProjects.totalPages) {
-      fetchCompletedProjects(newPage);
+    const totalPages = completedProjectsData?.totalPages || 0;
+    if (newPage >= 0 && newPage < totalPages) {
+      setCompletedProjectsPage(newPage);
     }
   };
-
-  // 프로젝트 데이터가 로드된 후 신청자 데이터 조회
-  useEffect(() => {
-    if (progressingProjects.length > 0) {
-      fetchMultipleProjectApplicants(progressingProjects);
-    }
-  }, [progressingProjects]);
-
-  // 완료된 프로젝트 초기 로드
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchCompletedProjects();
-    }
-  }, [isAuthenticated]);
 
   // 신청 프로젝트 취소 핸들러
   const handleAppliedProjectCancel = async () => {
@@ -111,90 +173,149 @@ export default function ProjectContent() {
       return;
     }
 
-    const projectId = appliedProjects[0].id;
-    const success = await cancelProjectApplication(projectId, {
-      onSuccess: async (result) => {
-        await fetchAllProjects();
-        
-        // 다른 컴포넌트에게 프로젝트 취소 알림
-        window.dispatchEvent(new CustomEvent('projectCancelled', { 
-          detail: { projectId, type: 'application' } 
-        }));
-      },
-      onError: (error) => {
-        // 에러는 useProjectActions 훅에서 처리됨
-      }
-    });
+    const confirmed = window.confirm('프로젝트 신청을 취소하시겠습니까?\n취소 후에는 다시 신청해야 합니다.');
+    if (!confirmed) return;
+
+    try {
+      const projectId = appliedProjects[0].id;
+      await cancelProjectApplicationAsync(projectId);
+
+      alert('프로젝트 신청이 취소되었습니다.');
+
+      // 다른 컴포넌트에게 프로젝트 취소 알림
+      window.dispatchEvent(new CustomEvent('projectCancelled', {
+        detail: { projectId, type: 'application' }
+      }));
+    } catch (error) {
+      alert(`프로젝트 신청 취소에 실패했습니다.\n${error.message}`);
+    }
   };
 
   // 진행 프로젝트 취소 핸들러 (개설자 전용)
-  const handleProgressingProjectCancel = async () => {
-    if (!progressingProjects || progressingProjects.length === 0) {
+  const handleProgressingProjectCancel = async (projectId = selectedProgressingProjectId) => {
+    if (!projectId) {
       alert('취소할 진행 프로젝트가 없습니다.');
       return;
     }
 
-    const project = progressingProjects[0];
-    const projectId = project.id;
-    const memberCount = project.memberBriefs?.length || project.memberCount || 0;
-    
+    const project = progressingProjects.find((item) => item.id === projectId);
+    if (!project) {
+      alert('선택한 프로젝트를 찾을 수 없습니다.');
+      return;
+    }
+    const { memberCount } = ProjectUtils.getCapacityInfo(project);
+
     // 팀원이 1명이라도 있으면 취소 불가능
-    if (memberCount >= 2 || (project.memberBriefs && project.memberBriefs.length > 1)) {
+    if (memberCount >= 2) {
       alert('팀원이 있는 프로젝트는 취소할 수 없습니다.');
       return;
     }
 
-    const success = await cancelProgressingProject(projectId, {
-      showConfirm: false,
-      onSuccess: async (result) => {
-        await fetchAllProjects();
-        
-        // 다른 컴포넌트에게 프로젝트 취소 알림
-        window.dispatchEvent(new CustomEvent('projectCancelled', { 
-          detail: { projectId, type: 'progressing' } 
-        }));
-      },
-      onError: (error) => {
-        // 에러는 useProjectActions 훅에서 처리됨
-      }
-    });
+    const confirmed = window.confirm(
+      '진행 중인 프로젝트를 취소하시겠습니까?\n' +
+      '프로젝트가 취소되면 모든 신청자에게 알림이 전송됩니다.\n' +
+      '이 작업은 되돌릴 수 없습니다.'
+    );
+    if (!confirmed) return;
+
+    try {
+      await cancelProgressingProjectAsync(projectId);
+
+      alert('프로젝트가 취소되었습니다.');
+
+      // 다른 컴포넌트에게 프로젝트 취소 알림
+      window.dispatchEvent(new CustomEvent('projectCancelled', {
+        detail: { projectId, type: 'progressing' }
+      }));
+    } catch (error) {
+      alert(`프로젝트 취소에 실패했습니다.\n${error.message}`);
+    }
   };
 
-  // 프로젝트 완료 핸들러 - 단순화된 처리 로직
-  const handleProjectComplete = async () => {
-    if (!progressingProjects || progressingProjects.length === 0) {
+  // 프로젝트 완료 핸들러 - 리팩토링된 로직
+  const handleProjectComplete = async (projectId = selectedProgressingProjectId) => {
+    console.group('🎯 [DEBUG] UI에서 프로젝트 완료 처리 시작');
+
+    if (!projectId) {
+      console.log('❌ 완료할 프로젝트 ID가 없음');
       alert('완료할 프로젝트가 없습니다.');
+      console.groupEnd();
       return;
     }
 
-    const project = progressingProjects[0];
-    const projectId = project.id;
-
-
-    // 백엔드 API 호출로 완료 처리
-    const result = await completeProject(projectId, {
-      onSuccess: async (apiResult, completionResult) => {
-        
-        // 상태 초기화
-        setProjectCompletionState(prev => {
-          const newState = { ...prev };
-          delete newState[projectId];
-          return newState;
-        });
-        
-        // 항상 데이터 새로고침
-        await fetchAllProjects();
-        await fetchCompletedProjects(); // 완료된 프로젝트도 새로고침
+    const project = progressingProjects.find((item) => item.id === projectId);
+    console.log('📋 현재 선택된 프로젝트:', {
+      projectId,
+      project,
+      사용자정보: {
+        userId: user?.userId ?? user?.id,
+        userName: user?.name,
+        userEmail: user?.email
       },
-      onError: (error, errorResult) => {
-        // 에러 발생시에도 새로고침
-        fetchAllProjects();
-        fetchCompletedProjects();
-        
-        alert('프로젝트 완료 처리 중 오류가 발생했습니다: ' + (errorResult?.error || error.message));
+      프로젝트역할: {
+        isLeader: project?.isLeader,
+        isOwner: project?.isOwner,
+        role: project?.role || 'UNKNOWN'
       }
     });
 
+    if (!project) {
+      console.log('❌ 선택한 프로젝트를 진행 목록에서 찾을 수 없음');
+      alert('선택한 프로젝트를 찾을 수 없습니다.');
+      console.groupEnd();
+      return;
+    }
+
+    const confirmed = window.confirm(
+      '프로젝트를 완료 처리하시겠습니까?\n\n' +
+      '• 팀원: 완료 버튼을 누르면 팀장의 최종 완료를 기다립니다.\n' +
+      '• 팀장: 모든 팀원이 완료한 후에만 최종 완료할 수 있습니다.\n\n' +
+      '계속하시겠습니까?'
+    );
+
+    if (!confirmed) {
+      console.log('⏹️ 사용자가 완료 처리를 취소함');
+      console.groupEnd();
+      return;
+    }
+
+    try {
+      console.log('🚀 완료 API 호출 시작...');
+      const result = await completeProjectAsync(projectId);
+
+      console.log('✅ 완료 API 호출 성공:', result);
+
+      // 성공 메시지 표시
+      const alertMessage = ProjectUtils.generateCompletionMessage(result);
+      console.log('💬 생성된 성공 메시지:', alertMessage);
+      alert(alertMessage);
+
+      console.log('🔄 데이터 새로고침 시작...');
+      // 프로젝트 데이터 새로고침
+      refetchAllProjects();
+      refetchApplicants();
+      console.log('✅ 데이터 새로고침 완료');
+
+    } catch (error) {
+      console.log('❌ 완료 처리 실패:', error);
+      const errorMessage = ProjectUtils.normalizeErrorMessage(error);
+      console.log('💬 생성된 에러 메시지:', errorMessage);
+      alert(`❌ 프로젝트 완료 처리에 실패했습니다.\n${errorMessage}`);
+    }
+
+    console.groupEnd();
+  };
+
+  const handleProgressingProjectSelect = (projectId) => {
+    if (!projectId || projectId === selectedProgressingProjectId) return;
+    setSelectedProgressingProjectId(projectId);
+  };
+
+  const handleApplicantListOpen = (projectId) => {
+    if (projectId) {
+      setSelectedProgressingProjectId(projectId);
+      navigateToApplicants(projectId);
+    }
   };
 
   if (showCreateForm) {
@@ -209,13 +330,10 @@ export default function ProjectContent() {
     const currentProject = progressingProjects.find(
       (p) => p.id === currentProjectId
     );
-    const applicants = currentProjectId
-      ? projectApplicants[currentProjectId] || []
-      : [];
 
     return (
       <ApplicantListView
-        applicants={applicants}
+        applicants={projectApplicants}
         projectTitle={currentProject?.title || "프로젝트"}
         projectId={currentProjectId}
         onBack={handleBackToProjects}
@@ -228,12 +346,6 @@ export default function ProjectContent() {
 
   return (
     <div className="w-full min-h-screen flex flex-col py-6 px-24">
-      {/* 액션 에러 표시 */}
-      {actionError && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          오류: {actionError}
-        </div>
-      )}
 
       {/* 신청 프로젝트 + 아이콘 */}
       <div className="mb-10">
@@ -313,138 +425,25 @@ export default function ProjectContent() {
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-lg font-semibold">진행 프로젝트</h2>
           {/* 진행 프로젝트가 있을 때만 아이콘들 표시 */}
-          {progressingProjects && progressingProjects.length > 0 && (
+          {progressingProjects && (
             <div className="flex gap-4">
-              {/* 신청자 아이콘 + 완료 버튼 + 취소 버튼 */}
-              <div className="flex gap-2">
-                {progressingProjects[0] && (
-                  <>
-                    {/* 신청자 아이콘 - 팀장만 접근 가능 */}
-                    {(() => {
-                      const project = progressingProjects[0];
-                      const applicantCount = projectApplicants[project.id]?.length || 0;
-                      const memberCount = project.memberCount || 0;
-                      
-                      // 대기중인 신청자가 있는지 확인
-                      const hasPendingApplicants = applicantCount > 0;
-                      
-                      // 팀장 권한 체크 (프로젝트 생성자와 현재 사용자 비교)
-                      const isProjectLeader = user && project && (
-                        project.creatorId === user.id || 
-                        project.leaderId === user.id ||
-                        project.userId === user.id ||
-                        project.ownerId === user.id
-                      );
-                      
-                      // 신청자 목록 접근 가능 여부
-                      const canViewApplicants = isProjectLeader && hasPendingApplicants && !isAnyLoading;
-                      
-                      let buttonTitle = "";
-                      let displayCount = applicantCount;
-                      
-                      if (isAnyLoading) {
-                        buttonTitle = "처리 중...";
-                      } else if (!isProjectLeader) {
-                        buttonTitle = "팀장만 신청자 목록을 볼 수 있습니다";
-                      } else if (!hasPendingApplicants) {
-                        buttonTitle = "대기중인 신청자가 없습니다";
-                      } else {
-                        buttonTitle = `신청자 승인/거절 (${displayCount}명 대기중)`;
-                      }
-                      
-                      return (
-                        <button
-                          onClick={canViewApplicants ? () => handleApplicantIconClick(project.id) : undefined}
-                          disabled={!canViewApplicants}
-                          className={`w-[58px] h-[58px] rounded-full flex items-center justify-center text-sm font-bold text-white transition-transform ${
-                            canViewApplicants
-                              ? 'hover:scale-105 cursor-pointer' 
-                              : 'cursor-not-allowed opacity-50'
-                          }`}
-                          style={{ backgroundColor: canViewApplicants ? "#6366F1" : "#9CA3AF" }}
-                          title={buttonTitle}
-                        >
-                          <UserIcon className="w-6 h-6 text-white" />
-                        </button>
-                      );
-                    })()}
-                    
-                    {/* 완료 버튼 - 단순화된 로직 */}
-                    {(() => {
-                      const project = progressingProjects[0];
-                      const projectId = project.id;
-                      const memberCount = project.memberBriefs?.length || project.memberCount || 0;
-                      
-                      // 현재 사용자가 신청 중인 상태인지 확인 (아직 승인되지 않음)
-                      const isApplicant = appliedProjects && appliedProjects.length > 0 && 
-                        appliedProjects.some(applied => applied.id === projectId);
-                      
-                      // 승인된 팀원이 있는지 확인 (멤버수가 2명 이상이면 팀장 외에 팀원이 있다는 뜻)
-                      const hasApprovedMembers = memberCount >= 2;
-                      
-                      // 완료 버튼 접근 권한 체크
-                      const canAccessCompleteButton = !isApplicant && isAuthenticated && hasApprovedMembers;
-                      
-                      if (!canAccessCompleteButton) {
-                        return null; // 신청자이거나 권한이 없으면 완료 버튼 표시 안함
-                      }
-                      
-                      // 단순한 완료 버튼
-                      return (
-                        <div className="flex flex-col items-center gap-1">
-                          <button
-                            onClick={handleProjectComplete}
-                            disabled={isAnyLoading}
-                            className={`w-[58px] h-[58px] rounded-full bg-green-500 hover:bg-green-600 
-                             flex items-center justify-center transition-all hover:scale-105
-                             ${isAnyLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            title={isAnyLoading ? "처리 중..." : "프로젝트 완료"}
-                          >
-                            {isAnyLoading ? (
-                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                            ) : (
-                              <CheckCircleIcon className="w-7 h-7 text-white" />
-                            )}
-                          </button>
-                          <span className="text-xs text-green-600 font-medium">
-                            완료
-                          </span>
-                        </div>
-                      );
-                    })()}
-                    
-                    {/* 취소 버튼 - 조건부 표시 */}
-                    {(() => {
-                      const project = progressingProjects[0];
-                      const memberCount = project.memberBriefs?.length || project.memberCount || 0;
-                      
-                      // 승인된 팀원이 있으면 취소 버튼 숨김 (팀장 혼자인 경우에만 취소 가능)
-                      const hasApprovedMembers = memberCount >= 2;
-                      
-                      if (hasApprovedMembers) {
-                        return null; // 팀원이 있으면 취소 버튼 숨김
-                      }
-                      
-                      return (
-                        <button
-                          onClick={handleProgressingProjectCancel}
-                          disabled={isAnyLoading}
-                          className={`w-[58px] h-[58px] rounded-full bg-white border-2 border-red-600 text-red-600 
-                           hover:bg-red-600 hover:text-white transition-all hover:scale-105 flex items-center justify-center
-                           ${isAnyLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          title={isAnyLoading ? "처리 중..." : "프로젝트 취소"}
-                        >
-                          {isAnyLoading ? (
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600"></div>
-                          ) : (
-                            <XMarkIcon className="w-6 h-6" />
-                          )}
-                        </button>
-                      );
-                    })()}
-                  </>
-                )}
-              </div>
+              {selectedProgressingProject && (
+                <ProjectIcons
+                  project={selectedProgressingProject}
+                  user={user}
+                  projectApplicants={projectApplicants}
+                  appliedProjects={appliedProjects}
+                  isAuthenticated={isAuthenticated}
+                  isAnyLoading={isAnyLoading}
+                  memberCompletionRequests={memberCompletionRequests}
+                  setMemberCompletionRequests={setMemberCompletionRequests}
+                  completeProjectAsync={completeProjectAsync}
+                  onApplicantIconClick={handleApplicantListOpen}
+                  onComplete={handleProjectComplete}
+                  onCancel={handleProgressingProjectCancel}
+                  refetchAllProjects={refetchAllProjects}
+                />
+              )}
             </div>
           )}
         </div>
@@ -459,7 +458,12 @@ export default function ProjectContent() {
           ) : progressingProjects && progressingProjects.length > 0 ? (
             <div className="w-full h-full overflow-y-auto">
               {progressingProjects.map((project, index) => (
-                <ProjectCard key={index} project={project} index={index} />
+                <ProjectCard
+                  key={project?.id ?? index}
+                  project={project}
+                  isSelected={project?.id === selectedProgressingProjectId}
+                  onSelect={handleProgressingProjectSelect}
+                />
               ))}
             </div>
           ) : (
@@ -471,27 +475,27 @@ export default function ProjectContent() {
       </div>
 
       {/* 완료된 프로젝트 - 페이지네이션 */}
-      {completedProjects.data.length > 0 && (
+      {completedProjectsData?.content?.length > 0 && (
         <div className="mb-10">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">완료된 프로젝트</h2>
             <span className="text-sm text-gray-500">
-              총 {completedProjects.totalElements}개
+              총 {completedProjectsData.totalElements}개
             </span>
           </div>
-          
+
           {/* 프로젝트 그리드 */}
           <div className="grid grid-cols-6 gap-4 mb-6">
-            {completedProjects.data.map((project, index) => (
+            {completedProjectsData.content.map((project, index) => (
               <div
                 key={project.id || index}
                 className="w-16 h-16 rounded-full bg-gray-200 border-2 border-gray-300 flex items-center justify-center overflow-hidden hover:shadow-md transition-all cursor-pointer"
-                title={`완료된 프로젝트 ${project.id}`}
+                title={`완료된 프로젝트: ${project.title || `프로젝트 ${project.id}`}`}
               >
-                {project.logoImageURL ? (
-                  <img 
-                    src={project.logoImageURL}
-                    alt={`프로젝트 ${project.id} 로고`}
+                {project.imageKey ? (
+                  <img
+                    src={project.imageKey.startsWith('http') ? project.imageKey : `http://15.164.125.28:8080/storage/${project.imageKey}`}
+                    alt={`프로젝트 ${project.title || project.id} 이미지`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       e.target.style.display = 'none';
@@ -499,43 +503,43 @@ export default function ProjectContent() {
                     }}
                   />
                 ) : null}
-                
+
                 {/* 이미지 로드 실패시 또는 이미지가 없을 때 기본 표시 */}
-                <div 
-                  className={`w-full h-full flex items-center justify-center text-xs font-bold text-gray-600 ${project.logoImageURL ? 'hidden' : 'flex'}`}
+                <div
+                  className={`w-full h-full flex items-center justify-center text-xs font-bold text-gray-600 ${project.imageKey ? 'hidden' : 'flex'}`}
                 >
-                  P{project.id}
+                  {project.title?.[0] || `P${project.id}`}
                 </div>
               </div>
             ))}
           </div>
 
           {/* 페이지네이션 */}
-          {completedProjects.totalPages > 1 && (
+          {completedProjectsData.totalPages > 1 && (
             <div className="flex justify-center items-center gap-2">
               <button
-                onClick={() => handleCompletedProjectsPageChange(completedProjects.currentPage - 1)}
-                disabled={completedProjects.currentPage === 0}
+                onClick={() => handleCompletedProjectsPageChange(completedProjectsPage - 1)}
+                disabled={completedProjectsPage === 0}
                 className={`p-2 rounded-full ${
-                  completedProjects.currentPage === 0 
-                    ? 'text-gray-400 cursor-not-allowed' 
+                  completedProjectsPage === 0
+                    ? 'text-gray-400 cursor-not-allowed'
                     : 'text-gray-600 hover:bg-gray-100 cursor-pointer'
                 }`}
                 title="이전 페이지"
               >
                 <ChevronLeftIcon className="w-5 h-5" />
               </button>
-              
+
               <span className="text-sm text-gray-600 px-2">
-                {completedProjects.currentPage + 1} / {completedProjects.totalPages}
+                {completedProjectsPage + 1} / {completedProjectsData.totalPages}
               </span>
-              
+
               <button
-                onClick={() => handleCompletedProjectsPageChange(completedProjects.currentPage + 1)}
-                disabled={completedProjects.currentPage >= completedProjects.totalPages - 1}
+                onClick={() => handleCompletedProjectsPageChange(completedProjectsPage + 1)}
+                disabled={completedProjectsPage >= completedProjectsData.totalPages - 1}
                 className={`p-2 rounded-full ${
-                  completedProjects.currentPage >= completedProjects.totalPages - 1
-                    ? 'text-gray-400 cursor-not-allowed' 
+                  completedProjectsPage >= completedProjectsData.totalPages - 1
+                    ? 'text-gray-400 cursor-not-allowed'
                     : 'text-gray-600 hover:bg-gray-100 cursor-pointer'
                 }`}
                 title="다음 페이지"
@@ -548,11 +552,11 @@ export default function ProjectContent() {
       )}
 
       {/* 에러 상태만 별도로 표시 */}
-      {completedProjects.error && (
+      {completedError && (
         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          완료된 프로젝트 조회 실패: {completedProjects.error}
-          <button 
-            onClick={() => fetchCompletedProjects(completedProjects.currentPage)}
+          완료된 프로젝트 조회 실패: {completedError.message}
+          <button
+            onClick={() => refetchCompleted()}
             className="ml-2 text-red-600 underline hover:text-red-800"
           >
             다시 시도

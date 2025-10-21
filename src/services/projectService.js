@@ -80,20 +80,28 @@ export class ProjectService {
 
   // 공통 응답 처리 (OpenAPI 스키마 대응 개선)
   static async handleResponse(response, errorMessage = 'API 요청 실패', expectedSchema = null) {
+    console.log('=== handleResponse 시작 ===');
+    console.log('응답 상태:', response.status, response.statusText);
+    console.log('응답 OK:', response.ok);
+
     if (!response.ok) {
       let errorData = {};
       let errorText = '';
       try {
         errorText = await response.text();
+        console.log('에러 응답 텍스트:', errorText);
         if (errorText.trim()) {
           errorData = JSON.parse(errorText);
+          console.log('파싱된 에러 데이터:', errorData);
         }
       } catch (e) {
         console.error('JSON 파싱 오류:', e);
         console.error('파싱 실패한 텍스트:', errorText);
         errorData = { message: errorText || '서버 에러가 발생했습니다.' };
       }
-      throw new Error(errorData.message || `${errorMessage} (${response.status})`);
+      const finalErrorMessage = errorData.message || `${errorMessage} (${response.status})`;
+      console.error('최종 에러 메시지:', finalErrorMessage);
+      throw new Error(finalErrorMessage);
     }
 
     const contentType = response.headers.get('content-type');
@@ -254,9 +262,8 @@ export class ProjectService {
       }
       
       const bodyString = JSON.stringify(finalProjectData);
-      
+
       const headers = this.getCommonHeaders();
-      headers['Content-Length'] = bodyString.length.toString();
 
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_CREATE}`, {
         method: 'POST',
@@ -344,15 +351,91 @@ export class ProjectService {
    */
   static async getProgressingProjects() {
     try {
+      console.group('📋 [DEBUG] 진행 중인 프로젝트 조회 API 호출');
+
       const headers = this.getCommonHeaders();
-      
+      console.log('📤 요청 정보:', {
+        url: `${BASE_URL}${ENDPOINTS.PROJECT_GET_PROGRESSING}`,
+        method: 'GET',
+        headers
+      });
+
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_GET_PROGRESSING}`, {
         method: 'GET',
         headers: headers
       });
 
-      return await this.handleResponse(response, '진행 프로젝트 조회 실패');
+      console.log('📥 HTTP 응답:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+
+      const result = await this.handleResponse(response, '진행 프로젝트 조회 실패');
+
+      console.log('✅ 진행 프로젝트 조회 응답:', {
+        resultType: Array.isArray(result) ? 'Array' : typeof result,
+        resultLength: Array.isArray(result) ? result.length : 'N/A',
+        result
+      });
+
+      // 각 프로젝트의 currentUserStatus 상세 분석
+      if (result && typeof result === 'object') {
+        if (Array.isArray(result)) {
+          console.log('📊 진행 중인 프로젝트 배열 상세 분석:');
+          result.forEach((project, index) => {
+            console.log(`  [${index}] 프로젝트 ${project.id || 'N/A'} - ${project.title || 'No Title'}:`, {
+              currentUserStatus: project.currentUserStatus,
+              status: project.status,
+              isLeader: project.isLeader,
+              isOwner: project.isOwner,
+              role: project.role,
+              completionStatus: project.completionStatus,
+              completionSummary: project.completionSummary
+            });
+          });
+        } else {
+          // 단일 객체인 경우
+          console.log('📊 진행 중인 프로젝트 단일 객체 상세 분석:', {
+            projectId: result.id,
+            title: result.title,
+            currentUserStatus: result.currentUserStatus,
+            status: result.status,
+            isLeader: result.isLeader,
+            isOwner: result.isOwner,
+            role: result.role,
+            completionStatus: result.completionStatus,
+            completionSummary: result.completionSummary,
+            memberCount: result.memberCount,
+            capacity: result.capacity,
+            complicatedCount: result.complicatedCount,
+            전체객체: result
+          });
+
+          // memberBriefs 상세 분석
+          if (result.memberBriefs && Array.isArray(result.memberBriefs)) {
+            console.log('👥 memberBriefs 상세 분석:', {
+              memberCount: result.memberBriefs.length,
+              members: result.memberBriefs.map((member, index) => ({
+                index,
+                userId: member.userId,
+                name: member.name,
+                profileKey: member.profileKey
+              }))
+            });
+          } else {
+            console.log('❌ memberBriefs가 없거나 배열이 아님:', result.memberBriefs);
+          }
+        }
+      }
+
+      console.groupEnd();
+
+      return result;
     } catch (error) {
+      console.group('❌ [DEBUG] 진행 프로젝트 조회 에러');
+      console.error('진행 프로젝트 조회 에러:', error);
+      console.groupEnd();
       this.handleApiError(error);
     }
   }
@@ -438,33 +521,88 @@ export class ProjectService {
    */
   static async applyToProject(projectId, applicationData) {
     try {
-      
+      console.log('=== ProjectService.applyToProject 시작 ===');
+      console.log('projectId:', projectId);
+      console.log('applicationData:', applicationData);
+
       // 1. 신청 데이터 유효성 검사
+      console.log('유효성 검사 시작...');
       this.validateApplicationData(applicationData);
-      
-      // 2. techs 필드 정규화 (문자열로) & projectId 중복 제거
+      console.log('유효성 검사 통과');
+
+      // 2. techs 필드 정규화 (배열로) - API 명세서에 따라 배열이어야 함
       const normalizedData = {
         ...applicationData,
-        techs: this.normalizeTechsToString(applicationData.techs)
+        techs: this.normalizeTechsToArray(applicationData.techs)
       };
-      
+
+      console.log('techs 정규화 후:', normalizedData.techs);
+
       // URL 파라미터에 이미 projectId가 있으므로 body에서 제거
       if (normalizedData.projectId !== undefined) {
+        console.log('body에서 projectId 제거');
         delete normalizedData.projectId;
       }
-      
-      const headers = this.getCommonHeaders();
 
-      const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_APPLY}/${projectId}`, {
+      console.log('최종 정규화된 데이터:', normalizedData);
+
+      // answers 배열 구조 상세 확인
+      if (normalizedData.answers && normalizedData.answers.length > 0) {
+        console.log('answers 배열 상세:', normalizedData.answers.map((answer, index) => ({
+          index,
+          questionId: answer.questionId,
+          questionIdType: typeof answer.questionId,
+          answer: answer.answer,
+          answerType: typeof answer.answer,
+          answerLength: answer.answer ? answer.answer.length : 0
+        })));
+      }
+
+      const headers = this.getCommonHeaders();
+      console.log('요청 헤더:', headers);
+
+      const requestUrl = `${BASE_URL}${ENDPOINTS.PROJECT_APPLY}/${projectId}`;
+      console.log('요청 URL:', requestUrl);
+      console.log('요청 body:', JSON.stringify(normalizedData));
+
+      // JSON 직렬화 시 안전한 방식 사용
+      const requestBody = JSON.stringify(normalizedData, null, 0);
+      console.log('요청 body 길이:', requestBody.length);
+      console.log('요청 body 바이트 길이:', new Blob([requestBody]).size);
+
+      // JSON이 올바르게 파싱되는지 검증
+      try {
+        const parsed = JSON.parse(requestBody);
+        console.log('JSON 파싱 검증 성공:', parsed);
+      } catch (e) {
+        console.error('JSON 파싱 검증 실패:', e);
+        throw new Error('JSON 직렬화 실패');
+      }
+
+      // 완전히 성공하는 다른 API와 동일한 형식으로 변경
+      const response = await fetch(requestUrl, {
         method: 'POST',
-        headers: headers,
-        body: JSON.stringify(normalizedData),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': headers['Authorization']
+        },
         mode: 'cors',
-        credentials: 'include'
+        credentials: 'include',
+        body: requestBody
       });
 
-      return await this.handleResponse(response, '프로젝트 신청 실패');
+      console.log('응답 상태:', response.status);
+      console.log('응답 헤더:', response.headers);
+
+      const result = await this.handleResponse(response, '프로젝트 신청 실패');
+      console.log('=== ProjectService.applyToProject 성공 ===');
+      return result;
     } catch (error) {
+      console.error('=== ProjectService.applyToProject 실패 ===');
+      console.error('에러 타입:', error.constructor.name);
+      console.error('에러 메시지:', error.message);
+      console.error('에러 스택:', error.stack);
       this.handleApiError(error);
     }
   }
@@ -494,15 +632,40 @@ export class ProjectService {
    */
   static async completeProject(projectId) {
     try {
-      
+      console.group('🚀 [DEBUG] 프로젝트 완료 API 호출');
+      console.log('📤 요청 정보:', {
+        projectId,
+        url: `${BASE_URL}${ENDPOINTS.PROJECT_COMPLETE}/${projectId}`,
+        method: 'POST',
+        headers: this.getCommonHeaders()
+      });
+
       const response = await fetch(`${BASE_URL}${ENDPOINTS.PROJECT_COMPLETE}/${projectId}`, {
         method: 'POST',
         headers: this.getCommonHeaders()
       });
 
-      return await this.handleResponse(response, '프로젝트 완료 처리 실패', 'ProjectCompleteResponse');
+      console.log('📥 HTTP 응답:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
+      const result = await this.handleResponse(response, '프로젝트 완료 처리 실패', 'ProjectCompleteResponse');
+
+      console.log('✅ 완료 API 최종 응답:', result);
+      console.groupEnd();
+
+      return result;
     } catch (error) {
+      console.group('❌ [DEBUG] 프로젝트 완료 API 에러');
       console.error('프로젝트 완료 처리 에러:', error);
+      console.log('에러 발생 시점:', {
+        projectId,
+        url: `${BASE_URL}${ENDPOINTS.PROJECT_COMPLETE}/${projectId}`
+      });
+      console.groupEnd();
       this.handleApiError(error);
     }
   }
@@ -737,8 +900,8 @@ export class ProjectService {
       throw new Error('position은 문자열이어야 합니다.');
     }
 
-    if (typeof applicationData.techs !== 'string') {
-      throw new Error('techs는 문자열이어야 합니다.');
+    if (!Array.isArray(applicationData.techs)) {
+      throw new Error('techs는 배열이어야 합니다.');
     }
 
     if (!Array.isArray(applicationData.answers)) {

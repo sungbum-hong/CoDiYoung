@@ -1,14 +1,13 @@
 // components/ProfileSidebar.jsx - 기존 레이아웃 구조 유지
-import { useState, useEffect } from "react";
 import { COLORS } from "../../utils/colors";
 import { MESSAGES } from "../../constants/messages";
 import Button from "../../ui/Button";
-import { UserProfileService } from "../../services/userProfileService";
+import { useProfile } from "./hooks/useProfile.js";
 
 export default function ProfileSidebar({ activeSection, onSectionChange }) {
-  const [profileImage, setProfileImage] = useState(null);
-  const [nickname, setNickname] = useState('');
-  
+  // React Query를 사용한 프로필 데이터
+  const { data: profileData } = useProfile();
+
   const menuItems = [
     MESSAGES.SECTIONS.PROFILE_INFO,
     MESSAGES.SECTIONS.STUDY_LIST,
@@ -16,31 +15,9 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
     MESSAGES.SECTIONS.ATTENDANCE_CHECK,
   ];
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const profileData = await UserProfileService.getMyProfile();
-        
-        if (profileData.imageKey) {
-          // imageKey가 이미 완전한 URL인지 확인
-          if (profileData.imageKey.startsWith('http')) {
-            setProfileImage(profileData.imageKey);
-          } else {
-            const imageUrl = await UserProfileService.getImageUrl(profileData.imageKey);
-            setProfileImage(imageUrl);
-          }
-        }
-        
-        if (profileData.nickName) {
-          setNickname(profileData.nickName);
-        }
-      } catch (error) {
-        console.error('프로필 정보 로딩 실패:', error);
-      }
-    };
-
-    fetchProfile();
-  }, []);
+  // React Query 데이터에서 필요한 정보 추출
+  const profileImage = profileData?.profileImageUrl || null;
+  const nickname = profileData?.nickName || '';
 
   return (
     <aside className="w-full md:w-1/3 bg-white min-h-screen flex flex-col items-center justify-start pt-22 px-4">
@@ -96,12 +73,19 @@ export default function ProfileSidebar({ activeSection, onSectionChange }) {
 
 // 대안 1: CSS Grid를 활용한 안정적 레이아웃
 export function GridLayoutSidebar({ activeSection, onSectionChange }) {
+  // React Query를 사용한 프로필 데이터
+  const { data: profileData } = useProfile();
+
   const menuItems = [
     MESSAGES.SECTIONS.PROFILE_INFO,
     MESSAGES.SECTIONS.STUDY_LIST,
     MESSAGES.SECTIONS.PROJECT_LIST,
     MESSAGES.SECTIONS.ATTENDANCE_CHECK,
   ];
+
+  // React Query 데이터에서 필요한 정보 추출
+  const profileImage = profileData?.profileImageUrl || null;
+  const nickname = profileData?.nickName || '';
 
   return (
     <aside 
@@ -173,12 +157,19 @@ export function GridLayoutSidebar({ activeSection, onSectionChange }) {
 
 // 대안 2: 최소한의 수정으로 움직임만 해결
 export function MinimalFixSidebar({ activeSection, onSectionChange }) {
+  // React Query를 사용한 프로필 데이터
+  const { data: profileData } = useProfile();
+
   const menuItems = [
     MESSAGES.SECTIONS.PROFILE_INFO,
     MESSAGES.SECTIONS.STUDY_LIST,
     MESSAGES.SECTIONS.PROJECT_LIST,
     MESSAGES.SECTIONS.ATTENDANCE_CHECK,
   ];
+
+  // React Query 데이터에서 필요한 정보 추출
+  const profileImage = profileData?.profileImageUrl || null;
+  const nickname = profileData?.nickName || '';
 
   return (
     <aside 

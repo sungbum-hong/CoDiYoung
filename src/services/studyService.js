@@ -442,6 +442,7 @@ export class StudyService {
   /**
    * 카테고리별 그룹화된 스터디 조회
    * @param {Object} params - 카테고리별 페이지네이션 파라미터
+   * @param {Array<string>} params.sort - 정렬 조건 배열 (예: ['createdAt,DESC'])
    * @returns {Promise<Object>} 그룹화된 스터디 데이터 { coding, design, video }
    */
   static async getGroupedStudies(params = {}) {
@@ -451,23 +452,34 @@ export class StudyService {
       designPage: 0,
       designSize: 10,
       videoPage: 0,
-      videoSize: 10
+      videoSize: 10,
+      sort: ['id,DESC'] // 기본 정렬: 스터디 ID 기준 내림차순 (최신 스터디부터)
     };
-    
+
     const queryParams = { ...defaultParams, ...params };
     const searchParams = new URLSearchParams();
-    
-    Object.entries(queryParams).forEach(([key, value]) => {
+
+    // sort 파라미터는 배열이므로 별도 처리
+    const { sort, ...otherParams } = queryParams;
+
+    Object.entries(otherParams).forEach(([key, value]) => {
       searchParams.append(key, value.toString());
     });
 
+    // Spring Boot 표준 형식으로 sort 파라미터 추가
+    if (sort && Array.isArray(sort)) {
+      sort.forEach(sortItem => {
+        searchParams.append('sort', sortItem);
+      });
+    }
+
     const url = `${BASE_URL}${ENDPOINTS.STUDY_GET_GROUPED}?${searchParams.toString()}`;
-    
+
     const result = await this.optimizedFetch(url, {
       method: 'GET',
       headers: this.getCommonHeaders(true, false) // 인증 선택적
     });
-    
+
     return result;
   }
 
