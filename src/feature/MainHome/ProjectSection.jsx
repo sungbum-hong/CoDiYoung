@@ -1,13 +1,11 @@
 import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
 import ProjectDetailModal from "./components/ProjectDetailModal.jsx";
 import ProjectCard from "./components/ProjectCard.jsx";
-import ScrollArrowButton from "./components/ScrollArrowButton.jsx";
 import { CONFIG } from '../../constants/config.js';
 import { COLORS } from '../../utils/colors.js';
 import { MESSAGES } from '../../constants/messages.js';
 import { useBackgroundHover } from '../../hooks/useHoverStyle.js';
 import { useMainHomeProjects } from './hooks/useMainHomeQueries.js';
-import { useScrollNavigation } from './hooks/useScrollNavigation.js';
 import { useProjectModal } from './hooks/useProjectModal.js';
 
 export default function ProjectSection({
@@ -15,18 +13,15 @@ export default function ProjectSection({
 }) {
   // React Query를 사용한 프로젝트 데이터 로드
   const { data: projects = [], isLoading, error } = useMainHomeProjects();
-  
-  // 스크롤 네비게이션 훅
-  const { scrollRef, currentPage, totalPages, scroll, onScroll } = useScrollNavigation(projects.length);
-  
+
   // 모달 관리 훅
-  const { 
-    isModalOpen, 
-    selectedProjectId, 
-    handleProjectClick, 
-    closeModal, 
-    handleMoreClick, 
-    onCardKeyDown 
+  const {
+    isModalOpen,
+    selectedProjectId,
+    handleProjectClick,
+    closeModal,
+    handleMoreClick,
+    onCardKeyDown
   } = useProjectModal();
   
   // 호버 효과 훅들
@@ -105,17 +100,10 @@ export default function ProjectSection({
         </button>
       </div>
 
-      {/* 화살표 버튼 */}
-      <ScrollArrowButton 
-        side="left" 
-        totalPages={totalPages} 
-        onScroll={scroll} 
-      />
+     
 
       {/* 카드 영역 */}
       <div
-        ref={scrollRef}
-        onScroll={onScroll}
         className="flex overflow-x-auto scroll-smooth"
         style={{
           // 스크롤바 감추기(FF/IE/Edge)
@@ -160,12 +148,7 @@ export default function ProjectSection({
         )}
       </div>
 
-      {/* 화살표 버튼 */}
-      <ScrollArrowButton 
-        side="right" 
-        totalPages={totalPages} 
-        onScroll={scroll} 
-      />
+      
 
       <ProjectDetailModal
         isOpen={isModalOpen}
