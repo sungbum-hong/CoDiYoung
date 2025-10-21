@@ -4,7 +4,17 @@ import { useProjectDetail } from "./hooks/useProjectDetail.js";
 
 export default function ProjectPageLayout() {
   const { projectId } = useParams();
-  const { projectData, isLoading, error } = useProjectDetail(projectId);
+  const numericProjectId = projectId ? parseInt(projectId, 10) : null;
+  const { data: projectData, isLoading, error } = useProjectDetail(numericProjectId);
+
+  // 디버깅용 로그
+  console.log('ProjectPageLayout Debug:', {
+    projectId,
+    numericProjectId,
+    projectData,
+    isLoading,
+    error
+  });
 
   if (isLoading) {
     return (
@@ -17,7 +27,7 @@ export default function ProjectPageLayout() {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-red-600">오류: {error}</div>
+        <div className="text-lg text-red-600">오류: {error?.message || '알 수 없는 오류가 발생했습니다.'}</div>
       </div>
     );
   }

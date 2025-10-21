@@ -1,40 +1,26 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import Button from "../../../ui/Button.jsx";
 import { COLORS } from "../../../utils/colors.js";
 import { MESSAGES } from "../../../constants/messages.js";
-import { UserProfileService } from "../../../services/userProfileService.js";
+import { useProfile, useProfileImageUpload } from "../hooks/useProfile.js";
 import { useAuthState } from "../../../hooks/useAuth.js";
 
 export default function ProfileImageSection() {
   const [isEditing, setIsEditing] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
   const [imageError, setImageError] = useState(null);
   const fileInputRef = useRef(null);
-  
+
   const { user, updateUserProfile } = useAuthState();
 
-  // 컴포넌트 마운트 시 기존 프로필 이미지 로드
-  useEffect(() => {
-    const loadCurrentProfileImage = async () => {
-      try {
-        const profileData = await UserProfileService.getMyProfile();
-        if (profileData.imageKey) {
-          // imageKey가 이미 완전한 URL인지 확인
-          if (profileData.imageKey.startsWith('http')) {
-            setProfileImage(profileData.imageKey);
-          } else {
-            const imageUrl = await UserProfileService.getImageUrl(profileData.imageKey);
-            setProfileImage(imageUrl);
-          }
-        }
-      } catch (error) {
-        console.error('기존 프로필 이미지 로드 실패:', error);
-      }
-    };
+  // React Query를 사용한 프로필 데이터 및 이미지 업데이트
+  const { data: profileData } = useProfile();
+  const {
+    uploadAndUpdateImage: updateProfileImageAsync,
+    isUploading: isUpdatingImage
+  } = useProfileImageUpload();
 
-    loadCurrentProfileImage();
-  }, []);
+  // React Query 데이터에서 프로필 이미지 URL 가져오기
+  const profileImage = profileData?.profileImageUrl || null;
 
   const handleToggle = () => {
     setIsEditing((prev) => !prev);
@@ -59,28 +45,14 @@ export default function ProfileImageSection() {
     }
 
     try {
-      setIsUploading(true);
       setImageError(null);
 
-
-      // 이미지 업로드
-      const imageKey = await UserProfileService.uploadImageFile(file);
-
-      // 프로필 이미지 업데이트 API 호출
-      await UserProfileService.updateProfileImage({ imageKey });
-
-      // 프로필 이미지 URL 가져오기 (표시용)
-      // imageKey가 이미 완전한 URL인지 확인
-      if (imageKey.startsWith('http')) {
-        setProfileImage(imageKey);
-      } else {
-        const imageUrl = await UserProfileService.getImageUrl(imageKey);
-        setProfileImage(imageUrl);
-      }
+      // React Query를 사용한 이미지 업데이트
+      await updateProfileImageAsync(file);
 
       // 사용자 정보 업데이트 (AuthContext)
       if (updateUserProfile) {
-        updateUserProfile({ profileImage: imageKey });
+        updateUserProfile({ profileImage: profileData?.imageKey });
       }
 
       alert('프로필 이미지가 성공적으로 업데이트되었습니다.');
@@ -88,18 +60,17 @@ export default function ProfileImageSection() {
 
     } catch (error) {
       console.error('프로필 이미지 업로드 실패:', error);
-      
+
       let errorMessage = error.message;
-      
+
       // CORS 에러인 경우 더 명확한 메시지 제공
       if (error.message.includes('NetworkError') || error.message.includes('CORS') || error.message.includes('cross-origin')) {
         errorMessage = 'CORS 설정 문제로 업로드에 실패했습니다.\n백엔드팀에서 Cloudflare R2 CORS 설정을 확인해주세요.';
       }
-      
+
       setImageError(errorMessage);
       alert(`이미지 업로드에 실패했습니다.\n${errorMessage}`);
     } finally {
-      setIsUploading(false);
       // 파일 input 초기화
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -132,6 +103,9 @@ export default function ProfileImageSection() {
   const getCurrentProfileImageUrl = () => {
     return profileImage;
   };
+
+  // 로딩 상태 (React Query 로딩 상태 사용)
+  const isUploading = isUpdatingImage;
 
   return (
     <div

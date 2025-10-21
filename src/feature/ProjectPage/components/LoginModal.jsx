@@ -24,23 +24,25 @@ export default function LoginModal({ onClose, onProviderLogin }) {
       showTitle={false}
       className="w-96 max-w-[90vw] p-13 text-center"
     >
-      <h2 className="text-lg font-semibold text-gray-900 mb-24">로그인이 필요해요</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-24">로그인 후 사용 가능한 서비스입니다.</h2>
       {/* 액션 버튼 */}
       <div className="flex justify-center gap-7">
         <Button
-          variant="primary"
+          variant="secondary"
           onClick={goLogin}
-          className="h-10 px-5 border transition-colors
+          className="px-5 border transition-colors
                      hover:bg-[var(--color-primary)] hover:text-white hover:border-[var(--color-primary)]
                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40
                      active:bg-[color-mix(in_srgb,var(--color-primary)_90%,black)]"
+          style={{ height: '2.75rem', borderRadius: '15px' }}
         >
           로그인
         </Button>
         <Button
-          variant="secondary"
+          variant="outline"
           onClick={onClose}
-          className="h-10 px-4 "
+          className="px-4"
+          style={{ height: '2.75rem', borderRadius: '15px' }}
         >
           닫기
         </Button>

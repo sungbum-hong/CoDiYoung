@@ -21,7 +21,7 @@ export default function ErrorModal({ open, message, onClose, onFindPassword, pri
       >
         <div className="grid place-items-center">
           <p id="signin-error-desc" className="text-center text-sm text-red-700">
-            {message}
+            {typeof message === 'string' ? message : message?.message || '알 수 없는 오류가 발생했습니다.'}
           </p>
         </div>
       </div>

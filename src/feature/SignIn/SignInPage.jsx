@@ -83,7 +83,7 @@ export default function SignInPage({ onClose }) {
             {/* ⬇ 인라인 에러 제거, 대신 모달로 표출 */}
             {false && error && (
               <div className="text-red-600 text-sm text-center p-2 bg-red-50 rounded border border-red-200">
-                {error}
+                {error?.message || error}
               </div>
             )}
 

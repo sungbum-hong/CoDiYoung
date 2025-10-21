@@ -1,10 +1,13 @@
-import { useState } from "react";
-import AdminSidebar from "./components/Adminsidebar";
-import AdminHome from "./Home/AdminHome";
-import UserManagementLayout from "./UserManagement/UserManagementLayout";
-import ContentManagement from "./ContentManagement/ContentManagement";
-import NoticeBannerManagement from "./NoticeBanner/NoticeBannerManagement";
-import SettingManagement from "./settingManagement/SettingManagement";
+import { useState, Suspense, lazy } from "react";
+
+// Lazy load all components
+const AdminSidebar = lazy(() => import("./components/Adminsidebar"));
+const AdminHome = lazy(() => import("./Home/AdminHome"));
+const UserManagementLayout = lazy(() => import("./UserManagement/UserManagementLayout"));
+const ContentManagement = lazy(() => import("./ContentManagement/ContentManagement"));
+const NoticeBannerManagement = lazy(() => import("./NoticeBanner/NoticeBannerManagement"));
+const SettingManagement = lazy(() => import("./settingManagement/SettingManagement"));
+
 
 export default function AdminPageLayout() {
   const [activeMenu, setActiveMenu] = useState("홈");
@@ -28,9 +31,17 @@ export default function AdminPageLayout() {
 
   return (
     <div className="flex min-h-screen">
-      <AdminSidebar activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
+      <Suspense fallback={<div className="w-48 bg-gray-100 animate-pulse"></div>}>
+        <AdminSidebar activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
+      </Suspense>
       <main className="flex-1 ml-0 sm:ml-48 transition-all duration-300">
-        {renderContent()}
+        <Suspense fallback={
+          <div className="flex items-center justify-center h-full">
+            <div className="text-gray-500">로딩 중...</div>
+          </div>
+        }>
+          {renderContent()}
+        </Suspense>
       </main>
     </div>
   );

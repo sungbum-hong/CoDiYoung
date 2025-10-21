@@ -1,36 +1,3 @@
-import { useState, useEffect } from "react";
-import { ProjectService } from "../../../services/projectService.js";
-
-export function useProjectDetail(projectId) {
-  const [projectData, setProjectData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchProject = async () => {
-      if (!projectId) return;
-      
-      setIsLoading(true);
-      try {
-        
-        const response = await ProjectService.getProject(projectId);
-        
-        
-        setProjectData(response);
-      } catch (err) {
-        console.error('프로젝트 조회 실패:', err);
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProject();
-  }, [projectId]);
-
-  return {
-    projectData,
-    isLoading,
-    error
-  };
-}
+// 이 파일은 useProjectPageQueries.js의 useProjectDetail로 대체되었습니다.
+// 하위 호환성을 위해 새로운 훅을 re-export 합니다.
+export { useProjectDetail } from './useProjectPageQueries.js';

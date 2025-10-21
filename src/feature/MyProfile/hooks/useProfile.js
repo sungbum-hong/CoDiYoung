@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserProfileService } from '../../../services/userProfileService.js';
 import { QUERY_KEYS } from '../../../utils/queryKeys.js';
 import { useCallback, useMemo } from 'react';
+import { ProjectUtils } from '../Project/utils/ProjectUtils.js';
 
 // 프로필 관련 쿼리 키 (기존 QUERY_KEYS에 추가 필요)
 const PROFILE_QUERY_KEYS = {
@@ -31,7 +32,7 @@ export function useProfile() {
         imageKey: data?.imageKey || '',
         nickName: data?.nickName || '', // API 스펙대로 nickName 유지
         email: data?.email || '',
-        profileImageUrl: data?.imageKey ? `이미지_URL_생성_로직(${data.imageKey})` : null
+        profileImageUrl: ProjectUtils.resolveImageUrl(data?.imageKey)
       };
     }
   });
@@ -106,7 +107,7 @@ export function useUpdateEmail() {
         throw new Error('올바른 이메일 형식이 아닙니다.');
       }
       
-      return StudyService.updateEmail({ email: email.trim() });
+      return UserProfileService.updateEmail({ email: email.trim() });
     },
     onMutate: async (newEmail) => {
       await queryClient.cancelQueries({
@@ -157,7 +158,7 @@ export function useUpdatePassword() {
         throw new Error('현재 비밀번호와 새 비밀번호가 동일합니다.');
       }
       
-      return StudyService.updatePassword({
+      return UserProfileService.updatePassword({
         currentPassword,
         newPassword
       });
@@ -181,7 +182,7 @@ export function useUpdateProfileImage() {
         throw new Error('이미지 키가 필요합니다.');
       }
       
-      return StudyService.updateProfileImage({ imageKey: imageKey.trim() });
+      return UserProfileService.updateProfileImage({ imageKey: imageKey.trim() });
     },
     onMutate: async (newImageKey) => {
       await queryClient.cancelQueries({
@@ -193,7 +194,7 @@ export function useUpdateProfileImage() {
       queryClient.setQueryData(PROFILE_QUERY_KEYS.detail(), (oldData) => ({
         ...oldData,
         imageKey: newImageKey.trim(),
-        profileImageUrl: `이미지_URL_생성_로직(${newImageKey.trim()})`
+        profileImageUrl: ProjectUtils.resolveImageUrl(newImageKey.trim())
       }));
 
       return { previousProfile };
@@ -318,7 +319,7 @@ export function useProfileImageUpload() {
   const uploadAndUpdateImage = useCallback(async (file) => {
     try {
       // 1. 이미지 업로드 (presigned URL 방식)
-      const imageKey = await StudyService.uploadImageComplete(file);
+      const imageKey = await UserProfileService.uploadImageComplete(file);
       
       // 2. 프로필 이미지 변경
       await updateImage.mutateAsync(imageKey);

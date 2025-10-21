@@ -195,7 +195,7 @@ export function useWritePage() {
         if (isMounted.current && result) {
           const newStudyId = result?.id || result?.studyId;
           setSavedStudyId(newStudyId);
-          
+
           // 스터디 생성 성공 후 출석 체크 시도
           try {
             await AttendanceService.checkAttendance();
@@ -203,8 +203,9 @@ export function useWritePage() {
             console.warn('출석 체크 실패:', attendanceError);
             // 출석 체크 실패해도 스터디 생성은 성공으로 처리
           }
-          
-          setModals(prev => ({ ...prev, record: true }));
+
+          // 모달 대신 바로 /write:id로 이동
+          navigate(`/write/${newStudyId}`);
         }
       }
     } catch (error) {

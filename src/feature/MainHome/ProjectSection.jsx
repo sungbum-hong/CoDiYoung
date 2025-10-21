@@ -6,15 +6,15 @@ import { CONFIG } from '../../constants/config.js';
 import { COLORS } from '../../utils/colors.js';
 import { MESSAGES } from '../../constants/messages.js';
 import { useBackgroundHover } from '../../hooks/useHoverStyle.js';
-import { useProjectData } from './hooks/useProjectData.js';
+import { useMainHomeProjects } from './hooks/useMainHomeQueries.js';
 import { useScrollNavigation } from './hooks/useScrollNavigation.js';
 import { useProjectModal } from './hooks/useProjectModal.js';
 
 export default function ProjectSection({
   title = MESSAGES.SECTIONS.PROJECT_LIST,
 }) {
-  // 프로젝트 데이터 훅
-  const { projects } = useProjectData();
+  // React Query를 사용한 프로젝트 데이터 로드
+  const { data: projects = [], isLoading, error } = useMainHomeProjects();
   
   // 스크롤 네비게이션 훅
   const { scrollRef, currentPage, totalPages, scroll, onScroll } = useScrollNavigation(projects.length);
@@ -33,6 +33,62 @@ export default function ProjectSection({
   const moreButtonHover = useBackgroundHover('transparent', COLORS.GRAY_100);
 
   const gap = CONFIG.CARD.PROJECT.GAP;
+
+  // 로딩 상태 처리
+  if (isLoading) {
+    return (
+      <section className="relative mb-21">
+        <div className="flex items-center justify-between mb-7">
+          <h2 className="font-bold text-2xl">{title}</h2>
+          <button
+            className="p-2 rounded-full transition-colors"
+            style={{ backgroundColor: "transparent" }}
+            aria-label="전체 프로젝트 보기"
+            disabled
+          >
+            <EllipsisHorizontalIcon className="w-5 h-5" style={{ color: COLORS.GRAY_400 }} />
+          </button>
+        </div>
+        <div
+          className="flex items-center justify-center w-full text-gray-500"
+          style={{
+            height: `${CONFIG.CARD.PROJECT.HEIGHT + 60}px`,
+            fontSize: '16px'
+          }}
+        >
+          프로젝트 데이터를 불러오는 중...
+        </div>
+      </section>
+    );
+  }
+
+  // 에러 상태 처리
+  if (error) {
+    return (
+      <section className="relative mb-21">
+        <div className="flex items-center justify-between mb-7">
+          <h2 className="font-bold text-2xl">{title}</h2>
+          <button
+            className="p-2 rounded-full transition-colors"
+            style={{ backgroundColor: "transparent" }}
+            aria-label="전체 프로젝트 보기"
+            disabled
+          >
+            <EllipsisHorizontalIcon className="w-5 h-5" style={{ color: COLORS.GRAY_400 }} />
+          </button>
+        </div>
+        <div
+          className="flex items-center justify-center w-full text-red-500"
+          style={{
+            height: `${CONFIG.CARD.PROJECT.HEIGHT + 60}px`,
+            fontSize: '16px'
+          }}
+        >
+          프로젝트 데이터를 불러오는데 실패했습니다: {error.message}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative mb-21">

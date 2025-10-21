@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { COLORS } from "../../../utils/colors.js";
 import Button from "../../../ui/Button";
-import { ProjectService } from "../../../services/projectService.js";
+import { useProjectActions } from "../hooks/useMyProfileProjectQueries.js";
 import ImageUploadSection from "./components/ImageUploadSection";
 import ProjectFormFields from "./components/ProjectFormFields";
 import ProjectDatePickerModal from "./components/ProjectDatePickerModal";
@@ -21,9 +21,11 @@ export default function ProjectCreateForm({ onBack }) {
   });
 
   const [uploadedImage, setUploadedImage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
+  // React Query를 사용한 프로젝트 생성
+  const { createProjectAsync, isCreating } = useProjectActions();
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -42,8 +44,6 @@ export default function ProjectCreateForm({ onBack }) {
         return;
       }
 
-      setIsLoading(true);
-      
       // API 명세서에 맞는 데이터 구조로 변환
       const projectData = {
         title: formData.projectName,
@@ -55,10 +55,10 @@ export default function ProjectCreateForm({ onBack }) {
         techs: formData.tech,
         questions: formData.questions ? [formData.questions] : [],
         kakaoLink: formData.openTalkLink,
-        completeDay: formData.deadline ? 
+        completeDay: formData.deadline ?
           // 로컬 시간 기준으로 YYYY-MM-DD 형식 생성
           `${formData.deadline.getFullYear()}-${String(formData.deadline.getMonth() + 1).padStart(2, '0')}-${String(formData.deadline.getDate()).padStart(2, '0')}`
-          : 
+          :
           // 기본값을 현재 날짜로 설정
           (() => {
             const today = new Date();
@@ -66,21 +66,19 @@ export default function ProjectCreateForm({ onBack }) {
           })()
       };
 
+      // React Query를 사용한 프로젝트 생성
+      await createProjectAsync(projectData);
 
-      const response = await ProjectService.createProject(projectData);
-      
       setIsSuccess(true);
-      
+
       // 성공 후 페이지 새로고침
       setTimeout(() => {
         window.location.reload();
       }, 2000);
-      
+
     } catch (error) {
       console.error('프로젝트 생성 실패:', error);
       alert('프로젝트 생성에 실패했습니다: ' + error.message);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -111,18 +109,18 @@ export default function ProjectCreateForm({ onBack }) {
 
         {/* 버튼 영역 */}
         <div className="flex justify-between w-full mt-4 gap-2">
-          <Button 
+          <Button
             variant="secondary"
             onClick={handleCreateProject}
-            disabled={isLoading || isSuccess}
+            disabled={isCreating || isSuccess}
             className="flex-1"
           >
-            {isLoading ? '생성 중...' : '개설'}
+            {isCreating ? '생성 중...' : '개설'}
           </Button>
-          <Button 
+          <Button
             variant="outline"
             onClick={onBack}
-            disabled={isLoading}
+            disabled={isCreating}
             className="flex-1"
           >
             취소

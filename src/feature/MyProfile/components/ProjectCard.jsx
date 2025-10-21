@@ -1,10 +1,30 @@
 import ProjectInfo from './ProjectInfo.jsx';
 import MemberDisplay from './MemberDisplay.jsx';
 
-export default function ProjectCard({ project, index }) {
+export default function ProjectCard({ project, index: _index, isSelected: _isSelected, onSelect }) {
+  const handleSelect = () => {
+    if (onSelect) {
+      onSelect(project?.id);
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (!onSelect) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onSelect(project?.id);
+    }
+  };
 
   return (
-    <div key={index} className="relative w-full h-full">
+    <div
+      className="relative w-full h-full"
+      onClick={onSelect ? handleSelect : undefined}
+      onKeyDown={onSelect ? handleKeyDown : undefined}
+      role={onSelect ? 'button' : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      aria-pressed={undefined}
+    >
       {/* 프로젝트 이미지 */}
       <div
         className="absolute w-[70px] h-[70px] rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600 overflow-hidden"
