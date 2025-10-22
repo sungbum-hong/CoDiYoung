@@ -1,7 +1,7 @@
 import { useState, Suspense, lazy } from "react";
 
 // Lazy load all components
-const AdminSidebar = lazy(() => import("./components/Adminsidebar"));
+const AdminSidebar = lazy(() => import("./components/AdminSidebar"));
 const AdminHome = lazy(() => import("./Home/AdminHome"));
 const UserManagementLayout = lazy(() => import("./UserManagement/UserManagementLayout"));
 const ContentManagement = lazy(() => import("./ContentManagement/ContentManagement"));
