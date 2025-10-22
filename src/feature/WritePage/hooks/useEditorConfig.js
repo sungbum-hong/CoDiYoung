@@ -18,18 +18,7 @@ import { TableCell } from '@tiptap/extension-table-cell';
 import YouTube from '../extensions/YouTube.js';
 import CustomImage from '../extensions/CustomImage.js';
 
-// 언어 imports
-import javascript from 'highlight.js/lib/languages/javascript';
-import typescript from 'highlight.js/lib/languages/typescript';
-import python from 'highlight.js/lib/languages/python';
-import java from 'highlight.js/lib/languages/java';
-import cpp from 'highlight.js/lib/languages/cpp';
-import css from 'highlight.js/lib/languages/css';
-import xml from 'highlight.js/lib/languages/xml';
-import json from 'highlight.js/lib/languages/json';
-import bash from 'highlight.js/lib/languages/bash';
-
-// 언어별 동적 import (향후 성능 최적화용)
+// 언어별 동적 import로 통일
 const loadLanguage = async (langName) => {
   const languageMap = {
     javascript: () => import('highlight.js/lib/languages/javascript'),
@@ -50,25 +39,29 @@ const loadLanguage = async (langName) => {
   return null;
 };
 
-const createLowlightInstance = () => {
+const createLowlightInstance = async () => {
   const lowlight = createLowlight();
-  
-  lowlight.register('javascript', javascript);
-  lowlight.register('js', javascript);
-  lowlight.register('typescript', typescript);
-  lowlight.register('ts', typescript);
-  lowlight.register('python', python);
-  lowlight.register('py', python);
-  lowlight.register('java', java);
-  lowlight.register('cpp', cpp);
-  lowlight.register('c++', cpp);
-  lowlight.register('css', css);
-  lowlight.register('html', xml);
-  lowlight.register('xml', xml);
-  lowlight.register('json', json);
-  lowlight.register('bash', bash);
-  lowlight.register('sh', bash);
-  
+
+  // 기본 언어들을 동적으로 로드
+  const languages = ['javascript', 'typescript', 'python', 'java', 'cpp', 'css', 'xml', 'json', 'bash'];
+
+  await Promise.all(languages.map(async (lang) => {
+    const langDef = await loadLanguage(lang);
+    if (langDef) {
+      lowlight.register(lang, langDef);
+
+      // 별칭 등록
+      if (lang === 'javascript') lowlight.register('js', langDef);
+      if (lang === 'typescript') lowlight.register('ts', langDef);
+      if (lang === 'python') lowlight.register('py', langDef);
+      if (lang === 'cpp') {
+        lowlight.register('c++', langDef);
+      }
+      if (lang === 'xml') lowlight.register('html', langDef);
+      if (lang === 'bash') lowlight.register('sh', langDef);
+    }
+  }));
+
   return lowlight;
 };
 
@@ -99,12 +92,17 @@ const registerLanguageOnDemand = async (lowlight, langName) => {
 export const useEditorConfig = (content, onChange) => {
   const isUpdatingFromProps = useRef(false);
   const lowlightRef = useRef(null);
+  const [isLowlightReady, setIsLowlightReady] = useState(false);
 
-  // Lowlight 인스턴스 초기화
+  // Lowlight 인스턴스 비동기 초기화
   useEffect(() => {
-    if (!lowlightRef.current) {
-      lowlightRef.current = createLowlightInstance();
-    }
+    const initializeLowlight = async () => {
+      if (!lowlightRef.current) {
+        lowlightRef.current = await createLowlightInstance();
+        setIsLowlightReady(true);
+      }
+    };
+    initializeLowlight();
   }, []);
 
   const editor = useEditor({
@@ -204,6 +202,7 @@ export const useEditorConfig = (content, onChange) => {
 
   return {
     editor,
-    isUpdatingFromProps
+    isUpdatingFromProps,
+    isLowlightReady
   };
 };

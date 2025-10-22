@@ -12,6 +12,25 @@ export default defineConfig({
     tailwindcss(),
   ],
 
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // 벤더 라이브러리들을 별도 청크로 분리
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          query: ['@tanstack/react-query'],
+          ui: ['@heroicons/react', 'lucide-react', 'react-icons'],
+          editor: ['@tiptap/react', '@tiptap/starter-kit', '@tiptap/extension-link', '@tiptap/extension-text-align'],
+          highlighting: ['highlight.js', 'lowlight'],
+          utils: ['date-fns', 'dompurify', 'zustand'],
+          charts: ['recharts'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600, // 600KB로 경고 임계값 증가
+  },
+
   server: {
     port: 3000,
     proxy: {
