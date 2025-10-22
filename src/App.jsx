@@ -6,7 +6,7 @@ import AppLayout from "./layout/AppLayout.jsx"
 import HomePage from "./feature/MainHome/HomePage.jsx"
 import LoadingFallback from "./components/LoadingFallback.jsx"
 import TokenExpirationHandler from "./components/TokenExpirationHandler.jsx"
-
+//메인
 // Lazy loaded components
 const SignInPage = lazy(() => import("./feature/SignIn/SignInPage.jsx"))
 const FindPassword = lazy(() => import("./feature/SignIn/FindPassword.jsx"))
