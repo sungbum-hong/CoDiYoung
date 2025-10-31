@@ -162,7 +162,7 @@ function CompleteButton({
   const handleMemberCompletionRequest = async () => {
     try {
       const result = await completeProjectAsync(projectId);
-      console.log('[CompleteButton] completion result:', result);
+      
 
       // 성공 시 상태 업데이트
       setMemberCompletionRequests(prev => ({

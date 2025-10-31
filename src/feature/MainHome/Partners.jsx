@@ -1,5 +1,5 @@
 import { CONFIG } from '../../constants/config.js';
-import { COLORS } from '../../utils/colors.js';
+import { COLORS } from '../../constants/colors.js';
 
 export default function Partners({ logos = [] }) {
   return (

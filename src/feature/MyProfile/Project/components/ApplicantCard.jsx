@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Button from "../../../../ui/Button";
-import { ProjectService } from "../../../../services/projectService.js";
+import { ProjectService } from "../../../../services/project/ProjectService.js";
 import TechStack from "../../../../components/TechStack.jsx";
 
 export default function ApplicantCard({ applicants, projectId, onApprove, onReject }) {

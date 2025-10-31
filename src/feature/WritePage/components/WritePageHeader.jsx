@@ -1,5 +1,5 @@
 import Button from '../../../ui/Button.jsx';
-import { COLORS } from '../../../utils/colors.js';
+import { COLORS } from "../../../constants/colors.js";
 
 export default function WritePageHeader({ 
   title, 

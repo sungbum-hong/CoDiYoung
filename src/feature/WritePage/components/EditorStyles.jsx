@@ -156,27 +156,50 @@ export default function EditorStyles() {
         margin: 0;
       }
 
-      /* 링크 스타일 */
+      /* 링크 스타일 - 강력한 특이성 */
+      .tiptap-editor .ProseMirror a[href],
+      .ProseMirror a[href],
+      div[data-testid="editor-content"] a[href],
+      .editor-link[href],
+      .tiptap-editor a,
       .ProseMirror a {
-        color: #3b82f6;
-        text-decoration: underline;
-        cursor: pointer;
-        transition: color 0.2s ease;
+        color: #3b82f6 !important;
+        text-decoration: underline !important;
+        cursor: pointer !important;
+        transition: color 0.2s ease !important;
+        border: none !important;
+        background: transparent !important;
+        font-weight: inherit !important;
       }
 
+      .tiptap-editor .ProseMirror a[href]:hover,
+      .ProseMirror a[href]:hover,
+      div[data-testid="editor-content"] a[href]:hover,
+      .editor-link[href]:hover,
+      .tiptap-editor a:hover,
       .ProseMirror a:hover {
-        color: #1d4ed8;
-        text-decoration: underline;
+        color: #1d4ed8 !important;
+        text-decoration: underline !important;
       }
 
+      .tiptap-editor .ProseMirror a[href]:visited,
+      .ProseMirror a[href]:visited,
+      div[data-testid="editor-content"] a[href]:visited,
+      .editor-link[href]:visited,
+      .tiptap-editor a:visited,
       .ProseMirror a:visited {
-        color: #7c3aed;
+        color: #7c3aed !important;
       }
 
+      .tiptap-editor .ProseMirror a[href]:focus,
+      .ProseMirror a[href]:focus,
+      div[data-testid="editor-content"] a[href]:focus,
+      .editor-link[href]:focus,
+      .tiptap-editor a:focus,
       .ProseMirror a:focus {
-        outline: 2px solid #3b82f6;
-        outline-offset: 2px;
-        border-radius: 2px;
+        outline: 2px solid #3b82f6 !important;
+        outline-offset: 2px !important;
+        border-radius: 2px !important;
       }
 
       .ProseMirror pre {
@@ -283,6 +306,91 @@ export default function EditorStyles() {
 
       .ProseMirror .hljs-addition {
         background: #f0fff4;
+      }
+
+      /* 이미지 리사이저 스타일 */
+      .ProseMirror .image-resizer {
+        position: relative;
+        display: inline-block;
+        line-height: 0;
+        max-width: 100%;
+      }
+
+      .ProseMirror .image-resizer img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        cursor: pointer;
+      }
+
+      .ProseMirror .resize-handle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: #3b82f6;
+        border: 1px solid white;
+        border-radius: 50%;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .ProseMirror .image-resizer:hover .resize-handle {
+        opacity: 1;
+      }
+
+      .ProseMirror .resize-handle:hover {
+        background: #2563eb;
+        transform: scale(1.2);
+      }
+
+      /* 리사이즈 중일 때 이미지 선택 방지 */
+      .ProseMirror .image-resizer.resizing img {
+        user-select: none;
+        pointer-events: none;
+      }
+
+      /* 이미지 선택 시 테두리 */
+      .ProseMirror .image-resizer.ProseMirror-selectednode {
+        outline: 2px solid #3b82f6;
+        border-radius: 4px;
+      }
+
+      .ProseMirror .image-resizer.ProseMirror-selectednode .resize-handle {
+        opacity: 1;
+      }
+
+      /* YouTube 영상 스타일 */
+      .ProseMirror div[data-youtube-video] {
+        margin: 1rem 0;
+        text-align: center;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+      }
+
+      .ProseMirror div[data-youtube-video] iframe {
+        width: 100% !important;
+        max-width: 100% !important;
+        aspect-ratio: 16/9 !important;
+        border: none !important;
+        display: block !important;
+      }
+
+      /* YouTube 로딩 상태 */
+      .ProseMirror div[data-youtube-video] .loading {
+        padding: 2rem;
+        color: #6c757d;
+        font-size: 14px;
+      }
+
+      /* YouTube 선택 시 테두리 */
+      .ProseMirror div[data-youtube-video].ProseMirror-selectednode {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
       }
     `}</style>
   );

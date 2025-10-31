@@ -1,7 +1,7 @@
 import { MESSAGES } from '../constants/messages.js';
 import { AuthService } from './authService.js';
+import { CONFIG } from '../constants/config.js';
 
-const BASE_URL = 'http://15.164.125.28:8080';
 
 // 출석 관련 API 엔드포인트
 const ENDPOINTS = {
@@ -81,7 +81,7 @@ export class AttendanceService {
    */
   static async checkAttendance() {
     try {
-      const url = `${BASE_URL}${ENDPOINTS.ATTENDANCE_CHECK}`;
+      const url = `${CONFIG.API.BASE_URL}${ENDPOINTS.ATTENDANCE_CHECK}`;
       const response = await fetch(url, {
         method: 'POST',
         headers: this.getCommonHeaders()
@@ -112,7 +112,7 @@ export class AttendanceService {
     }
 
     try {
-      const url = `${BASE_URL}${ENDPOINTS.ATTENDANCE_CALENDAR}?month=${encodeURIComponent(month)}`;
+      const url = `${CONFIG.API.BASE_URL}${ENDPOINTS.ATTENDANCE_CALENDAR}?month=${encodeURIComponent(month)}`;
       const response = await fetch(url, {
         method: 'GET',
         headers: this.getCommonHeaders(false) // Content-Type 불필요
@@ -146,13 +146,12 @@ export class AttendanceService {
       const today = new Date();
       const currentMonth = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}`;
       const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
-      
+
       const calendar = await this.getAttendanceCalendar(currentMonth);
       const todayRecord = calendar.days?.find(day => day.date === todayStr);
-      
+
       return todayRecord?.checked || false;
     } catch (error) {
-      console.warn('오늘 출석 확인 실패:', error);
       return false;
     }
   }

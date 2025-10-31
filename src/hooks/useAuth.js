@@ -1,8 +1,10 @@
-import { useAuth } from '../contexts/AuthContext';
+import useAuthStore from '../stores/authStore.js';
 import { CONFIG } from '../constants/config.js';
 
 export function useAuthActions() {
-  const { setUser, logout, resetState } = useAuth();
+  const setUser = useAuthStore((state) => state.setUser);
+  const logout = useAuthStore((state) => state.logout);
+  const resetState = useAuthStore((state) => state.resetState);
 
   const loginWithTestData = () => {
     setUser(CONFIG.TEST_USER);
@@ -24,7 +26,10 @@ export function useAuthActions() {
 }
 
 export function useAuthState() {
-  const { isAuthenticated, user, isLoading, error } = useAuth();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
 
   return {
     isAuthenticated,

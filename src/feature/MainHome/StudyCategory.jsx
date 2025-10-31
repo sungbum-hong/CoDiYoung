@@ -1,10 +1,10 @@
 import { PencilIcon } from "@heroicons/react/24/outline";
 import { useRef, useCallback } from "react";
-import { COLORS } from "../../utils/colors";
+import { COLORS } from "../../constants/colors.js";
 import { useAvatarGeneration } from "../../hooks/useAvatarGeneration.js";
 import { useStudyNavigation } from "./hooks/useStudyNavigation.js";
 import { useCategoryConfig } from "./hooks/useCategoryConfig.js";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuthState } from "../../hooks/useAuth.js";
 import { useMainHomeStudies } from "./hooks/useMainHomeQueries.js";
 import CategoryCard from "./components/CategoryCard.jsx";
 
@@ -35,7 +35,7 @@ export default function StudyCategory() {
   const { getCategoryConfig } = useCategoryConfig();
 
   // 인증 상태 확인
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuthState();
 
   // 드래그 스크롤 기능을 위한 훅
   const useDragScroll = () => {

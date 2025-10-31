@@ -1,4 +1,4 @@
-import { COLORS } from "../../../utils/colors.js";
+import { COLORS } from "../../../constants/colors.js";
 import { ProjectUtils } from "../../MyProfile/Project/utils/ProjectUtils";
 
 export default function MemberList({ members }) {

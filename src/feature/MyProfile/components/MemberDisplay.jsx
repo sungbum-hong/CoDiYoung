@@ -1,5 +1,5 @@
 import TechStack from '../../../components/TechStack.jsx';
-import { COLORS } from "../../../utils/colors.js";
+import { COLORS } from "../../../constants/colors.js";
 import { ProjectUtils } from "../Project/utils/ProjectUtils";
 
 export default function MemberDisplay({ project, position = "left" }) {

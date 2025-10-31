@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { COLORS } from "../../../utils/colors.js";
+import { COLORS } from "../../../constants/colors.js";
 import Button from "../../../ui/Button";
 import { useProjectActions } from "../hooks/useMyProfileProjectQueries.js";
 import ImageUploadSection from "./components/ImageUploadSection";
@@ -77,7 +77,7 @@ export default function ProjectCreateForm({ onBack }) {
       }, 2000);
 
     } catch (error) {
-      console.error('프로젝트 생성 실패:', error);
+      
       alert('프로젝트 생성에 실패했습니다: ' + error.message);
     }
   };

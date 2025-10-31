@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import BaseModal from "../../../ui/BaseModal.jsx";
 import Button from "../../../ui/Button.jsx";
-import { MODAL_SIZES } from '../../../constants/sizes.js';
 import { CONFIG } from '../../../constants/config.js';
-import { COLORS } from "../../../utils/colors.js";
+import { COLORS } from "../../../constants/colors.js";
 import { usePrimaryButtonHover } from "../../../hooks/useHoverStyle.js";
 import { useAuthState } from "../../../hooks/useAuth.js";
 
@@ -21,7 +20,7 @@ export default function ProjectDetailModal({ isOpen, onClose, projectId, project
   };
 
   // 버튼 공통 사이즈(기존 로직 유지)
-  const modalConfig = MODAL_SIZES.PROJECT_DETAIL;
+  const modalConfig = CONFIG.MODAL_SIZES.PROJECT_DETAIL;
   const btnStyle = {
     width: `${modalConfig.buttonWidth || CONFIG.CARD.PROJECT.WIDTH}px`,
     height: `${modalConfig.buttonHeight || 70}px`,
@@ -39,7 +38,7 @@ export default function ProjectDetailModal({ isOpen, onClose, projectId, project
         <div className="h-48 rounded-lg mb-6 flex items-center justify-center bg-gray-100 overflow-hidden">
           {project?.imageKey ? (
             <img 
-              src={project.imageKey.startsWith('http') ? project.imageKey : `http://15.164.125.28:8080/storage/${project.imageKey}`}
+              src={project.imageKey.startsWith('http') ? project.imageKey : `${CONFIG.API.BASE_URL}/storage/${project.imageKey}`}
               alt={project?.title || '프로젝트 이미지'}
               className="w-full h-full object-cover rounded-lg"
               onError={(e) => {

@@ -1,4 +1,4 @@
-import { COLORS } from "../../../utils/colors.js";
+import { COLORS } from "../../../constants/colors.js";
 
 export function useHoverStyle() {
   const handleMouseEnter = (e) => {

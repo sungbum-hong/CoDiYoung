@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { UserProfileService } from '../../../services/userProfileService.js';
-import { QUERY_KEYS } from '../../../utils/queryKeys.js';
+import { UserProfileService } from '../../../services/userProfile/UserProfileService.js';
 import { useCallback, useMemo } from 'react';
 import { ProjectUtils } from '../Project/utils/ProjectUtils.js';
 
@@ -134,7 +133,7 @@ export function useUpdateEmail() {
       });
       
       // 이메일 변경 시 재로그인이 필요할 수 있음을 알림
-      console.warn('이메일 변경 완료. JWT subject가 이메일인 경우 재로그인이 필요합니다.');
+      
     }
   });
 }
@@ -164,7 +163,7 @@ export function useUpdatePassword() {
       });
     },
     onSuccess: () => {
-      console.warn('비밀번호 변경 완료. 재로그인이 필요합니다.');
+      
     }
   });
 }
@@ -338,59 +337,6 @@ export function useProfileImageUpload() {
   };
 }
 
-// StudyService에 추가해야 할 메서드들 (예시)
-/*
-StudyService에 다음 메서드들을 추가해야 합니다:
-
-// GET /api/mypage
-static async getMyProfile() {
-  const url = `${BASE_URL}/api/mypage`;
-  return this.optimizedFetch(url, {
-    method: 'GET',
-    headers: this.getCommonHeaders()
-  });
-}
-
-// PATCH /api/mypage/nickname  
-static async updateNickname(data) {
-  const url = `${BASE_URL}/api/mypage/nickname`;
-  return this.optimizedFetch(url, {
-    method: 'PATCH',
-    headers: this.getCommonHeaders(),
-    body: JSON.stringify(data)
-  }, false);
-}
-
-// PATCH /api/mypage/email
-static async updateEmail(data) {
-  const url = `${BASE_URL}/api/mypage/email`;
-  return this.optimizedFetch(url, {
-    method: 'PATCH',
-    headers: this.getCommonHeaders(),
-    body: JSON.stringify(data)
-  }, false);
-}
-
-// PATCH /api/mypage/password
-static async updatePassword(data) {
-  const url = `${BASE_URL}/api/mypage/password`;
-  return this.optimizedFetch(url, {
-    method: 'PATCH',
-    headers: this.getCommonHeaders(),
-    body: JSON.stringify(data)
-  }, false);
-}
-
-// PATCH /api/mypage/image
-static async updateProfileImage(data) {
-  const url = `${BASE_URL}/api/mypage/image`;
-  return this.optimizedFetch(url, {
-    method: 'PATCH',
-    headers: this.getCommonHeaders(),
-    body: JSON.stringify(data)
-  }, false);
-}
-*/
 
 export default {
   useProfile,

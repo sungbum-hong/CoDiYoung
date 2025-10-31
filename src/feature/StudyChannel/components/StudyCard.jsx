@@ -1,4 +1,5 @@
-import { COLORS } from "../../../utils/colors.js";
+import { COLORS } from "../../../constants/colors.js";
+import { CONFIG } from "../../../constants/config.js";
 import { getFirstImageUrl } from "../../../utils/imageUtils.js";
 
 // HTML 콘텐츠에서 data-key 속성을 가진 첫 번째 이미지의 key 추출
@@ -14,12 +15,12 @@ const getFirstImageFromContent = (content) => {
       const dataKey = imgWithDataKey.getAttribute('data-key');
       
       // data-key를 실제 이미지 URL로 변환
-      return `http://15.164.125.28:8080/api/storage/public-url?key=${encodeURIComponent(dataKey)}`;
+      return `${CONFIG.API.BASE_URL}/api/storage/public-url?key=${encodeURIComponent(dataKey)}`;
     }
     
     return null;
   } catch (error) {
-    console.error('StudyCard 이미지 추출 실패:', error);
+    
     return null;
   }
 };
@@ -72,8 +73,8 @@ export default function StudyCard({ onClick, study }) {
           alt="스터디 이미지"
           className="w-full h-full object-cover"
           onError={(e) => {
-            console.error('🚨 [StudyCard] 이미지 로드 실패:', firstImageUrl);
-            console.error('- 에러 이벤트:', e);
+            
+            
             e.target.style.display = 'none';
             const fallbackDiv = e.target.nextSibling;
             if (fallbackDiv) {

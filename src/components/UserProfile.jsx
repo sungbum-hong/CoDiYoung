@@ -2,8 +2,8 @@ import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 import { useAuthState, useAuthActions } from '../hooks/useAuth';
-import { useAuth } from '../contexts/AuthContext';
-import { UserProfileService } from '../services/userProfileService.js';
+import useAuthStore from '../stores/authStore.js';
+import { UserProfileService } from '../services/userProfile/UserProfileService.js';
 import { ROUTES } from '../constants/routes.js';
 import { MESSAGES } from '../constants/messages.js';
 
@@ -12,7 +12,7 @@ export default function UserProfile() {
   const navigate = useNavigate();
   const { user } = useAuthState();
   const { handleLogout } = useAuthActions();
-  const { resetState } = useAuth();
+  const resetState = useAuthStore((state) => state.resetState);
   const [profileImage, setProfileImage] = useState(null);
   const [nickname, setNickname] = useState('');
 
@@ -34,7 +34,7 @@ export default function UserProfile() {
           setNickname(profileData.nickName);
         }
       } catch (error) {
-        console.error('헤더 프로필 정보 로드 실패:', error);
+        // 헤더 프로필 정보 로드 실패
       }
     };
 

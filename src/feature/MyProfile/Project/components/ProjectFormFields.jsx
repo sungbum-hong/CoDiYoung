@@ -1,5 +1,5 @@
 import { CalendarIcon } from "@heroicons/react/24/outline";
-import { COLORS } from "../../../../utils/colors.js";
+import { COLORS } from "../../../../constants/colors.js";
 import Dropdown from "./Dropdown";
 import MultiSelectDropdown from "./MultiSelectDropdown";
 import { validateKakaoOpenTalkLink } from "../utils/projectValidation";

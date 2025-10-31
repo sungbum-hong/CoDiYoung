@@ -1,4 +1,5 @@
-import { COLORS } from '../../../../utils/colors';
+import { COLORS } from '../../../../constants/colors';
+import { CONFIG } from '../../../../constants/config.js';
 import useStudyUIStore from '../../../../stores/studyUIStore.js';
 import { getFirstImageUrl } from '../../../../utils/imageUtils.js';
 
@@ -15,12 +16,12 @@ const getFirstImageFromContent = (content) => {
       const dataKey = imgWithDataKey.getAttribute('data-key');
       
       // data-key를 실제 이미지 URL로 변환
-      return `http://15.164.125.28:8080/api/storage/public-url?key=${encodeURIComponent(dataKey)}`;
+      return `${CONFIG.API.BASE_URL}/api/storage/public-url?key=${encodeURIComponent(dataKey)}`;
     }
     
     return null;
   } catch (error) {
-    console.error('이미지 추출 실패:', error);
+    
     return null;
   }
 };

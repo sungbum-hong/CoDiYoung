@@ -1,13 +1,19 @@
-import { useAuth } from "../../../contexts/AuthContext";
-import { useUI } from "../../../contexts/UIContext";
+import useAuthStore from "../../../stores/authStore.js";
 import { validateEmail, validatePassword } from "../../../utils/validation";
 
 export function useSignInForm() {
-  const { clearError, error } = useUI();
-  const {
-    email, password, emailError, passwordError,
-    setEmail, setPassword, setEmailError, setPasswordError, resetErrors
-  } = useAuth();
+  const email = useAuthStore((state) => state.email);
+  const password = useAuthStore((state) => state.password);
+  const emailError = useAuthStore((state) => state.emailError);
+  const passwordError = useAuthStore((state) => state.passwordError);
+  const error = useAuthStore((state) => state.error);
+
+  const setEmail = useAuthStore((state) => state.setEmail);
+  const setPassword = useAuthStore((state) => state.setPassword);
+  const setEmailError = useAuthStore((state) => state.setEmailError);
+  const setPasswordError = useAuthStore((state) => state.setPasswordError);
+  const resetErrors = useAuthStore((state) => state.resetErrors);
+  const clearError = useAuthStore((state) => state.clearError);
 
   const handleEmailChange = (e) => {
     const v = e.target.value;
@@ -28,7 +34,7 @@ export function useSignInForm() {
     const pErr = validatePassword(password);
     setEmailError(eErr);
     setPasswordError(pErr);
-    
+
     return !eErr && !pErr;
   };
 
@@ -38,13 +44,13 @@ export function useSignInForm() {
     password,
     emailError,
     passwordError,
-    
+
     // Form handlers
     handleEmailChange,
     handlePasswordChange,
     validateForm,
     resetErrors,
-    
+
     // Error handling
     error,
     clearError

@@ -5,7 +5,8 @@ import LoginModal from "./components/LoginModal.jsx";
 import MemberList from "./components/MemberList.jsx";
 import TechList from "./components/TechList.jsx";
 import Button from "../../ui/Button.jsx";
-import { COLORS } from '../../utils/colors.js';
+import { COLORS } from '../../constants/colors.js';
+import { CONFIG } from "../../constants/config.js";
 import { useProjectMapping } from "./hooks/useProjectMapping.js";
 import { useProgressingProjects } from "../MyProfile/hooks/useMyProfileProjectQueries.js";
 import { useAuthState } from "../../hooks/useAuth.js";
@@ -56,7 +57,7 @@ export default function ProjectCard({ project }) {
 
     } catch (error) {
       // 에러가 발생해도 신청은 허용 (네트워크 문제일 수 있음)
-      console.error('프로젝트 중복 확인 중 오류:', error);
+      
       setIsApplicationModalOpen(true);
     }
   };
@@ -101,7 +102,7 @@ export default function ProjectCard({ project }) {
         <div className="border-2 rounded-2xl p-8 h-96 flex items-center justify-center mt-12 overflow-hidden" style={{ borderColor: COLORS.BORDER }}>
           {project?.imageKey ? (
             <img 
-              src={project.imageKey.startsWith('http') ? project.imageKey : `http://15.164.125.28:8080/storage/${project.imageKey}`}
+              src={project.imageKey.startsWith('http') ? project.imageKey : `${CONFIG.API.BASE_URL}/storage/${project.imageKey}`}
               alt={project?.title || '프로젝트 이미지'}
               className="w-full h-full object-cover rounded-xl"
               onError={(e) => {

@@ -1,5 +1,5 @@
 import { CodeBracketIcon, PaintBrushIcon, VideoCameraIcon, PencilIcon } from "@heroicons/react/24/outline";
-import { COLORS } from "../utils/colors";
+import { COLORS } from "./colors.js";
 
 export const STUDY_CATEGORY_CONFIG = {
   "코딩": {

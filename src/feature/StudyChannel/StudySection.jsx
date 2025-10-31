@@ -1,4 +1,4 @@
-import { COLORS } from "../../utils/colors.js";
+import { COLORS } from "../../constants/colors.js";
 import useStudyChannelStore from "../../stores/studyChannelStore.js";
 import StudyModal from "./Modal/StudyModal.jsx";
 import StudyCard from "./components/StudyCard.jsx";

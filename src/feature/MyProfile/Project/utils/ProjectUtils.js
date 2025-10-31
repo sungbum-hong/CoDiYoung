@@ -1,6 +1,4 @@
-/**
- * 프로젝트 관련 유틸리티 함수들
- */
+import { CONFIG } from "../../../../constants/config";
 export class ProjectUtils {
   /**
    * 현재 사용자가 프로젝트 팀장인지 확인
@@ -170,7 +168,7 @@ export class ProjectUtils {
     }
 
     // CONFIG import 필요하다면 추가
-    const baseUrl = 'http://15.164.125.28:8080'; // TODO: CONFIG.API.BASE_URL 사용하도록 리팩토링
+    const baseUrl = CONFIG.API.BASE_URL;
     return `${baseUrl}/storage/${trimmed}`;
   }
 

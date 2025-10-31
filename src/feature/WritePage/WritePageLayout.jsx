@@ -8,7 +8,7 @@ import { useWritePageHeader } from './hooks/useWritePageHeader.js';
 // 컴포넌트들 import
 import WritePageHeader from './components/WritePageHeader.jsx';
 import WriteForm from './WriteForm.jsx';
-import RecordModal from './components/RecordModal';
+import RecordModal from './components/RecordModal.jsx';
 import ConfirmModal from './components/ConfirmModal.jsx';
 
 export default function WritePageLayout() {
@@ -64,15 +64,26 @@ export default function WritePageLayout() {
 
 
 
-      {/* 삭제 모달 */}
-      <ConfirmModal 
+      {/* 기록 완료 모달 */}
+      <RecordModal
+        {...getModalProps('record')}
+        message="오늘도 수고했어!!"
+      />
+
+      {/* 수정 완료 모달 */}
+      <RecordModal
+        {...getModalProps('complete')}
+      />
+
+      {/* 삭제 확인 모달 */}
+      <ConfirmModal
         {...getModalProps('delete')}
         title="삭제하시겠습니까?"
         confirmText="삭제"
       />
 
-      {/* 수정 모달 */}
-      <ConfirmModal 
+      {/* 수정 확인 모달 */}
+      <ConfirmModal
         {...getModalProps('edit')}
         title="수정하시겠습니까?"
         confirmText="수정"

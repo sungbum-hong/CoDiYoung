@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import ProjectInfo from '../ProjectInfo';
 
 // COLORS 모킹
-jest.mock('../../../../utils/colors.js', () => ({
+jest.mock('../../../../constants/colors.js', () => ({
   COLORS: {
     BLUE_600: '#2563eb'
   }

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ProjectService } from '../../../services/projectService.js';
+import { ProjectService } from '../../../services/project/ProjectService.js';
 import { useAuthState } from '../../../hooks/useAuth.js';
 
 /**
@@ -18,19 +18,7 @@ export const useProgressingProjects = (userId, options = {}) => {
   return useQuery({
     queryKey: ['myProfile', 'projects', 'progressing', userId ?? 'guest'],
     queryFn: async () => {
-      console.group('🔍 [DEBUG] useProgressingProjects - React Query 실행');
-      console.log('📊 쿼리 실행 정보:', {
-        userId,
-        queryKey: ['myProfile', 'projects', 'progressing', userId ?? 'guest']
-      });
-
       const response = await ProjectService.getProgressingProjects();
-
-      console.log('🔄 서버 응답 후 정규화 처리:', {
-        원본응답: response,
-        isArray: Array.isArray(response),
-        responseType: typeof response
-      });
 
       // 배열 형태로 정규화
       const normalizedData = Array.isArray(response) ? response : response ? [response] : [];
@@ -40,19 +28,11 @@ export const useProgressingProjects = (userId, options = {}) => {
         const originalStatus = project.currentUserStatus;
         let normalizedStatus = originalStatus;
 
-        console.log(`🔄 [${index}] 프로젝트 상태 매핑:`, {
-          프로젝트ID: project.id,
-          제목: project.title,
-          원본상태: originalStatus,
-          원본상태타입: typeof originalStatus
-        });
-
         // 서버에서 "COMPLICATED"를 "WAITING"으로 매핑
         if (originalStatus === 'COMPLICATED') {
           normalizedStatus = 'WAITING';
-          console.log(`✅ 상태 매핑 적용: ${originalStatus} → ${normalizedStatus}`);
+          
         } else {
-          console.log(`ℹ️ 상태 매핑 불필요: ${originalStatus} (그대로 유지)`);
         }
 
         const processedProject = {
@@ -61,40 +41,9 @@ export const useProgressingProjects = (userId, options = {}) => {
           originalCurrentUserStatus: originalStatus // 원본 상태 보존
         };
 
-        console.log(`🔍 [${index}] 처리된 프로젝트:`, {
-          최종currentUserStatus: processedProject.currentUserStatus,
-          originalCurrentUserStatus: processedProject.originalCurrentUserStatus
-        });
-
         return processedProject;
       });
-
-      console.log('✅ 정규화된 최종 데이터:', {
-        length: processedData.length,
-        data: processedData,
-        각프로젝트상세분석: processedData.map((project, index) => {
-          console.log(`🔍 [${index}] 프로젝트 상세:`, {
-            전체객체: project,
-            핵심필드만: {
-              id: project.id,
-              title: project.title,
-              originalCurrentUserStatus: project.originalCurrentUserStatus,
-              currentUserStatus: project.currentUserStatus,
-              status: project.status,
-              completionStatus: project.completionStatus
-            }
-          });
-          return {
-            id: project.id,
-            title: project.title,
-            originalCurrentUserStatus: project.originalCurrentUserStatus,
-            currentUserStatus: project.currentUserStatus,
-            status: project.status,
-            completionStatus: project.completionStatus
-          };
-        })
-      });
-      console.groupEnd();
+      
 
       return processedData;
     },
@@ -122,8 +71,32 @@ export const useAppliedProjects = (userId, options = {}) => {
     queryKey: ['myProfile', 'projects', 'applied', userId ?? 'guest'],
     queryFn: async () => {
       const response = await ProjectService.getAppliedProjects();
-      // 배열 형태로 정규화
-      return Array.isArray(response) ? response : response ? [response] : [];
+
+      // 새로운 API 스펙에 따라 단일 객체를 배열로 정규화
+      const normalizedData = Array.isArray(response) ? response : response ? [response] : [];
+
+      // 신청중인 프로젝트 데이터 구조 확인 및 매핑
+      const processedData = normalizedData.map((project, index) => {
+        // 새로운 API 스펙에 맞는 데이터 구조로 정규화
+        const processedProject = {
+          ...project,
+          // 기존 필드명과 호환성 유지
+          memberBriefs: project.memberBriefs || [],
+          techs: project.techs || [],
+          position: project.position || [],
+          // 이미지 URL 정규화
+          imageKey: project.imageKey,
+          // 리더 정보 정규화
+          leaderInfoProjection: project.leaderInfoProjection || {}
+        };
+
+        
+        return processedProject;
+      });
+
+      
+
+      return processedData;
     },
     staleTime: 3 * 60 * 1000, // 3분 캐시
     retry: (failureCount, error) => {
@@ -241,7 +214,7 @@ export const useCancelProjectApplication = () => {
           context.previousAppliedProjects
         );
       }
-      console.error('프로젝트 신청 취소 실패:', error);
+      
     },
     onSuccess: () => {
       // 관련 쿼리들 무효화 (해당 사용자의 쿼리만)
@@ -296,7 +269,7 @@ export const useCancelProgressingProject = () => {
           context.previousProgressingProjects
         );
       }
-      console.error('진행 프로젝트 취소 실패:', error);
+      
     },
     onSuccess: () => {
       // 관련 쿼리들 무효화 (해당 사용자의 쿼리만)
@@ -329,21 +302,11 @@ export const useCompleteProject = () => {
   return useMutation({
     mutationFn: (projectId) => ProjectService.completeProject(projectId),
     onSuccess: (result, projectId) => {
-      console.group('🎯 [DEBUG] 프로젝트 완료 처리 상세 정보');
+      
 
-      // 사용자 정보 디버깅
-      console.log('👤 현재 사용자 정보:', {
-        userId,
-        user: user ? {
-          id: user.id,
-          userId: user.userId,
-          name: user.name,
-          email: user.email
-        } : null
-      });
 
       // API 응답 전체 구조 디버깅
-      console.log('📡 완료 API 응답 원본:', result);
+      
 
       // 완료 처리 결과에 따라 다른 동작 수행
       const responseData = result?.data || {};
@@ -354,46 +317,22 @@ export const useCompleteProject = () => {
       const completionRate = completionPercent > 1 ? completionPercent / 100 : completionPercent;
       const status = (result?.status || '').toUpperCase();
 
-      // 파싱된 데이터 디버깅
-      console.log('🔍 파싱된 응답 데이터:', {
-        responseData,
-        originalRole: responseData.userRole,
-        normalizedRole,
-        originalCompletionRate: responseData.completionRate,
-        completionPercent,
-        completionRate,
-        originalStatus: result?.status,
-        status,
-        isCompleted: result?.isCompleted
-      });
 
       const isFullyCompleted =
         result?.isCompleted === true ||
         status === 'COMPLETED' ||
         (normalizedRole === 'LEADER' && completionRate >= 1.0);
 
-      // 역할 및 완료 상태 판별 디버깅
-      console.log('🎭 역할 및 완료 상태 판별:', {
-        normalizedRole,
-        isLeader: normalizedRole === 'LEADER',
-        isMember: normalizedRole === 'MEMBER',
-        isFullyCompleted,
-        판별조건들: {
-          'result?.isCompleted === true': result?.isCompleted === true,
-          'status === "COMPLETED"': status === 'COMPLETED',
-          'normalizedRole === "LEADER" && completionRate >= 1.0': normalizedRole === 'LEADER' && completionRate >= 1.0
-        }
-      });
 
       // 팀원 완료 요청일 때는 진행 목록에서 제거하거나 즉시 refetch하지 않고
       // 캐시 안의 해당 프로젝트에 완료 상태 정보만 덧붙인다.
       if (!isFullyCompleted && normalizedRole === 'MEMBER') {
-        console.log('👥 팀원 완료 요청 처리 - 캐시 업데이트만 수행');
+        
 
         queryClient.setQueryData(
           ['myProfile', 'projects', 'progressing', userId ?? 'guest'],
           (oldData) => {
-            console.log('💾 이전 캐시 데이터:', oldData);
+            
 
             if (!Array.isArray(oldData)) return oldData;
 
@@ -413,39 +352,35 @@ export const useCompleteProject = () => {
                 }
               };
 
-              console.log(`📝 프로젝트 ${projectId} 캐시 업데이트:`, {
-                기존: project,
-                업데이트: updatedProject
-              });
 
               return updatedProject;
             });
 
-            console.log('💾 업데이트된 캐시 데이터:', updatedData);
+            
             return updatedData;
           }
         );
 
-        console.groupEnd();
+        
         return;
       }
 
       if (isFullyCompleted) {
-        console.log('✅ 프로젝트 완전 완료 - 진행 목록에서 제거');
+        
 
         // 완전히 완료된 경우: 진행 중에서 제거하고 완료 목록에 추가
         queryClient.setQueryData(
           ['myProfile', 'projects', 'progressing', userId ?? 'guest'],
           (oldData) => {
-            console.log('💾 완료 처리 전 캐시:', oldData);
+            
             const filteredData = oldData ? oldData.filter(project => project.id !== projectId) : [];
-            console.log('💾 완료 처리 후 캐시:', filteredData);
+            
             return filteredData;
           }
         );
       }
 
-      console.log('🔄 캐시 무효화 수행 중...');
+      
 
       // 해당 사용자의 프로젝트 관련 쿼리만 무효화
       queryClient.invalidateQueries({
@@ -463,13 +398,13 @@ export const useCompleteProject = () => {
         queryKey: ['myProfile', 'projects', projectId, 'applicants']
       });
 
-      console.groupEnd();
+      
     },
     onError: (error) => {
-      console.group('❌ [DEBUG] 프로젝트 완료 처리 실패');
-      console.error('에러 상세:', error);
-      console.log('사용자 정보:', { userId, user });
-      console.groupEnd();
+      
+      
+      
+      
     }
   });
 };
@@ -496,7 +431,7 @@ export const useCreateProject = () => {
       });
     },
     onError: (error) => {
-      console.error('프로젝트 생성 실패:', error);
+      
     }
   });
 };

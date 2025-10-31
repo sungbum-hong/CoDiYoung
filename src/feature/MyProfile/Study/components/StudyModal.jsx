@@ -1,6 +1,6 @@
 import BaseModal from '../../../../ui/BaseModal';
 import Button from '../../../../ui/Button';
-import { COLORS } from '../../../../utils/colors';
+import { COLORS } from '../../../../constants/colors';
 import useStudyUIStore from '../../../../stores/studyUIStore.js';
 // 새로운 훅 import
 import { useStudyDetail } from '../../../../hooks/useStudyQueries.js';
@@ -96,7 +96,7 @@ export default function StudyModal({ onEdit }) {
                   alt="스터디 이미지"
                   className="max-w-full max-h-full object-contain rounded-lg"
                   onError={(e) => {
-                    console.error('🚨 [MyProfile StudyModal] 이미지 로드 실패:', selectedStudy.firstImage);
+                    
                     // 이미지 로드 실패시 텍스트 컨텐츠로 대체
                     e.target.style.display = 'none';
                     const fallbackDiv = e.target.nextSibling;

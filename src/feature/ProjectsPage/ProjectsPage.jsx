@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
-import { ProjectService } from '../../services/projectService.js';
+import { ProjectService } from '../../services/project/ProjectService.js';
 import { CONFIG } from '../../constants/config.js';
 
 export default function ProjectsPage() {
@@ -59,7 +59,7 @@ export default function ProjectsPage() {
           });
         }
       } catch (err) {
-        console.error('프로젝트 조회 실패:', err);
+        
         setError(err.message);
         setProjects([]);
       } finally {

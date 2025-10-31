@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { StudyService } from '../services/studyService.js';
+import { StudyService } from '../services/study/StudyService.js';
 import { QUERY_KEYS } from '../utils/queryKeys.js';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -49,7 +49,10 @@ export const useStudyDetail = (studyId, options = {}) => {
 export const useUserStudyChannel = (userId, pageable = { page: 0, size: 10, sort: ['createdAt,DESC'] }, options = {}) => {
   return useQuery({
     queryKey: QUERY_KEYS.studies.my(userId, pageable),
-    queryFn: () => StudyService.getUserStudyChannel(userId, pageable),
+    queryFn: async () => {
+      const result = await StudyService.getUserStudyChannel(userId, pageable);
+      return result;
+    },
     enabled: !!userId,
     staleTime: 5 * 60 * 1000, // 5분간 캐시
     ...options
@@ -226,7 +229,7 @@ export const useCreateStudy = () => {
           context.previousData
         );
       }
-      console.error('스터디 생성 실패:', error);
+      // 스터디 생성 실패
     },
     onSuccess: (newStudy) => {
       
@@ -264,8 +267,10 @@ export const useUpdateStudy = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ studyId, content, images = [] }) => {
-      return StudyService.updateStudy(studyId, content, images);
+    mutationFn: ({ studyId, title, content, images = [] }) => {
+      const updateData = { content, images };
+      if (title) updateData.title = title;
+      return StudyService.updateStudy(studyId, updateData);
     },
     onMutate: async ({ studyId, content, images }) => {
       // 진행 중인 쿼리 취소
@@ -299,7 +304,7 @@ export const useUpdateStudy = () => {
           context.previousDetail
         );
       }
-      console.error('스터디 수정 실패:', error);
+      // 스터디 수정 실패
     },
     onSuccess: (result, { studyId, content, images }) => {
       
@@ -384,7 +389,7 @@ export const useDeleteStudy = () => {
         });
       }
       
-      console.error('스터디 삭제 실패:', error);
+      // 스터디 삭제 실패
     },
     onSuccess: (result, studyId) => {
       
@@ -420,8 +425,8 @@ export const useStudyOperations = () => {
     return createMutation.mutateAsync({ content, images });
   }, [createMutation]);
 
-  const updateStudy = useCallback(async (studyId, content, images = []) => {
-    return updateMutation.mutateAsync({ studyId, content, images });
+  const updateStudy = useCallback(async (studyId, title, content, images = []) => {
+    return updateMutation.mutateAsync({ studyId, title, content, images });
   }, [updateMutation]);
 
   const deleteStudy = useCallback(async (studyId) => {

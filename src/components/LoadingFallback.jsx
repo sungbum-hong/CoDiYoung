@@ -1,4 +1,4 @@
-import { COLORS } from '../utils/colors.js';
+import { COLORS } from '../constants/colors.js';
 
 // 공통 로딩 컴포넌트
 export default function LoadingFallback({ message = "로딩 중..." }) {

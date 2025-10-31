@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CONFIG } from '../../../constants/config.js';
-import { COLORS } from '../../../utils/colors.js';
-import { ProjectService } from '../../../services/projectService.js';
+import { COLORS } from '../../../constants/colors.js';
+import { ProjectService } from '../../../services/project/ProjectService.js';
 
 // D-day 계산 함수
 const calculateDDay = (completeDay) => {
@@ -45,7 +45,7 @@ export default function ProjectCard({
           setProjectImageUrl(imageUrl);
         }
       } catch (error) {
-        console.error(`프로젝트 이미지 로드 실패:`, error);
+        
       }
     };
 

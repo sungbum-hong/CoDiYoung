@@ -31,7 +31,6 @@ export default function TiptapEditor({ content = '', onChange }) {
 
 
   if (!editor) {
-    console.log('📝 [TiptapEditor] 에디터가 아직 초기화되지 않음');
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div>에디터를 로딩중...</div>
@@ -42,10 +41,7 @@ export default function TiptapEditor({ content = '', onChange }) {
   // 한 번만 로그 출력 (중복 방지)
   useEffect(() => {
     if (editor) {
-      console.log('📝 [TiptapEditor] 에디터 초기화 완료');
-      console.log('📝 [TiptapEditor] 에디터 확장들:', editor.extensionManager.extensions.map(ext => ext.name));
-      console.log('📝 [TiptapEditor] setYouTubeVideo 명령 사용 가능:', !!editor.commands.setYouTubeVideo);
-      console.log('📝 [TiptapEditor] YouTube 확장 찾기:', editor.extensionManager.extensions.find(ext => ext.name === 'youtube'));
+      // Editor initialized successfully
     }
   }, [editor]);
 

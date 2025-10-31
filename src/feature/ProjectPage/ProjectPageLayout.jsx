@@ -7,14 +7,6 @@ export default function ProjectPageLayout() {
   const numericProjectId = projectId ? parseInt(projectId, 10) : null;
   const { data: projectData, isLoading, error } = useProjectDetail(numericProjectId);
 
-  // 디버깅용 로그
-  console.log('ProjectPageLayout Debug:', {
-    projectId,
-    numericProjectId,
-    projectData,
-    isLoading,
-    error
-  });
 
   if (isLoading) {
     return (

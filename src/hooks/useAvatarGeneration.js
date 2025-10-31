@@ -67,7 +67,6 @@ export const useAvatarGeneration = (categories = [], options = {}) => {
               
               newAvatars[seed] = await avatar.toDataUri();
             } catch (avatarError) {
-              console.error(`아바타 생성 실패 (${seed}):`, avatarError);
               newAvatars[seed] = null;
             }
           }
@@ -75,7 +74,6 @@ export const useAvatarGeneration = (categories = [], options = {}) => {
         
         setAvatars(newAvatars);
       } catch (err) {
-        console.error('아바타 생성 전체 실패:', err);
         setError(err);
         setAvatars({});
       } finally {

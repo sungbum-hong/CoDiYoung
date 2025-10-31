@@ -1,4 +1,4 @@
-import { COLORS } from "../../../utils/colors";
+import { COLORS } from "../../../constants/colors.js";
 import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarIcon } from "@heroicons/react/24/outline";
@@ -11,7 +11,7 @@ import { Activity } from "react";
 import { useUserStudies } from "../../../hooks/useStudyQueries.js";
 import useStudyUIStore from "../../../stores/studyUIStore.js";
 import { useProfile } from "../hooks/useProfile.js";
-import { UserProfileService } from "../../../services/userProfileService.js";
+import { UserProfileService } from "../../../services/userProfile/UserProfileService.js";
 
 // 분리된 컴포넌트
 import StudyGrid from "./components/StudyGrid.jsx";

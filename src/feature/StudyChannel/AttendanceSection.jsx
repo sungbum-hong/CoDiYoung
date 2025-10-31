@@ -1,4 +1,4 @@
-import { COLORS } from "../../utils/colors.js";
+import { COLORS } from "../../constants/colors.js";
 import useStudyChannelStore from "../../stores/studyChannelStore.js";
 
 export default function AttendanceSection() {

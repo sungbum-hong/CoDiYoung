@@ -1,6 +1,6 @@
 import Button from "../../ui/Button.jsx";
 import FormInput from "../../ui/FormInput";
-import { COLORS } from "../../utils/colors.js";
+import { COLORS } from "../../constants/colors.js";
 import { MESSAGES } from "../../constants/messages.js";
 import { CONFIG } from "../../constants/config.js";
 import ErrorModal from "./components/ErrorModal.jsx";

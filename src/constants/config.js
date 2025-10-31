@@ -133,13 +133,13 @@ export const CONFIG = {
 
   // API 엔드포인트 설정
   API: {
-    BASE_URL: 'http://15.164.125.28:8080',
+    BASE_URL: import.meta.env.VITE_BASE_URL,
     AUTH: {
-      LOGIN: 'http://15.164.125.28:8080/api/auth/login',
-      LOGOUT: 'http://15.164.125.28:8080/api/auth/logout', 
-      PROFILE: 'http://15.164.125.28:8080/api/auth/profile',
-      SIGNUP: 'http://15.164.125.28:8080/api/auth/join',
-      SIGNUP_ADMIN: 'http://15.164.125.28:8080/api/admin/create',
+      LOGIN: '/api/auth/login',
+      LOGOUT: '/api/auth/logout', 
+      PROFILE: '/api/auth/profile',
+      SIGNUP: '/api/auth/join',
+      SIGNUP_ADMIN: '/api/admin/create',
     },
   },
 
@@ -178,6 +178,15 @@ export const CONFIG = {
       width: 400,
       height: 300,
     },
+  },
+
+  // 반응형 브레이크포인트
+  RESPONSIVE: {
+    sm: '640px',
+    md: '768px',
+    lg: '1024px',
+    xl: '1280px',
+    '2xl': '1536px',
   },
 
   // 아바타 크기 설정

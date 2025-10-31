@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { StudyService } from '../../../services/studyService.js';
-import { ProjectService } from '../../../services/projectService.js';
+import { StudyService } from '../../../services/study/StudyService.js';
+import { ProjectService } from '../../../services/project/ProjectService.js';
 
 /**
  * MainHome 전용 스터디 카테고리 데이터 조회

@@ -1,6 +1,6 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import ProjectGalleryModal from "./Modal/ProjectGalleryModal.jsx";
-import { COLORS } from "../../utils/colors.js";
+import { COLORS } from "../../constants/colors.js";
 import useStudyChannelStore from "../../stores/studyChannelStore.js";
 
 export default function ProjectSection() {

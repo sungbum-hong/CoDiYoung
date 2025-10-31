@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { useUI } from "../../../contexts/UIContext";
+import useAuthStore from "../../../stores/authStore.js";
 import { ROUTES } from "../../../constants/routes.js";
 
 export function useSignInAuth() {
   const navigate = useNavigate();
-  const { login, isLoading } = useUI();
+  const login = useAuthStore((state) => state.login);
+  const isLoading = useAuthStore((state) => state.isLoading);
 
   const handleLogin = async (email, password, onClose) => {
     try {
@@ -14,7 +15,7 @@ export function useSignInAuth() {
         onClose?.();
       }
     } catch (error) {
-      // Error is handled in UI context
+      // Error is handled in auth store
     }
   };
 
