@@ -1,13 +1,13 @@
 import { COLORS } from "../../../constants/colors.js"
 
-export const useWritePageHeader = (isEditMode, actions, handleRecordClick) => {
+export const useWritePageHeader = (isEditMode, isViewMode, actions, handleRecordClick) => {
   const getHeaderTitle = () => '스터디';
 
-  const getEditModeButtons = () => [
+  const getViewModeButtons = () => [
     {
       key: 'edit',
       text: '수정',
-      onClick: () => actions.openModal('edit'),
+      onClick: () => actions.navigateToEdit(),
       style: {
         backgroundColor: 'transparent',
         color: COLORS.PRIMARY,
@@ -20,6 +20,20 @@ export const useWritePageHeader = (isEditMode, actions, handleRecordClick) => {
       text: '삭제',
       onClick: () => actions.openModal('delete'),
       style: {}
+    }
+  ];
+
+  const getEditModeButtons = () => [
+    {
+      key: 'complete',
+      text: '완료',
+      onClick: () => actions.openModal('edit'),
+      style: {
+        backgroundColor: 'transparent',
+        color: COLORS.PRIMARY,
+        borderColor: COLORS.PRIMARY,
+        transition: 'background-color .2s, color .2s',
+      }
     }
   ];
 
@@ -36,6 +50,7 @@ export const useWritePageHeader = (isEditMode, actions, handleRecordClick) => {
 
   return {
     getHeaderTitle,
+    getViewModeButtons,
     getEditModeButtons,
     getCreateModeButton
   };

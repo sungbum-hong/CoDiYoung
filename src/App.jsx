@@ -42,6 +42,7 @@ const router = createBrowserRouter([
       { path: "/project/:projectId", element: <Suspense fallback={<LoadingFallback />}><ProjectPageLayout /></Suspense> },
       { path: "/write", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout /></Suspense> },
       { path: "/write/:id", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout /></Suspense> },
+      { path: "/edit/:id", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout /></Suspense> },
       { path: "/profile", element: <Suspense fallback={<LoadingFallback />}><MyProfileLayout /></Suspense> },
       {
         path: "/admin",
