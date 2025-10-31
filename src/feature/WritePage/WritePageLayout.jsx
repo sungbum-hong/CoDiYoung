@@ -20,6 +20,7 @@ export default function WritePageLayout() {
     setContent,
     isLoading,
     isEditMode,
+    isViewMode,
     savedStudyId,
     modals,
     completeMessage,
@@ -33,9 +34,10 @@ export default function WritePageLayout() {
 
   // 커스텀 훅들 사용
   const { getModalProps } = useWritePageModals(modals, actions, savedStudyId, completeMessage);
-  const { getHeaderTitle, getEditModeButtons, getCreateModeButton } = useWritePageHeader(
-    isEditMode, 
-    actions, 
+  const { getHeaderTitle, getViewModeButtons, getEditModeButtons, getCreateModeButton } = useWritePageHeader(
+    isEditMode,
+    isViewMode,
+    actions,
     handleRecordClick
   );
 
@@ -45,12 +47,14 @@ export default function WritePageLayout() {
         <WritePageHeader
           title={getHeaderTitle()}
           isEditMode={isEditMode}
+          isViewMode={isViewMode}
+          viewButtons={getViewModeButtons()}
           editButtons={getEditModeButtons()}
           createButton={getCreateModeButton()}
         />
 
         <div className="bg-white rounded-lg shadow-sm border">
-          <WriteForm 
+          <WriteForm
             ref={writeFormRef}
             title={title}
             setTitle={setTitle}
@@ -58,7 +62,8 @@ export default function WritePageLayout() {
             setContent={setContent}
             isLoading={isLoading}
             onSave={actions.handleSave}
-            showToolbar={!isEditMode}
+            showToolbar={!isViewMode}
+            readOnly={isViewMode}
           />
         </div>
       </div>

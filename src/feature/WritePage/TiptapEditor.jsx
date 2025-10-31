@@ -16,9 +16,9 @@ import LinkModal from './components/LinkModal.jsx';
 import VideoModal from './components/VideoModal.jsx';
 import EditorStyles from './components/EditorStyles.jsx';
 
-export default function TiptapEditor({ content = '', onChange, showToolbar = true }) {
+export default function TiptapEditor({ content = '', onChange, showToolbar = true, readOnly = false }) {
   // 훅들 사용
-  const { editor, isUpdatingFromProps } = useEditorConfig(content, onChange);
+  const { editor, isUpdatingFromProps } = useEditorConfig(content, onChange, readOnly);
   const { isFullscreen, handleFullscreenToggle } = useFullscreen();
   const { isLinkModalOpen, linkData, handleLinkClick, handleLinkSubmit, closeLinkModal } = useLinkHandler(editor);
   const { handleImageClick } = useImageUpload(editor);
@@ -76,19 +76,23 @@ export default function TiptapEditor({ content = '', onChange, showToolbar = tru
         />
       </div>
 
-      <LinkModal
-        isOpen={isLinkModalOpen}
-        onClose={closeLinkModal}
-        onSubmit={handleLinkSubmit}
-        initialText={linkData.text}
-        initialUrl={linkData.url}
-      />
+      {!readOnly && (
+        <LinkModal
+          isOpen={isLinkModalOpen}
+          onClose={closeLinkModal}
+          onSubmit={handleLinkSubmit}
+          initialText={linkData.text}
+          initialUrl={linkData.url}
+        />
+      )}
 
-      <VideoModal
-        isOpen={isVideoModalOpen}
-        onClose={closeVideoModal}
-        onSubmit={handleVideoSubmit}
-      />
+      {!readOnly && (
+        <VideoModal
+          isOpen={isVideoModalOpen}
+          onClose={closeVideoModal}
+          onSubmit={handleVideoSubmit}
+        />
+      )}
     </div>
   );
 }

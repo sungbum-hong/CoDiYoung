@@ -1,11 +1,13 @@
 import Button from '../../../ui/Button.jsx';
 import { COLORS } from "../../../constants/colors.js";
 
-export default function WritePageHeader({ 
-  title, 
-  isEditMode, 
-  editButtons, 
-  createButton 
+export default function WritePageHeader({
+  title,
+  isEditMode,
+  isViewMode,
+  viewButtons,
+  editButtons,
+  createButton
 }) {
   return (
     <header 
@@ -22,10 +24,36 @@ export default function WritePageHeader({
         {title}
       </h1>
 
-      {isEditMode ? (
-        <div 
+      {isViewMode ? (
+        <div
           className="flex space-x-3"
-          role="group" 
+          role="group"
+          aria-labelledby="view-actions-label"
+        >
+          <div id="view-actions-label" className="sr-only">보기 액션</div>
+          {viewButtons.map((button) => (
+            <Button
+              key={button.key}
+              variant="secondary"
+              className="h-8 w-[88px] focus:outline-none focus:ring-2"
+              onClick={button.onClick}
+              style={button.style}
+              aria-label={button.ariaLabel || button.text}
+              aria-describedby={button.key && `${button.key}-desc`}
+            >
+              {button.text}
+              {button.key && (
+                <span id={`${button.key}-desc`} className="sr-only">
+                  {button.description}
+                </span>
+              )}
+            </Button>
+          ))}
+        </div>
+      ) : isEditMode ? (
+        <div
+          className="flex space-x-3"
+          role="group"
           aria-labelledby="edit-actions-label"
         >
           <div id="edit-actions-label" className="sr-only">편집 액션</div>

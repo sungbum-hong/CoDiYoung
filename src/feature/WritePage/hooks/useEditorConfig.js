@@ -89,7 +89,7 @@ const registerLanguageOnDemand = async (lowlight, langName) => {
   }
 };
 
-export const useEditorConfig = (content, onChange) => {
+export const useEditorConfig = (content, onChange, readOnly = false) => {
   const isUpdatingFromProps = useRef(false);
   const lowlightRef = useRef(null);
   const [isLowlightReady, setIsLowlightReady] = useState(false);
@@ -156,6 +156,7 @@ export const useEditorConfig = (content, onChange) => {
       }),
     ],
     content: content && content.trim() !== '' ? sanitizeHtml(content) : '<p></p>',
+    editable: !readOnly,
     onUpdate: ({ editor }) => {
       if (isUpdatingFromProps.current) {
         return;
@@ -206,6 +207,13 @@ export const useEditorConfig = (content, onChange) => {
       },
     },
   });
+
+  // readOnly 상태가 변경될 때 에디터의 editable 속성을 동적으로 업데이트
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!readOnly);
+    }
+  }, [editor, readOnly]);
 
   return {
     editor,

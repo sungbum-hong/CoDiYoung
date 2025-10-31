@@ -13,7 +13,8 @@ export const useWritePageModals = (modals, actions, savedStudyId, completeMessag
           onClose: () => actions.closeModal('complete'),
           message: completeMessage,
           studyId: completeMessage === '삭제 완료' ? null : savedStudyId,
-          redirectTo: completeMessage === '삭제 완료' ? '/' : undefined
+          redirectTo: completeMessage === '삭제 완료' ? '/' :
+                     completeMessage === '수정 완료' ? `/write/${savedStudyId}` : undefined
         };
       case 'delete':
         return {

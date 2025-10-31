@@ -22,7 +22,9 @@ import { AttendanceService } from '../../../services/AttendanceService.js';
 export function useWritePage() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const isEditMode = !!id;
+  const currentPath = window.location.pathname;
+  const isEditMode = currentPath.startsWith('/edit/');
+  const isViewMode = currentPath.startsWith('/write/') && !!id;
   const isMounted = useRef(true);
 
   // 로컬 상태 관리 (UI 전용)
@@ -47,7 +49,7 @@ export function useWritePage() {
     error: studyError,
     refetch: refetchStudy
   } = useStudyDetail(id, {
-    enabled: isEditMode && !!id && isMounted.current,
+    enabled: (isEditMode || isViewMode) && !!id && isMounted.current,
     retry: (failureCount, error) => {
       // 401 에러는 재시도하지 않음
       if (error?.message?.includes('401')) return false;
@@ -285,6 +287,13 @@ export function useWritePage() {
     }
   }, [navigate]);
 
+  // 수정 페이지로 이동
+  const navigateToEdit = useCallback(() => {
+    if (isMounted.current && id) {
+      navigate(`/edit/${id}`);
+    }
+  }, [navigate, id]);
+
   // 에러 클리어
   const clearError = useCallback(() => {
     if (!isMounted.current) return;
@@ -337,6 +346,7 @@ export function useWritePage() {
     setContent,
     savedStudyId,
     isEditMode,
+    isViewMode,
 
     // 로딩 상태
     isLoading,
@@ -364,6 +374,7 @@ export function useWritePage() {
       handleDelete,
       handleEdit,
       handleCancel,
+      navigateToEdit,
       openModal,
       closeModal,
       clearError,

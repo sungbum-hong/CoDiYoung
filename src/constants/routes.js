@@ -16,6 +16,8 @@ export const ROUTES = {
   
   // 사용자 기능
   WRITE: "/write",
+  WRITE_VIEW: "/write/:id",
+  EDIT: "/edit/:id",
   PROFILE: "/profile",
 
   //어드민 페이지
