@@ -324,10 +324,9 @@ export function useWritePage() {
   // 생성 성공 후 완료 모달 처리 (안전한 방식)
   useEffect(() => {
     if (!isMounted.current) return;
-    
+
     if (isCreateSuccess && !modals.record) {
-      setCompleteMessage('스터디가 성공적으로 작성되었습니다!');
-      setModals(prev => ({ ...prev, complete: true }));
+      setModals(prev => ({ ...prev, record: true }));
     }
   }, [isCreateSuccess, modals.record]);
 

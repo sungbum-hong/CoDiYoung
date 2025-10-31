@@ -58,6 +58,7 @@ export default function WritePageLayout() {
             setContent={setContent}
             isLoading={isLoading}
             onSave={actions.handleSave}
+            showToolbar={!isEditMode}
           />
         </div>
       </div>

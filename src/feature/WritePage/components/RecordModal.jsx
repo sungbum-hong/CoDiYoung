@@ -21,7 +21,7 @@ export default function RecordModal({ isOpen, onClose, message = "오늘도 수�
     } else if (redirectTo === '/') {
       // 홈으로 이동하는 경우 (삭제 완료) - 새로고침과 함께 홈으로 이동
       onClose();
-      window.location.href = '/';
+      window.location.href = '/write';
     } else {
       // 기본적으로는 모달만 닫기
       onClose();

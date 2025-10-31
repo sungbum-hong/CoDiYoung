@@ -16,7 +16,7 @@ import LinkModal from './components/LinkModal.jsx';
 import VideoModal from './components/VideoModal.jsx';
 import EditorStyles from './components/EditorStyles.jsx';
 
-export default function TiptapEditor({ content = '', onChange }) {
+export default function TiptapEditor({ content = '', onChange, showToolbar = true }) {
   // 훅들 사용
   const { editor, isUpdatingFromProps } = useEditorConfig(content, onChange);
   const { isFullscreen, handleFullscreenToggle } = useFullscreen();
@@ -51,22 +51,28 @@ export default function TiptapEditor({ content = '', onChange }) {
         ? 'fixed inset-0 top-24 z-50 rounded-none overflow-auto' 
         : 'overflow-hidden'
     }`}>
-      <div className={isFullscreen ? 'sticky top-0 z-10 bg-white' : ''}>
-        <EditorToolbar
-          editor={editor}
-          onLinkClick={handleLinkClick}
-          onImageClick={handleImageClick}
-          onVideoClick={handleVideoClick}
-          onTableClick={handleTableClick}
-          onFullscreenToggle={handleFullscreenToggle}
-        />
-      </div>
+      {showToolbar && (
+        <div className={isFullscreen ? 'sticky top-0 z-10 bg-white' : ''}>
+          <EditorToolbar
+            editor={editor}
+            onLinkClick={handleLinkClick}
+            onImageClick={handleImageClick}
+            onVideoClick={handleVideoClick}
+            onTableClick={handleTableClick}
+            onFullscreenToggle={handleFullscreenToggle}
+          />
+        </div>
+      )}
       
       <div className="editor-content tiptap-editor">
         <EditorStyles />
         <EditorContent 
           editor={editor} 
-          className={isFullscreen ? 'min-h-screen' : ''}
+          className={`border border-gray-300 rounded-lg bg-white transition-all duration-300 ${
+            isFullscreen
+              ? 'fixed inset-0 top-24 z-50 rounded-none overflow-auto'
+              : 'overflow-hidden h-[700px]' // 원하는 높이 값
+          }`}
         />
       </div>
 
