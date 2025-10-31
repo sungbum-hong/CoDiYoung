@@ -1,5 +1,5 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
-import { COLORS } from '../../../utils/colors.js';
+import { COLORS } from '../../../constants/colors.js';
 import { useBackgroundHover } from '../../../hooks/useHoverStyle.js';
 
 export default function ScrollArrowButton({ 

@@ -4,7 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { ko } from 'date-fns/locale';
 import BaseModal from "../../../../ui/BaseModal";
 import Button from "../../../../ui/Button";
-import { COLORS } from "../../../../utils/colors.js";
+import { COLORS } from "../../../../constants/colors.js";
 
 export default function ProjectDatePickerModal({ isOpen, onClose, selectedDate, onDateChange }) {
   const [tempDate, setTempDate] = useState(selectedDate || new Date());

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ProjectService } from '../../../services/projectService.js';
+import { ProjectService } from '../../../services/project/ProjectService.js';
 import { useAuthState } from '../../../hooks/useAuth.js';
 
 /**
@@ -109,7 +109,7 @@ export const useProjectApplicationStatus = (projectId, options = {}) => {
           isOwner: project?.isOwner || false
         };
       } catch (error) {
-        console.error('신청 상태 확인 실패:', error);
+        
         return {
           canApply: false,
           isAlreadyApplied: false,
@@ -173,7 +173,7 @@ export const useProjectApplication = () => {
           context.previousApplicationStatus
         );
       }
-      console.error('프로젝트 신청 실패:', error);
+      
     },
     onSuccess: (result, { projectId }) => {
       // 관련 쿼리들 무효화
@@ -233,7 +233,7 @@ export const useProjectApplicationCancel = () => {
           context.previousApplicationStatus
         );
       }
-      console.error('프로젝트 신청 취소 실패:', error);
+      
     },
     onSuccess: (result, projectId) => {
       // 관련 쿼리들 무효화
@@ -304,7 +304,7 @@ export const useApplicantDecision = () => {
           context.previousApplicants
         );
       }
-      console.error('신청자 처리 실패:', error);
+      
     },
     onSuccess: (result, { projectId }) => {
       // 신청자 목록 무효화

@@ -1,6 +1,5 @@
-// src/components/Header.jsx
-import { Link } from "react-router-dom";
-import AuthModalManager from "./AuthModalManager.jsx";
+
+import AuthStatusBar from "./AuthStatusBar.jsx";
 
 export default function Header({ disableAuthModal = false }) {
   const goToHomeHandle = () => {
@@ -13,8 +12,8 @@ export default function Header({ disableAuthModal = false }) {
         <button onClick={goToHomeHandle} className="flex items-center">
           <img src="/cdylogo.png" alt="CoDiYoung Logo" className="h-9 w-auto" />
         </button>
-        {/* AuthModalManager에서 인증 상태 관리 */}
-        {!disableAuthModal && <AuthModalManager />}
+        {/* AuthStatusBar에서 인증 상태 관리 */}
+        {!disableAuthModal && <AuthStatusBar />}
       </div>
     </header>
   );

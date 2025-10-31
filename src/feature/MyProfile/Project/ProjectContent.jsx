@@ -79,12 +79,6 @@ export default function ProjectContent() {
         if (projectId == null) return;
         activeIds.add(projectId);
 
-        console.log('[ProjectContent] project status', {
-          projectId,
-          title: project?.title,
-          currentUserStatus: project?.currentUserStatus
-        });
-
         if (status === 'WAITING' || status === 'COMPLETED') {
           next[projectId] = true;
         }
@@ -103,35 +97,6 @@ export default function ProjectContent() {
 
   useEffect(() => {
     if (progressingProjects?.length) {
-      console.log(
-        '[ProjectContent] progressingProjects memberBriefs snapshot:',
-        progressingProjects.map((project) => ({
-          id: project.id,
-          title: project.title,
-          memberBriefs: project.memberBriefs
-        }))
-      );
-      progressingProjects.forEach((project) => {
-        console.log(
-          `[ProjectContent] project ${project.id} "${project.title}" members:`,
-          Array.isArray(project.memberBriefs)
-            ? project.memberBriefs.map((member, index) => ({
-                index,
-                userId: member?.userId,
-                name: member?.name,
-                profileKey: member?.profileKey,
-                profileUrl: member?.profileUrl,
-                avatarURL: member?.avatarURL
-              }))
-            : project.memberBriefs
-        );
-        console.log(
-          `[ProjectContent] project ${project.id} "${project.title}" leaderInfoProjection:`,
-          project.leaderInfoProjection
-        );
-      });
-    } else {
-      console.log('[ProjectContent] progressingProjects empty or undefined');
     }
   }, [progressingProjects]);
 
@@ -235,35 +200,21 @@ export default function ProjectContent() {
 
   // 프로젝트 완료 핸들러 - 리팩토링된 로직
   const handleProjectComplete = async (projectId = selectedProgressingProjectId) => {
-    console.group('🎯 [DEBUG] UI에서 프로젝트 완료 처리 시작');
+    
 
     if (!projectId) {
-      console.log('❌ 완료할 프로젝트 ID가 없음');
+      
       alert('완료할 프로젝트가 없습니다.');
-      console.groupEnd();
+      
       return;
     }
 
     const project = progressingProjects.find((item) => item.id === projectId);
-    console.log('📋 현재 선택된 프로젝트:', {
-      projectId,
-      project,
-      사용자정보: {
-        userId: user?.userId ?? user?.id,
-        userName: user?.name,
-        userEmail: user?.email
-      },
-      프로젝트역할: {
-        isLeader: project?.isLeader,
-        isOwner: project?.isOwner,
-        role: project?.role || 'UNKNOWN'
-      }
-    });
 
     if (!project) {
-      console.log('❌ 선택한 프로젝트를 진행 목록에서 찾을 수 없음');
+      
       alert('선택한 프로젝트를 찾을 수 없습니다.');
-      console.groupEnd();
+      
       return;
     }
 
@@ -275,36 +226,36 @@ export default function ProjectContent() {
     );
 
     if (!confirmed) {
-      console.log('⏹️ 사용자가 완료 처리를 취소함');
-      console.groupEnd();
+      
+      
       return;
     }
 
     try {
-      console.log('🚀 완료 API 호출 시작...');
+      
       const result = await completeProjectAsync(projectId);
 
-      console.log('✅ 완료 API 호출 성공:', result);
+      
 
       // 성공 메시지 표시
       const alertMessage = ProjectUtils.generateCompletionMessage(result);
-      console.log('💬 생성된 성공 메시지:', alertMessage);
+      
       alert(alertMessage);
 
-      console.log('🔄 데이터 새로고침 시작...');
+      
       // 프로젝트 데이터 새로고침
       refetchAllProjects();
       refetchApplicants();
-      console.log('✅ 데이터 새로고침 완료');
+      
 
     } catch (error) {
-      console.log('❌ 완료 처리 실패:', error);
+      
       const errorMessage = ProjectUtils.normalizeErrorMessage(error);
-      console.log('💬 생성된 에러 메시지:', errorMessage);
+      
       alert(`❌ 프로젝트 완료 처리에 실패했습니다.\n${errorMessage}`);
     }
 
-    console.groupEnd();
+    
   };
 
   const handleProgressingProjectSelect = (projectId) => {

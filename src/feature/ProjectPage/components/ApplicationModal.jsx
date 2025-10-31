@@ -1,6 +1,6 @@
 import BaseModal from "../../../ui/BaseModal.jsx";
 import Button from "../../../ui/Button.jsx";
-import { COLORS } from "../../../utils/colors.js";
+import { COLORS } from "../../../constants/colors.js";
 import Dropdown from "./Dropdown.jsx";
 import MultiSelectDropdown from "./MultiSelectDropdown.jsx";
 import { POSITION_OPTIONS, TECH_OPTIONS } from "../constants/applicationOptions.js";
@@ -20,23 +20,23 @@ export default function ApplicationModal({ onClose, project, projectName = "프�
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('=== ApplicationModal handleSubmit 시작 ===');
-    console.log('projectId:', projectId);
-    console.log('formData:', formData);
-    console.log('questions:', questions);
+    
+    
+    
+    
 
     if (!validateForm()) {
-      console.log('폼 유효성 검사 실패');
+      
       return;
     }
 
-    console.log('폼 유효성 검사 통과, 신청 시작...');
+    
     const success = await submitApplication(projectId, formData);
     if (success) {
-      console.log('신청 성공, 폼 리셋');
+      
       resetForm();
     } else {
-      console.log('신청 실패');
+      
     }
   };
 

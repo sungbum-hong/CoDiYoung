@@ -2,7 +2,7 @@ import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
 import ProjectDetailModal from "./components/ProjectDetailModal.jsx";
 import ProjectCard from "./components/ProjectCard.jsx";
 import { CONFIG } from '../../constants/config.js';
-import { COLORS } from '../../utils/colors.js';
+import { COLORS } from '../../constants/colors.js';
 import { MESSAGES } from '../../constants/messages.js';
 import { useBackgroundHover } from '../../hooks/useHoverStyle.js';
 import { useMainHomeProjects } from './hooks/useMainHomeQueries.js';

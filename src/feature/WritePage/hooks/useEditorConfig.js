@@ -117,9 +117,12 @@ export const useEditorConfig = (content, onChange) => {
         lowlight: lowlightRef.current || createLowlight(),
       }),
       Link.configure({
-        openOnClick: false,
+        openOnClick: true,  // 클릭으로 링크 열기 활성화
         HTMLAttributes: {
-          class: 'text-blue-600 underline hover:text-blue-800',
+          class: 'editor-link',
+          style: 'color: #3b82f6 !important; text-decoration: underline !important; cursor: pointer !important;',
+          target: '_blank',  // 새 탭에서 열기
+          rel: 'noopener noreferrer',  // 보안 설정
         },
       }),
       CustomImage.configure({
@@ -157,9 +160,13 @@ export const useEditorConfig = (content, onChange) => {
       if (isUpdatingFromProps.current) {
         return;
       }
-      const html = editor.getHTML();
-      const sanitizedHtml = sanitizeHtml(html);
-      onChange(sanitizedHtml);
+      try {
+        const html = editor.getHTML();
+        const sanitizedHtml = sanitizeHtml(html);
+        onChange(sanitizedHtml);
+      } catch (error) {
+        // Silent error handling
+      }
     },
     onSelectionUpdate: ({ editor }) => {
       // 언어별 지연 로딩

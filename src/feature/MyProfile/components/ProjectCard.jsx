@@ -1,6 +1,6 @@
 import ProjectInfo from './ProjectInfo.jsx';
 import MemberDisplay from './MemberDisplay.jsx';
-
+import { CONFIG } from '../../../constants/config.js';
 export default function ProjectCard({ project, index: _index, isSelected: _isSelected, onSelect }) {
   const handleSelect = () => {
     if (onSelect) {
@@ -32,15 +32,10 @@ export default function ProjectCard({ project, index: _index, isSelected: _isSel
       >
         {project?.imageKey ? (
           <img 
-            src={project.imageKey.startsWith('http') ? project.imageKey : `http://15.164.125.28:8080/storage/${project.imageKey}`}
+            src={project.imageKey.startsWith('http') ? project.imageKey : `${CONFIG.API.BASE_URL}/storage/${project.imageKey}`}
             alt={project?.title || '프로젝트 이미지'}
             className="w-full h-full object-cover rounded-full"
             onError={(e) => {
-              console.error('Image load error:', {
-                src: e.target.src,
-                project: project,
-                imageKey: project?.imageKey
-              });
               e.target.style.display = 'none';
               e.target.nextSibling.style.display = 'flex';
             }}

@@ -2,7 +2,7 @@ import StudyCategory from "./StudyCategory";
 import ProjectSection from "./ProjectSection";
 import Partners from "./Partners";
 import Footer from "../../components/Footer";
-import { COLORS } from "../../utils/colors.js";
+import { COLORS } from "../../constants/colors.js";
 
 export default function HomePage() {
   return (

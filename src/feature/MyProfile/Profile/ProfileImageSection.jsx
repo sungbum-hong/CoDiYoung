@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import Button from "../../../ui/Button.jsx";
-import { COLORS } from "../../../utils/colors.js";
+import { COLORS } from "../../../constants/colors.js";
 import { MESSAGES } from "../../../constants/messages.js";
 import { useProfile, useProfileImageUpload } from "../hooks/useProfile.js";
 import { useAuthState } from "../../../hooks/useAuth.js";
@@ -59,7 +59,7 @@ export default function ProfileImageSection() {
       setIsEditing(false);
 
     } catch (error) {
-      console.error('프로필 이미지 업로드 실패:', error);
+      
 
       let errorMessage = error.message;
 

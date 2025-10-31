@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { COLORS } from "../../../utils/colors.js";
+import { COLORS } from "../../../constants/colors.js";
 
 export default function Dropdown({ options, value, onChange, placeholder, className = "" }) {
   const [isOpen, setIsOpen] = useState(false);

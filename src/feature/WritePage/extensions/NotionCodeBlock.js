@@ -124,7 +124,7 @@ const NotionCodeBlock = Node.create({
             copyButton.disabled = false;
           }, 2000);
         } catch (error) {
-          console.warn('클립보드 복사 실패:', error);
+          // Silent error handling
           
           const textArea = document.createElement('textarea');
           textArea.value = codeElement.textContent || '';

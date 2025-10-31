@@ -1,5 +1,5 @@
 import { ChevronLeftIcon } from "@heroicons/react/24/solid";
-import { COLORS } from "../../../../utils/colors.js";
+import { COLORS } from "../../../../constants/colors.js";
 import ApplicantCard from "./ApplicantCard.jsx";
 
 export default function ApplicantListView({ applicants = [], projectTitle, projectId, onBack }) {

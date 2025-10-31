@@ -26,7 +26,6 @@ export const mapImagesToContent = (content, images) => {
     
     return doc.body.innerHTML;
   } catch (error) {
-    console.warn('이미지 URL 매핑 실패:', error);
     return content;
   }
 };

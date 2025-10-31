@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { COLORS } from '../utils/colors.js';
+import { COLORS } from '../constants/colors.js';
 
 export const useButtonEvents = (variant, disabled, userEvents = {}) => {
   const handleMouseEnter = useCallback((e) => {

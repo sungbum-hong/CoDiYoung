@@ -1,4 +1,4 @@
-import { COLORS } from '../../../utils/colors.js';
+import { COLORS } from '../../../constants/colors.js';
 import { useAuthState } from '../../../hooks/useAuth.js';
 
 export default function ProjectInfo({ project, position = "left" }) {

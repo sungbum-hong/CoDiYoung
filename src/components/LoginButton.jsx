@@ -1,4 +1,4 @@
-import { COLORS } from '../utils/colors.js';
+import { COLORS } from '../constants/colors.js';
 import { MESSAGES } from '../constants/messages.js';
 
 // 컴포넌트 이름을 LoginButton으로 변경 (단수형)

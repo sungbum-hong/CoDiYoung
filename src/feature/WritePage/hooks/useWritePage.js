@@ -59,12 +59,12 @@ export function useWritePage() {
       if (!isMounted.current) return;
       
       if (error?.message?.includes('401')) {
-        console.error('인증 오류:', error);
+        // Silent error handling
         navigate('/login'); // 인증 실패 시 로그인 페이지로 리다이렉트
         return;
       }
       
-      console.error('스터디 로드 실패:', error);
+      // Silent error handling
       setErrorMessage(`스터디를 불러오는데 실패했습니다: ${error.message}`);
     }
   });
@@ -149,7 +149,7 @@ export function useWritePage() {
         sortOrder: index
       }));
     } catch (error) {
-      console.warn('이미지 추출 실패:', error);
+      // Silent error handling
       return [];
     }
   }, []);
@@ -182,7 +182,7 @@ export function useWritePage() {
       let result;
       if (isEditMode) {
         // 수정 모드 - 출석 체크 없음
-        result = await updateStudy(id, sanitizedContent, images);
+        result = await updateStudy(id, '', sanitizedContent, images);
         if (isMounted.current) {
           setSavedStudyId(id);
           setCompleteMessage(MESSAGES.UI.EDIT_COMPLETE);
@@ -200,16 +200,16 @@ export function useWritePage() {
           try {
             await AttendanceService.checkAttendance();
           } catch (attendanceError) {
-            console.warn('출석 체크 실패:', attendanceError);
+            // Silent error handling
             // 출석 체크 실패해도 스터디 생성은 성공으로 처리
           }
 
-          // 모달 대신 바로 /write:id로 이동
-          navigate(`/write/${newStudyId}`);
+          // 기록 완료 모달 표시
+          setModals(prev => ({ ...prev, record: true }));
         }
       }
     } catch (error) {
-      console.error('저장 실패:', error);
+      // Silent error handling
       // 에러는 useStudyOperations와 useEffect에서 처리
     }
   }, [validateContent, extractImagesFromContent, content, isEditMode, id, updateStudy, createStudy]);
@@ -228,7 +228,7 @@ export function useWritePage() {
         setModals(prev => ({ ...prev, complete: true }));
       }
     } catch (error) {
-      console.error('삭제 실패:', error);
+      // Silent error handling
       if (isMounted.current) {
         setModals(prev => ({ ...prev, delete: false }));
       }
@@ -245,7 +245,7 @@ export function useWritePage() {
       
       const sanitizedContent = sanitizeHtml(content);
       const images = extractImagesFromContent(sanitizedContent);
-      await updateStudy(id, sanitizedContent, images);
+      await updateStudy(id, '', sanitizedContent, images);
       
       if (isMounted.current) {
         setSavedStudyId(id);
@@ -253,7 +253,7 @@ export function useWritePage() {
         setModals(prev => ({ ...prev, complete: true }));
       }
     } catch (error) {
-      console.error('수정 실패:', error);
+      // Silent error handling
       if (isMounted.current) {
         setModals(prev => ({ ...prev, edit: false }));
       }

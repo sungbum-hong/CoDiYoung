@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from 'react';
-import { COLOR_VARIANTS, COLORS } from '../utils/colors.js';
+import { COLOR_VARIANTS, COLORS } from '../constants/colors.js';
 import { CONFIG } from '../constants/config.js';
 
 export const useButtonStyles = (variant, size, style = {}) => {

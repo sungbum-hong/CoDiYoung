@@ -1,4 +1,4 @@
-import { COLORS } from '../utils/colors.js';
+import { COLORS } from '../constants/colors.js';
 import { CONFIG } from '../constants/config.js';
 
 // src/ui/FormInput.jsx

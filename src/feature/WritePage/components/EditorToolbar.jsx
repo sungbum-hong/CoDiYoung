@@ -74,7 +74,7 @@ import AlignmentDropdown from './AlignmentDropdown.jsx';
 import ToolbarButton from './ToolbarButton.jsx';
 import ToolbarDivider from './ToolbarDivider.jsx';
 
-import { COLORS } from '../../../utils/colors.js';
+import { COLORS } from "../../../constants/colors.js"
 
 export default function EditorToolbar({ 
   editor,

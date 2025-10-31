@@ -1,39 +1,11 @@
-// 모달 크기 및 레이아웃 상수
-export const MODAL_SIZES = {
-  // 기본 모달 크기 (피그마 디자인 기준)
-  DEFAULT: {
-    width: 1316,
-    height: 939,
-    ratio: 939 / 1316, // height/width
-  },
-  
-  // 프로젝트 상세 모달
-  PROJECT_DETAIL: {
-    width: 704,
-    height: 574,
-    ratio: 574 / 704,
-    startX: 416,
-    startY: 1520,
-    buttonWidth: 240,
-    buttonHeight: 108,
-  },
-  
-  // 작은 모달 크기
-  SMALL: {
-    width: 400,
-    height: 300,
-  },
-  
-  // 반응형 브레이크포인트
-  RESPONSIVE: {
-    // Tailwind 기준
-    sm: '640px',
-    md: '768px', 
-    lg: '1024px',
-    xl: '1280px',
-    '2xl': '1536px',
-  }
+// 반응형 브레이크포인트 상수
+export const RESPONSIVE_BREAKPOINTS = {
+  // Tailwind 기준
+  sm: '640px',
+  md: '768px',
+  lg: '1024px',
+  xl: '1280px',
+  '2xl': '1536px',
 }
 
-
-// BUTTON_SIZES는 CONFIG로 이동됨 (중복 제거)
+// 다른 크기 관련 상수들은 config.js로 통합됨

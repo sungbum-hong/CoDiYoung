@@ -1,4 +1,4 @@
-import { COLORS } from '../../../utils/colors.js';
+import { COLORS } from '../../../constants/colors.js';
 import ProfileField from './ProfileField';
 import ProfileImageSection from './ProfileImageSection';
 import AttendanceStars from '../AttendanceStars';

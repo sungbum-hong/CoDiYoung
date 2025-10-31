@@ -22,6 +22,15 @@ export const ROUTES = {
   ADMIN_PAGE: "/admin"
 }
 
+// Admin 하위 라우트 상수
+export const ADMIN_ROUTES = {
+  HOME: "/admin/home",
+  CONTENT: "/admin/content",
+  USERS: "/admin/users",
+  BANNER: "/admin/banner",
+  SETTINGS: "/admin/settings"
+}
+
 
 // 인증 관련 경로들 (로그인 후 리다이렉트 제외 대상)
 export const AUTH_ROUTES = [

@@ -21,10 +21,16 @@ export default function StudyChannelPage() {
 
   // 사용자별 스터디 채널 데이터 조회
   const { data: userChannelData, isLoading, error } = useUserStudyChannel(
-    userId, 
+    userId,
     { page: 0, size: 10, sort: ['createdAt,DESC'] },
     { enabled: !!userId }
   );
+
+  // 디버깅용 로그 추가
+  
+  
+  
+  
 
   // 데이터 로드 시 스토어 업데이트
   useEffect(() => {

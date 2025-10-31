@@ -1,4 +1,4 @@
-import { COLORS } from "../../../utils/colors.js";
+import { COLORS } from "../../../constants/colors.js";
 import TechStack from "../../../components/TechStack.jsx";
 
 export default function TechList({ tech }) {

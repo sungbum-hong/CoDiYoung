@@ -51,7 +51,7 @@ export default function StudyModal({ children }) {
                   alt="스터디 이미지"
                   className="max-w-full max-h-full object-contain rounded-lg"
                   onError={(e) => {
-                    console.error('🚨 [StudyModal] 이미지 로드 실패:', currentStudy.firstImage);
+                    
                     // 이미지 로드 실패시 텍스트 컨텐츠로 대체
                     e.target.style.display = 'none';
                     const fallbackDiv = e.target.nextSibling;

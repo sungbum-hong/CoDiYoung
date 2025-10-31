@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Button from "../../../ui/Button.jsx";
-import { COLORS } from "../../../utils/colors";
+import { COLORS } from "../../../constants/colors.js";
 import { MESSAGES } from "../../../constants/messages";
 import { CONFIG } from "../../../constants/config";
 import { useUpdateNickname, useUpdateEmail } from "../hooks/useProfile.js";

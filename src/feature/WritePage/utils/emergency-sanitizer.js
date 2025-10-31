@@ -40,7 +40,6 @@ export const secureSanitize = (html) => {
   try {
     // DOMPurify가 전역으로 로드되어 있는지 확인
     if (typeof window !== 'undefined' && window.DOMPurify) {
-      console.log('🛡️ DOMPurify로 정화 중...');
       
       const config = {
         ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
@@ -55,7 +54,6 @@ export const secureSanitize = (html) => {
     
     // DOMPurify가 import로 로드되어 있는지 확인
     if (typeof DOMPurify !== 'undefined') {
-      console.log('🛡️ DOMPurify(import)로 정화 중...');
       return DOMPurify.sanitize(html, {
         ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'a', 'img'],
         FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input', 'button'],
@@ -64,11 +62,10 @@ export const secureSanitize = (html) => {
     }
     
     // DOMPurify 없으면 긴급 정화기 사용
-    console.warn('⚠️ DOMPurify 없음 - 긴급 정화기 사용');
     return emergencySanitize(html);
     
   } catch (error) {
-    console.error('❌ 정화 중 오류:', error);
+    // Silent error handling
     // 오류 시에도 긴급 정화기 사용
     return emergencySanitize(html);
   }
@@ -87,7 +84,7 @@ export const verifyClean = (html) => {
   
   for (const pattern of dangerous) {
     if (pattern.test(html)) {
-      console.error('🚨 위험한 콘텐츠 감지:', html);
+      // Silent error handling
       return false;
     }
   }
@@ -111,7 +108,7 @@ export const safeHtmlInsert = (element, html) => {
   if (verifyClean(cleaned)) {
     element.innerHTML = cleaned;
   } else {
-    console.error('🚨 정화 후에도 위험한 콘텐츠 발견 - 텍스트로 삽입');
+    // Silent error handling
     element.textContent = html; // 안전하게 텍스트로만 삽입
   }
 };

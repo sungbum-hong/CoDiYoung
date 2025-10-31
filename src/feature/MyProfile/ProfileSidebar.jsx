@@ -1,5 +1,5 @@
 // components/ProfileSidebar.jsx - 기존 레이아웃 구조 유지
-import { COLORS } from "../../utils/colors";
+import { COLORS } from "../../constants/colors.js";
 import { MESSAGES } from "../../constants/messages";
 import Button from "../../ui/Button";
 import { useProfile } from "./hooks/useProfile.js";

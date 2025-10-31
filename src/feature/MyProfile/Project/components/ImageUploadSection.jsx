@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { COLORS } from "../../../../utils/colors.js";
-import { ProjectService } from "../../../../services/projectService.js";
+import { COLORS } from "../../../../constants/colors.js";
+import { ProjectService } from "../../../../services/project/ProjectService.js";
 
 export default function ImageUploadSection({ onImageUpload }) {
   const [imagePreview, setImagePreview] = useState(null);
@@ -39,7 +39,7 @@ export default function ImageUploadSection({ onImageUpload }) {
       reader.readAsDataURL(file);
 
     } catch (error) {
-      console.error('이미지 업로드 에러:', error);
+      
       alert('이미지 업로드에 실패했습니다: ' + error.message);
     } finally {
       setIsUploading(false);

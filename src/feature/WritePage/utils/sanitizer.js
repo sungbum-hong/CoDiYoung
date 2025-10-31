@@ -8,9 +8,9 @@ const ALLOWED_TAGS = [
 
 const ALLOWED_ATTRIBUTES = {
   'a': ['href', 'title', 'target', 'rel'],
-  'img': ['src', 'alt', 'title', 'width', 'height', 'data-id', 'data-key'],
-  'iframe': ['src', 'width', 'height', 'frameborder', 'allowfullscreen'],
-  'div': ['class', 'data-youtube-video', 'data-type', 'data-language'],
+  'img': ['src', 'alt', 'title', 'width', 'height', 'data-id', 'data-key', 'class'],
+  'iframe': ['src', 'width', 'height', 'frameborder', 'allowfullscreen', 'loading', 'title', 'allow'],
+  'div': ['class', 'data-youtube-video', 'data-type', 'data-language', 'style'],
   'span': ['class', 'data-language'],
   'pre': ['data-type', 'data-language', 'class'],
   'code': ['class'],
@@ -58,57 +58,65 @@ const sanitizeConfig = {
   FORBID_SCRIPT: true,
   FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input', 'button'],
   FORBID_ATTR: ['onload', 'onerror', 'onclick', 'onmouseover', 'onfocus', 'onblur'],
-  
-  CUSTOM_ELEMENT_HANDLING: {
-    tagNameCheck: null,
-    attributeNameCheck: null,
-    allowCustomizedBuiltInElements: false,
-  },
-  
-  transformCaseFunc: null,
-  
-  RETURN_DOM: false,
-  RETURN_DOM_FRAGMENT: false,
-  RETURN_DOM_IMPORT: false,
-  RETURN_TRUSTED_TYPE: false,
-  
-  SANITIZE_DOM: true,
-  SANITIZE_NAMED_PROPS: true,
+
+  // 더 관대한 설정
+  FORCE_BODY: false,
+  SANITIZE_DOM: false,  // DOM 구조 변경 방지
+  SANITIZE_NAMED_PROPS: false,
   KEEP_CONTENT: true,
-  
+
   WHOLE_DOCUMENT: false,
   RETURN_DOCUMENT_FRAGMENT: false,
-  
+
   IN_PLACE: false,
+};
+
+// DOMPurify 우회 - 수동 HTML 정화
+const manualSanitize = (html) => {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    // 위험한 태그 제거
+    const dangerousTags = ['script', 'object', 'applet', 'form', 'input', 'button'];
+    dangerousTags.forEach(tagName => {
+      const elements = doc.querySelectorAll(tagName);
+      elements.forEach(el => el.remove());
+    });
+
+    // 위험한 속성 제거
+    const dangerousAttrs = ['onload', 'onerror', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit'];
+    const allElements = doc.querySelectorAll('*');
+    allElements.forEach(el => {
+      dangerousAttrs.forEach(attr => {
+        if (el.hasAttribute(attr)) {
+          el.removeAttribute(attr);
+        }
+      });
+
+      // style 속성 정화
+      if (el.hasAttribute('style')) {
+        const styleValue = el.getAttribute('style');
+        const cleanStyle = sanitizeCss(styleValue);
+        el.setAttribute('style', cleanStyle);
+      }
+    });
+
+    const result = doc.body.innerHTML;
+    return result;
+
+  } catch (error) {
+    return html;
+  }
 };
 
 export const sanitizeHtml = (dirty) => {
   if (!dirty || typeof dirty !== 'string') return '';
-  
-  const config = {
-    ...sanitizeConfig,
-    HOOK_URL_SANITIZE: (url, tagName, attrName) => {
-      if (tagName === 'iframe' && attrName === 'src') {
-        return isValidYouTubeUrl(url) ? url : '';
-      }
-      if (tagName === 'a' && attrName === 'href') {
-        return isValidUrl(url) ? url : '';
-      }
-      if (tagName === 'img' && attrName === 'src') {
-        return isValidUrl(url) ? url : '';
-      }
-      return url;
-    },
-    
-    HOOK_ATTRIBUTE_SANITIZE: (value, tagName, attrName, policy) => {
-      if (attrName === 'style') {
-        return sanitizeCss(value);
-      }
-      return value;
-    }
-  };
-  
-  return DOMPurify.sanitize(dirty, config);
+
+  // DOMPurify가 iframe 속성을 계속 제거하므로 수동 정화 사용
+  const result = manualSanitize(dirty);
+
+  return result;
 };
 
 const sanitizeCss = (css) => {
@@ -155,18 +163,9 @@ export const sanitizeUrl = (url) => {
 };
 
 export const sanitizeYouTubeUrl = (url) => {
-  console.log('🔍 [sanitizer] sanitizeYouTubeUrl 시작, 입력 URL:', url);
-  
   const sanitizedUrl = sanitizeUrl(url);
-  console.log('🔍 [sanitizer] sanitizeUrl 결과:', sanitizedUrl);
-  
   const isValid = isValidYouTubeUrl(sanitizedUrl);
-  console.log('🔍 [sanitizer] isValidYouTubeUrl 결과:', isValid);
-  
-  const finalResult = isValid ? sanitizedUrl : '';
-  console.log('🔍 [sanitizer] 최종 결과:', finalResult);
-  
-  return finalResult;
+  return isValid ? sanitizedUrl : '';
 };
 
 export const validateFileUpload = (file) => {

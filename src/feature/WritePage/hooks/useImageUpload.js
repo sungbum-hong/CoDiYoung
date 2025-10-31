@@ -52,7 +52,7 @@ export const useImageUpload = (editor) => {
           }
         }, 5000);
         
-        console.error('이미지 업로드 오류:', error);
+        // Silent error handling
       }
     };
     
