@@ -28,10 +28,13 @@ export default function ProjectIcons({
                                      project.currentUserStatus === 'WAITING' ||
                                      project.complicatedCount > 0;
 
+  // 팀장을 제외한 팀원 수 계산 (memberCount에는 팀장도 포함되어 있음)
+  const teamMemberCount = capacityInfo.memberCount - 1;
+
   return (
     <div className="flex gap-2">
-      {/* 신청자 아이콘 - 팀원 완료요청이 있으면 숨김 */}
-      {!hasMemberCompletionRequest && (
+      {/* 신청자 아이콘 - 팀원이 1명이라도 있으면 숨김 */}
+      {teamMemberCount === 0 && (
         <ApplicantIcon
           project={project}
           isProjectLeader={isProjectLeader}
@@ -42,24 +45,27 @@ export default function ProjectIcons({
         />
       )}
 
-      {/* 완료 버튼 */}
-      <CompleteButton
-        project={project}
-        user={user}
-        isProjectLeader={isProjectLeader}
-        appliedProjects={appliedProjects}
-        isAuthenticated={isAuthenticated}
-        isAnyLoading={isAnyLoading}
-        memberCompletionRequests={memberCompletionRequests}
-        setMemberCompletionRequests={setMemberCompletionRequests}
-        completeProjectAsync={completeProjectAsync}
-        onComplete={onComplete}
-        refetchAllProjects={refetchAllProjects}
-        hasMemberCompletionRequest={hasMemberCompletionRequest}
-      />
+      {/* 완료 버튼 - 팀원이 1명이라도 있으면 표시 */}
+      {teamMemberCount > 0 && (
+        <CompleteButton
+          project={project}
+          user={user}
+          isProjectLeader={isProjectLeader}
+          appliedProjects={appliedProjects}
+          isAuthenticated={isAuthenticated}
+          isAnyLoading={isAnyLoading}
+          memberCompletionRequests={memberCompletionRequests}
+          setMemberCompletionRequests={setMemberCompletionRequests}
+          completeProjectAsync={completeProjectAsync}
+          onComplete={onComplete}
+          refetchAllProjects={refetchAllProjects}
+          hasMemberCompletionRequest={hasMemberCompletionRequest}
+          teamMemberCount={teamMemberCount}
+        />
+      )}
 
-      {/* 취소 버튼 - 팀원 완료요청이 있으면 숨김 */}
-      {!hasMemberCompletionRequest && (
+      {/* 취소 버튼 - 팀원이 1명도 없을 때만 표시 */}
+      {teamMemberCount === 0 && (
         <CancelButton
           project={project}
           isProjectLeader={isProjectLeader}
@@ -143,14 +149,12 @@ function CompleteButton({
   completeProjectAsync,
   onComplete,
   refetchAllProjects,
-  hasMemberCompletionRequest
+  hasMemberCompletionRequest,
+  teamMemberCount
 }) {
-  // 팀원 완료요청이 있을 때는 팀장에게 최종완료 버튼을 보여줌
-  const canAccessCompleteButton = hasMemberCompletionRequest && isProjectLeader
-    ? true
-    : ProjectUtils.canAccessCompleteButton(user, project, appliedProjects, isAuthenticated);
-
-  if (!canAccessCompleteButton) {
+  // 팀원이 1명이라도 있으면 완료 버튼 표시 (팀장/팀원 모두)
+  // 인증되지 않은 사용자는 제외
+  if (!isAuthenticated || teamMemberCount === 0) {
     return null;
   }
 
@@ -268,15 +272,8 @@ function CancelButton({
   isAnyLoading,
   onCancel
 }) {
-  const { isCapacityFull } = capacityInfo;
-
   // 팀장이 아니면 취소 버튼 숨김
   if (!isProjectLeader) {
-    return null;
-  }
-
-  // 정원이 꽉 찼을 때는 취소 버튼 숨김 (완료 버튼만 보이도록)
-  if (isCapacityFull) {
     return null;
   }
 

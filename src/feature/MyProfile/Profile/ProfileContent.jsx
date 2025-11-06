@@ -39,24 +39,22 @@ export default function ProfileContent() {
 
   return (
     <div className="bg-white rounded-lg p-6">
-
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* 프로필 이미지 섹션 */}
         <ProfileImageSection />
 
         {/* 사용자 정보 필드들 */}
-        <ProfileField label="닉네임" value={user.nickName || '닉네임 없음'} />
-        <ProfileField label="이메일" value={user.email || '이메일 없음'} />
-        <ProfileField label="비밀번호" value="••••••••" />
-      </div>
-      
-        {/* 출석 스타 */}
-         <div className="mt-24">
-        <div>
-          <AttendanceStars />
-          </div>
-          </div>
-      </div>
+        <div className="space-y-4">
+          <ProfileField label="닉네임" value={user.nickName || '닉네임 없음'} />
+          <ProfileField label="이메일" value={user.email || '이메일 없음'} />
+          <ProfileField label="비밀번호" value="••••••••" />
+        </div>
 
+        {/* 출석 스타 */}
+        <div className="mt-8">
+          <AttendanceStars />
+        </div>
+      </div>
+    </div>
   );
 }

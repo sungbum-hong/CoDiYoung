@@ -109,8 +109,8 @@ export default function ProfileImageSection() {
 
   return (
     <div
-      className={`border rounded-lg transition-all duration-300 flex items-center p-6 ${
-        isEditing ? "h-21" : "h-12"
+      className={`border rounded-lg transition-all duration-300 p-4 ${
+        isEditing ? "min-h-[100px]" : "h-16"
       }`}
       style={{ borderColor: COLORS.PRIMARY }}
     >
@@ -124,11 +124,11 @@ export default function ProfileImageSection() {
       />
 
       {isEditing ? (
-        <div className="flex items-center justify-between w-full">
+        <div className="flex items-center justify-between w-full h-full">
           {/* 프로필 이미지 표시 */}
-          <div className="flex items-center gap-3">
-            <div 
-              className="w-16 h-16 rounded-full border-2 border-gray-200 overflow-hidden flex items-center justify-center"
+          <div className="flex items-center gap-4">
+            <div
+              className="w-12 h-12 rounded-full border-2 border-gray-200 overflow-hidden flex items-center justify-center"
               style={{ backgroundColor: COLORS.GRAY_100 }}
             >
               {getCurrentProfileImageUrl() ? (
@@ -150,6 +150,7 @@ export default function ProfileImageSection() {
               </div>
             </div>
             
+
             {/* 에러 메시지 */}
             {imageError && (
               <div className="text-red-500 text-xs max-w-xs">
@@ -186,17 +187,16 @@ export default function ProfileImageSection() {
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between w-full">
+        <div className="flex items-center justify-between w-full h-full">
           {/* 프로필 이미지 표시 (읽기 전용) */}
           <div className="flex items-center gap-3">
-            <div 
-              className="w-8 h-8 rounded-full border border-gray-200 overflow-hidden flex items-center justify-center"
+            <div
+              className="w-10 h-10 rounded-full border border-gray-200 overflow-hidden flex items-center justify-center"
               style={{ backgroundColor: COLORS.GRAY_100 }}
             >
               {getCurrentProfileImageUrl() ? (
                 <img 
                   src={getCurrentProfileImageUrl()} 
-                  alt="프로필 이미지"
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.target.style.display = 'none';
@@ -214,9 +214,6 @@ export default function ProfileImageSection() {
                 이미지
               </div>
             </div>
-            {user?.nickname && (
-              <span className="text-sm font-medium">{user.nickname}</span>
-            )}
           </div>
           
           <Button variant="secondary" onClick={handleToggle}  className="!h-8 !text-xs disabled:opacity-50">
