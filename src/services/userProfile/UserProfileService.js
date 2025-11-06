@@ -33,21 +33,22 @@ export class UserProfileService {
 
   /**
    * 닉네임 변경
-   * @param {string} newNickname - 새로운 닉네임
+   * @param {Object} nicknameData - { nickname: string }
    * @returns {Promise<Object>} 변경 결과
    */
-  static async updateNickname(newNickname) {
+  static async updateNickname(nicknameData) {
     try {
+      const { nickname } = nicknameData;
       // 유효성 검사
       ValidationUtils.validateStringLength(
-        newNickname,
+        nickname,
         '닉네임',
         USER_PROFILE_CONSTANTS.MAX_NICKNAME_LENGTH,
         USER_PROFILE_CONSTANTS.MIN_NICKNAME_LENGTH
       );
 
       const headers = ApiUtils.getCommonHeaders();
-      const options = ApiUtils.createRequestOptions('PATCH', headers, { nickname: newNickname });
+      const options = ApiUtils.createRequestOptions('PATCH', headers, { nickname });
 
       const response = await fetch(`${BASE_URL}${ENDPOINTS.MYPAGE_UPDATE_NICKNAME}`, options);
 
@@ -80,12 +81,12 @@ export class UserProfileService {
 
   /**
    * 비밀번호 변경
-   * @param {string} currentPassword - 현재 비밀번호
-   * @param {string} newPassword - 새로운 비밀번호
+   * @param {Object} passwordData - { currentPassword: string, newPassword: string }
    * @returns {Promise<Object>} 변경 결과
    */
-  static async updatePassword(currentPassword, newPassword) {
+  static async updatePassword(passwordData) {
     try {
+      const { currentPassword, newPassword } = passwordData;
       // 유효성 검사
       ValidationUtils.validateStringLength(
         currentPassword,
