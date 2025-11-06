@@ -35,7 +35,7 @@ export default function HomePage() {
 
       <section className="p-4 flex flex-col">
         <h2 className="font-bold text-2xl mb-11 text-center">파트너 & 서포터</h2>
-        <Partners logos={Array.from({ length: 5 }, (_, i) => `/partner-${i + 1}.png`)} />
+        <Partners/>
       </section>
 
       <Footer />
