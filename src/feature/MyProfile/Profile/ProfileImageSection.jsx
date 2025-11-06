@@ -89,10 +89,10 @@ export default function ProfileImageSection() {
     }
 
     // 파일 타입 체크
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
-      setImageError('JPG, PNG, WebP 파일만 업로드할 수 있습니다.');
-      alert('JPG, PNG, WebP 파일만 업로드할 수 있습니다.');
+      setImageError('JPG, PNG, WebP, GIF 파일만 업로드할 수 있습니다.');
+      alert('JPG, PNG, WebP, GIF 파일만 업로드할 수 있습니다.');
       return false;
     }
 
@@ -118,7 +118,7 @@ export default function ProfileImageSection() {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/jpg,image/png,image/webp"
+        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
