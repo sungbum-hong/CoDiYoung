@@ -47,7 +47,7 @@ export class UserProfileService {
       );
 
       const headers = ApiUtils.getCommonHeaders();
-      const options = ApiUtils.createRequestOptions('PUT', headers, { nickName: newNickname });
+      const options = ApiUtils.createRequestOptions('PATCH', headers, { nickname: newNickname });
 
       const response = await fetch(`${BASE_URL}${ENDPOINTS.MYPAGE_UPDATE_NICKNAME}`, options);
 
@@ -68,7 +68,7 @@ export class UserProfileService {
       ValidationUtils.validateEmail(newEmail);
 
       const headers = ApiUtils.getCommonHeaders();
-      const options = ApiUtils.createRequestOptions('PUT', headers, { email: newEmail });
+      const options = ApiUtils.createRequestOptions('PATCH', headers, { email: newEmail });
 
       const response = await fetch(`${BASE_URL}${ENDPOINTS.MYPAGE_UPDATE_EMAIL}`, options);
 
@@ -106,7 +106,7 @@ export class UserProfileService {
       }
 
       const headers = ApiUtils.getCommonHeaders();
-      const options = ApiUtils.createRequestOptions('PUT', headers, {
+      const options = ApiUtils.createRequestOptions('PATCH', headers, {
         currentPassword,
         newPassword
       });
@@ -138,7 +138,7 @@ export class UserProfileService {
 
       // 2. 프로필 이미지 키 업데이트
       const headers = ApiUtils.getCommonHeaders();
-      const options = ApiUtils.createRequestOptions('PUT', headers, { imageKey });
+      const options = ApiUtils.createRequestOptions('PATCH', headers, { imageKey });
 
       const response = await fetch(`${BASE_URL}${ENDPOINTS.MYPAGE_UPDATE_IMAGE}`, options);
 

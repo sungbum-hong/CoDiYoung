@@ -39,69 +39,70 @@ export default function MemberDisplay({ project, position = "left" }) {
 
       {/* 크루 동그라미들 */}
       <div
-        className="absolute flex gap-[20px]"
+        className="absolute flex flex-wrap gap-[10px] max-w-[200px]"
         style={{ ...positionStyle, top: "136px" }}
       >
         {(() => {
           const actualMemberCount = project.memberCount || displayMembers.length || 1;
-          const maxDisplay = Math.min(2, displayMembers.length);
 
-          // 실제 멤버들을 표시
-          return displayMembers.slice(0, maxDisplay).map((member, i) => {
-            if (isAppliedProject) {
-              // 신청 프로젝트: memberBriefs 구조 사용
-              const displayName = member.name || `팀원 ${i + 1}`;
-              const imageUrl = ProjectUtils.resolveImageUrl(member.profileKey);
+          // 실제 인원수와 displayMembers 수 비교하여 부족한 경우 빈 멤버 추가
+          let membersToShow = [...displayMembers];
 
-              return (
-                <div
-                  key={i}
-                  className="w-[38px] h-[38px] rounded-full bg-gray-300 flex items-center justify-center text-xs overflow-hidden"
-                  title={displayName}
-                >
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt={displayName}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                  ) : null}
-
-                  {/* 이미지가 없거나 로드 실패시 표시 */}
-                  <div
-                    className={`w-full h-full flex items-center justify-center ${imageUrl ? 'hidden' : 'flex'}`}
-                  >
-                    {displayName?.[0] ?? "?"}
-                  </div>
-                </div>
-              );
-            } else {
-              // 진행 프로젝트: 기존 로직 사용
-              const displayName = ProjectUtils.getMemberDisplayName(member);
-              const imageUrl = ProjectUtils.getMemberImageUrl(member);
-
-              return (
-                <div
-                  key={i}
-                  className="w-[38px] h-[38px] rounded-full bg-gray-300 flex items-center justify-center text-xs overflow-hidden"
-                  title={displayName || `팀원 ${i + 1}`}
-                >
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt={displayName || '팀원'}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    displayName?.[0] ?? "?"
-                  )}
-                </div>
-              );
+          // displayMembers가 실제 인원수보다 적은 경우 빈 슬롯 추가
+          if (membersToShow.length < actualMemberCount) {
+            const missingCount = actualMemberCount - membersToShow.length;
+            for (let i = 0; i < missingCount; i++) {
+              membersToShow.push({
+                userId: null,
+                name: `팀원 ${membersToShow.length + i + 1}`,
+                profileKey: null,
+                isEmpty: true
+              });
             }
+          }
+
+          // 실제 멤버들을 표시 (최대 6명까지 제한)
+          const maxDisplay = Math.min(6, membersToShow.length);
+          return membersToShow.slice(0, maxDisplay).map((member, i) => {
+            const displayName = isAppliedProject
+              ? (member.name || `팀원 ${i + 1}`)
+              : (ProjectUtils.getMemberDisplayName(member) || `팀원 ${i + 1}`);
+
+            const imageUrl = isAppliedProject
+              ? ProjectUtils.resolveImageUrl(member.profileKey)
+              : ProjectUtils.getMemberImageUrl(member);
+
+            // 빈 슬롯인지 확인
+            const isEmpty = member.isEmpty || (!imageUrl && !displayName);
+            const bgColor = isEmpty ? 'bg-gray-200' : 'bg-gray-300';
+            const borderStyle = isEmpty ? 'border-2 border-dashed border-gray-400' : '';
+
+            return (
+              <div
+                key={i}
+                className={`w-[38px] h-[38px] rounded-full ${bgColor} ${borderStyle} flex items-center justify-center text-xs overflow-hidden`}
+                title={isEmpty ? '빈 슬롯' : displayName}
+              >
+                {!isEmpty && imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={displayName}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+
+                {/* 이미지가 없거나 빈 슬롯일 때 표시 */}
+                <div
+                  className={`w-full h-full flex items-center justify-center ${!isEmpty && imageUrl ? 'hidden' : 'flex'} ${isEmpty ? 'text-gray-400' : ''}`}
+                >
+                  {isEmpty ? "+" : (displayName?.[0] ?? "?")}
+                </div>
+              </div>
+            );
           });
         })()}
       </div>

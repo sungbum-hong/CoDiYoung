@@ -26,6 +26,13 @@ const ContentManagement = lazy(() => import("./feature/admin/ContentManagement/C
 const UserManagementLayout = lazy(() => import("./feature/admin/UserManagement/UserManagementLayout.jsx"))
 const NoticeBannerManagement = lazy(() => import("./feature/admin/NoticeBanner/NoticeBannerManagement.jsx"))
 const SettingManagement = lazy(() => import("./feature/admin/settingManagement/SettingManagement.jsx"))
+
+// AboutPages 컴포넌트들
+const TermsPage = lazy(() => import("./feature/AboutPages/TermsPage.jsx"))
+const PrivacyPage = lazy(() => import("./feature/AboutPages/PrivacyPage.jsx"))
+const ApplyPage = lazy(() => import("./feature/AboutPages/ApplyPage.jsx"))
+const AdsPage = lazy(() => import("./feature/AboutPages/AdsPage.jsx"))
+const MadeUsPage = lazy(() => import("./feature/AboutPages/MadeUsPage.jsx"))
 const router = createBrowserRouter([
   {
     path: "/",
@@ -44,6 +51,11 @@ const router = createBrowserRouter([
       { path: "/write/:id", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout /></Suspense> },
       { path: "/edit/:id", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout /></Suspense> },
       { path: "/profile", element: <Suspense fallback={<LoadingFallback />}><MyProfileLayout /></Suspense> },
+      { path: "/terms", element: <Suspense fallback={<LoadingFallback />}><TermsPage /></Suspense> },
+      { path: "/privacy", element: <Suspense fallback={<LoadingFallback />}><PrivacyPage /></Suspense> },
+      { path: "/apply", element: <Suspense fallback={<LoadingFallback />}><ApplyPage /></Suspense> },
+      { path: "/ads", element: <Suspense fallback={<LoadingFallback />}><AdsPage /></Suspense> },
+      { path: "/about/made-us", element: <Suspense fallback={<LoadingFallback />}><MadeUsPage /></Suspense> },
       {
         path: "/admin",
         element: <Suspense fallback={<LoadingFallback />}><AdminPageLayout /></Suspense>,

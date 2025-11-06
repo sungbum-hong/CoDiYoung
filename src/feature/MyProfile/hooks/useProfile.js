@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserProfileService } from '../../../services/userProfile/UserProfileService.js';
+import { ImageService } from '../../../services/imageService.js';
 import { useCallback, useMemo } from 'react';
 import { ProjectUtils } from '../Project/utils/ProjectUtils.js';
 
@@ -318,7 +319,7 @@ export function useProfileImageUpload() {
   const uploadAndUpdateImage = useCallback(async (file) => {
     try {
       // 1. 이미지 업로드 (presigned URL 방식)
-      const imageKey = await UserProfileService.uploadImageComplete(file);
+      const imageKey = await ImageService.uploadImage(file);
       
       // 2. 프로필 이미지 변경
       await updateImage.mutateAsync(imageKey);

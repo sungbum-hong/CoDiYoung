@@ -38,7 +38,8 @@ export default function Footer() {
             </li>
             <li>
               <a
-                href="/apply"
+                href="https://open.kakao.com/o/sNuPVDLh"
+                target="_blank"
                 className="hover:underline rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/40"
               >
                 신청하기
@@ -49,7 +50,16 @@ export default function Footer() {
                 href="/ads"
                 className="hover:underline rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/40"
               >
-                광고문의
+                광고/외주
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://www.instagram.com/codiyoung_community?igsh=ZTg5ZGt6NWlsdDVk"
+                target="_blank"
+                className="hover:underline rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/40"
+              >
+                SNS
               </a>
             </li>
             <li className="font-medium">
@@ -57,7 +67,7 @@ export default function Footer() {
                 href="/about/made-us"
                 className="hover:underline rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/40"
               >
-                Made Us
+                Made by Us
               </a>
             </li>
           </ul>
