@@ -23,7 +23,7 @@ export class ValidationUtils {
    * @param {string[]} allowedTypes - 허용되는 MIME 타입 배열
    * @throws {Error} 파일 검증 실패 시 에러
    */
-  static validateImageFile(file, maxSize = 5 * 1024 * 1024, allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']) {
+  static validateImageFile(file, maxSize = 5 * 1024 * 1024, allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']) {
     if (!file) {
       throw new Error('파일이 선택되지 않았습니다.');
     }
