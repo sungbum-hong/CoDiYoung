@@ -122,24 +122,19 @@ export class UserProfileService {
 
   /**
    * 프로필 이미지 변경
-   * @param {File} imageFile - 새로운 프로필 이미지 파일
+   * @param {Object} params - 이미지 키 객체
+   * @param {string} params.imageKey - 이미지 키
    * @returns {Promise<Object>} 변경 결과
    */
-  static async updateProfileImage(imageFile) {
+  static async updateProfileImage({ imageKey }) {
     try {
-      // 이미지 파일 유효성 검사
-      ValidationUtils.validateImageFile(
-        imageFile,
-        USER_PROFILE_CONSTANTS.MAX_IMAGE_SIZE,
-        USER_PROFILE_CONSTANTS.ALLOWED_IMAGE_TYPES
-      );
+      if (!imageKey || imageKey.trim().length === 0) {
+        throw new Error('이미지 키가 필요합니다.');
+      }
 
-      // 1. 이미지 업로드
-      const imageKey = await ImageService.uploadImage(imageFile);
-
-      // 2. 프로필 이미지 키 업데이트
+      // 프로필 이미지 키 업데이트
       const headers = ApiUtils.getCommonHeaders();
-      const options = ApiUtils.createRequestOptions('PATCH', headers, { imageKey });
+      const options = ApiUtils.createRequestOptions('PATCH', headers, { imageKey: imageKey.trim() });
 
       const response = await fetch(`${BASE_URL}${ENDPOINTS.MYPAGE_UPDATE_IMAGE}`, options);
 
