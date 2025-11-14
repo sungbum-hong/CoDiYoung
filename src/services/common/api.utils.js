@@ -22,7 +22,13 @@ export class ApiUtils {
 
     if (requireAuth) {
       try {
-        const token = AuthService.validateTokenBeforeRequest(true);
+        // admin 토큰을 먼저 확인하고, 없으면 일반 토큰 사용
+        let token = localStorage.getItem("admin_access_token");
+
+        if (!token) {
+          token = AuthService.validateTokenBeforeRequest(true);
+        }
+
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }
@@ -31,7 +37,13 @@ export class ApiUtils {
       }
     } else {
       try {
-        const token = AuthService.validateTokenBeforeRequest(false);
+        // admin 토큰을 먼저 확인하고, 없으면 일반 토큰 사용
+        let token = localStorage.getItem("admin_access_token");
+
+        if (!token) {
+          token = AuthService.validateTokenBeforeRequest(false);
+        }
+
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }

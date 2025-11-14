@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ADMIN_ROUTES } from "../../../constants/routes.js";
+import useAuthStore from "../../../stores/authStore.js";
 
 export default function AdminSidebar({ currentPath }) {
   const [isOpen, setIsOpen] = useState(true);
+  const navigate = useNavigate();
+  const { logout } = useAuthStore();
 
   const menuItems = [
     { label: "홈", path: ADMIN_ROUTES.HOME },
@@ -12,6 +15,7 @@ export default function AdminSidebar({ currentPath }) {
     { label: "공지/배너", path: ADMIN_ROUTES.BANNER },
     { label: "설정", path: ADMIN_ROUTES.SETTINGS },
   ];
+
 
   return (
     <aside
@@ -37,6 +41,8 @@ export default function AdminSidebar({ currentPath }) {
             </li>
           );
         })}
+
+        
       </ul>
     </aside>
   );

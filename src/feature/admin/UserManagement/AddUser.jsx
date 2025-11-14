@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AdminApiService } from "../../../services/admin/adminApi";
+import { useCreateUser } from "./hooks/useUserManagement.js";
 export default function AccountCreationForm({ setIsOpenAddUser }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -9,14 +10,16 @@ export default function AccountCreationForm({ setIsOpenAddUser }) {
     userCategory: "CODING",
     nickname: "",
   });
-  const apiTestFunc = async (userData) => {
+
+  const createUserMutation = useCreateUser();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     try {
-      const result = await AdminApiService.createAdmin(userData);
-
-      alert("계정이 성공적으로 생성되었습니다!");
-      setIsOpenAddUser(false); // 성공 시 모달 닫기
-
-      return result;
+      await createUserMutation.mutateAsync(formData);
+      alert("사용자가 성공적으로 생성되었습니다!");
+      setIsOpenAddUser(false);
     } catch (error) {
       alert("오류 발생: " + error.message);
     }
@@ -204,10 +207,11 @@ export default function AccountCreationForm({ setIsOpenAddUser }) {
         {/* 버튼 */}
         <div className="flex justify-center gap-7 mt-12">
           <button
-            onClick={() => apiTestFunc(formData)}
-            className="px-12 py-3 border-2 rounded-full text-base font-medium bg-white text-[#FF0066] transition-colors duration-200 hover:bg-[#FF0066] hover:text-white"
+            onClick={handleSubmit}
+            disabled={createUserMutation.isPending}
+            className="px-12 py-3 border-2 rounded-full text-base font-medium bg-white text-[#FF0066] transition-colors duration-200 hover:bg-[#FF0066] hover:text-white disabled:opacity-50"
           >
-            생성
+            {createUserMutation.isPending ? "생성 중..." : "생성"}
           </button>
 
           <button

@@ -7,10 +7,7 @@ export default function Partners() {
       img : '/ansan.png',
       link : 'https://www.asyouthspace.kr/'
     },
-    {
-      img: '/onoffmix_Logo.png',
-      link : 'https://www.onoffmix.com'
-    }
+
   ]
   return (
     <div 
