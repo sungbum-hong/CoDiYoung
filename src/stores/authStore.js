@@ -64,6 +64,11 @@ const useAuthStore = create((set, get) => ({
 
     try {
       await AuthService.logout();
+
+      // admin 토큰 및 정보도 함께 정리
+      localStorage.removeItem("admin_access_token");
+      localStorage.removeItem("admin_user_info");
+
       set({
         isAuthenticated: false,
         user: null,
@@ -72,7 +77,16 @@ const useAuthStore = create((set, get) => ({
       });
       return { success: true };
     } catch (error) {
-      set({ error: error.message, isLoading: false });
+      // 에러가 발생해도 로컬 토큰은 정리
+      localStorage.removeItem("admin_access_token");
+      localStorage.removeItem("admin_user_info");
+
+      set({
+        isAuthenticated: false,
+        user: null,
+        error: error.message,
+        isLoading: false
+      });
       return { success: false, error: error.message };
     }
   },
@@ -157,12 +171,32 @@ const useAuthStore = create((set, get) => ({
 
   // === 초기화 (앱 시작 시 로그인 상태 확인) ===
   initialize: () => {
+    // 일반 사용자 로그인 확인
     const currentUser = AuthService.getCurrentUser();
     if (currentUser) {
       set({
         isAuthenticated: true,
         user: currentUser
       });
+      return;
+    }
+
+    // admin 토큰 확인
+    const adminToken = localStorage.getItem("admin_access_token");
+    const adminUserInfo = localStorage.getItem("admin_user_info");
+
+    if (adminToken && adminUserInfo) {
+      try {
+        const adminUser = JSON.parse(adminUserInfo);
+        set({
+          isAuthenticated: true,
+          user: { ...adminUser, isAdmin: true, role: 'ADMIN' }
+        });
+      } catch (error) {
+        // admin 정보 파싱 실패 시 정리
+        localStorage.removeItem("admin_access_token");
+        localStorage.removeItem("admin_user_info");
+      }
     }
   },
 }));

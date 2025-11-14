@@ -21,6 +21,7 @@ const MyProfileLayout = lazy(() => import("./feature/MyProfile/MyProfileLayout.j
 const AdminPageLayout = lazy(()=> import("./feature/admin/AdminPageLayout.jsx"))
 
 // Admin 페이지 컴포넌트들
+const AdminLoginPage = lazy(() => import("./feature/admin/Auth/AdminLoginPage.jsx"))
 const AdminHome = lazy(() => import("./feature/admin/Home/AdminHome.jsx"))
 const ContentManagement = lazy(() => import("./feature/admin/ContentManagement/ContentManagement.jsx"))
 const UserManagementLayout = lazy(() => import("./feature/admin/UserManagement/UserManagementLayout.jsx"))
@@ -56,12 +57,15 @@ const router = createBrowserRouter([
       { path: "/apply", element: <Suspense fallback={<LoadingFallback />}><ApplyPage /></Suspense> },
       { path: "/ads", element: <Suspense fallback={<LoadingFallback />}><AdsPage /></Suspense> },
       { path: "/about/made-us", element: <Suspense fallback={<LoadingFallback />}><MadeUsPage /></Suspense> },
+      // Admin 로그인 페이지
+      { path: "/admin/login", element: <Suspense fallback={<LoadingFallback />}><AdminLoginPage /></Suspense> },
+      // Admin 대시보드
       {
         path: "/admin",
         element: <Suspense fallback={<LoadingFallback />}><AdminPageLayout /></Suspense>,
         errorElement: <ErrorBoundary />,
         children: [
-          { index: true, element: <Navigate to="/admin/home" replace /> },
+          { index: true, element: <Navigate to="/admin/login" replace /> },
           { path: "home", element: <Suspense fallback={<LoadingFallback />}><AdminHome /></Suspense> },
           { path: "content", element: <Suspense fallback={<LoadingFallback />}><ContentManagement /></Suspense> },
           { path: "users", element: <Suspense fallback={<LoadingFallback />}><UserManagementLayout /></Suspense> },

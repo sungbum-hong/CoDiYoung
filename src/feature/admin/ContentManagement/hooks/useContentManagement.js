@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminApiService } from '../../../../services/admin/adminApi';
 
 /**
@@ -99,4 +99,64 @@ export function useProjectList(params = {}, options = {}) {
     // 편의 메서드
     retry: () => query.refetch(),
   };
+}
+
+/**
+ * 스터디 상세 조회 훅
+ */
+export function useStudyDetail(studyId, options = {}) {
+  return useQuery({
+    queryKey: ['admin', 'content', 'study', studyId],
+    queryFn: () => AdminApiService.getStudyDetail(studyId),
+    staleTime: 5 * 60 * 1000, // 5분
+    enabled: !!studyId, // studyId가 있을 때만 실행
+    ...options,
+  });
+}
+
+/**
+ * 프로젝트 상세 조회 훅
+ */
+export function useProjectDetail(projectId, options = {}) {
+  return useQuery({
+    queryKey: ['admin', 'content', 'project', projectId],
+    queryFn: () => AdminApiService.getProjectDetail(projectId),
+    staleTime: 5 * 60 * 1000, // 5분
+    enabled: !!projectId, // projectId가 있을 때만 실행
+    ...options,
+  });
+}
+
+/**
+ * 스터디 삭제 훅
+ */
+export function useDeleteStudy() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (deleteData) => AdminApiService.deleteStudy(deleteData),
+    onSuccess: () => {
+      // 스터디 목록 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: ['admin', 'content', 'studies']
+      });
+    }
+  });
+}
+
+/**
+ * 프로젝트 삭제 훅
+ */
+export function useDeleteProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (deleteData) => AdminApiService.deleteProject(deleteData),
+    onSuccess: () => {
+      // 프로젝트 목록 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: ['admin', 'content', 'projects']
+      });
+    }
+  });
 }

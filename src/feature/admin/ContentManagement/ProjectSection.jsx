@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { FaEllipsisH } from "react-icons/fa";
-import { useProjectList } from './hooks/useContentManagement';
+import { useProjectList, useDeleteProject } from './hooks/useContentManagement';
 
 /**
  * 프로젝트 섹션 컨테이너 컴포넌트
@@ -26,14 +26,31 @@ export default function ProjectSection() {
     retry
   } = useProjectList({ page, size: 5, sort });
 
+  const deleteProjectMutation = useDeleteProject();
+
   // 프로젝트 클릭 핸들러
   const handleProjectClick = useCallback((project) => {
     // TODO: 프로젝트 상세 모달이나 페이지로 이동
+    alert(`프로젝트 상세 보기 (ID: ${project.id})`);
   }, []);
+
+  // 프로젝트 삭제 핸들러
+  const handleProjectDelete = useCallback((project) => {
+    const reason = prompt(`프로젝트 "${project.id}"를 삭제하는 이유를 입력하세요:`);
+    if (reason && reason.trim()) {
+      if (confirm(`정말로 프로젝트 ID ${project.id}를 삭제하시겠습니까?`)) {
+        deleteProjectMutation.mutate({
+          id: project.id,
+          reason: reason.trim()
+        });
+      }
+    }
+  }, [deleteProjectMutation]);
 
   // 메뉴 클릭 핸들러
   const handleMenuClick = useCallback(() => {
     // TODO: 메뉴 모달이나 드롭다운 표시
+    alert('프로젝트 관리 메뉴');
   }, []);
 
   // 로딩 상태
@@ -106,10 +123,25 @@ export default function ProjectSection() {
           {projects.map((project) => (
             <div
               key={project.id}
-              className="border border-indigo-600 w-25 h-25 rounded-3xl cursor-pointer hover:bg-gray-50 transition-colors flex flex-col items-center justify-center p-4"
-              onClick={() => handleProjectClick(project)}
+              className="relative border border-indigo-600 w-25 h-25 rounded-3xl hover:bg-gray-50 transition-colors flex flex-col items-center justify-center p-4"
             >
-              <div className="text-center">
+              {/* 삭제 버튼 */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleProjectDelete(project);
+                }}
+                className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 transition-colors"
+                disabled={deleteProjectMutation.isPending}
+              >
+                ×
+              </button>
+
+              {/* 프로젝트 내용 */}
+              <div
+                className="text-center cursor-pointer w-full h-full flex flex-col justify-center"
+                onClick={() => handleProjectClick(project)}
+              >
                 <div className="text-sm font-medium text-gray-900 mb-2">
                   ID: {project.id}
                 </div>

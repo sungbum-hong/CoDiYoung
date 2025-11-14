@@ -10,6 +10,24 @@ const BASE_URL = CONFIG.API.BASE_URL;
 export class AdminApiService {
 
   /**
+   * 관리자 로그인
+   * @param {string} email - 관리자 이메일 또는 아이디
+   * @param {string} password - 비밀번호
+   * @returns {Promise<Object>} 로그인 결과
+   */
+  static async adminLogin(email, password) {
+    const url = `${BASE_URL}/api/admin/login`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'POST',
+      body: { email, password },
+      requireAuth: false, // 로그인이므로 인증 불필요
+      errorMessage: '관리자 로그인 실패',
+      context: 'Admin Login'
+    });
+  }
+
+  /**
    * 관리자 홈 데이터 조회
    * @param {number|null} lastUserId - 마지막 사용자 ID (페이지네이션)
    * @param {number} limit - 조회할 데이터 개수 (기본값: 10)
@@ -103,6 +121,206 @@ export class AdminApiService {
       requireAuth: true,
       errorMessage: '프로젝트 목록 조회 실패',
       context: 'Admin Project List'
+    });
+  }
+
+  /**
+   * 스터디 상세 조회
+   * @param {number} studyId - 스터디 ID
+   * @returns {Promise<Object>} 스터디 상세 데이터
+   */
+  static async getStudyDetail(studyId) {
+    const url = `${BASE_URL}/api/admin/findStudy/${studyId}`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'GET',
+      requireAuth: true,
+      errorMessage: '스터디 상세 조회 실패',
+      context: 'Admin Study Detail'
+    });
+  }
+
+  /**
+   * 스터디 삭제
+   * @param {Object} deleteData - 삭제 데이터
+   * @param {number} deleteData.id - 스터디 ID
+   * @param {string} deleteData.reason - 삭제 사유
+   * @returns {Promise<Object>} 삭제 결과
+   */
+  static async deleteStudy(deleteData) {
+    const url = `${BASE_URL}/api/admin/deleteStudy`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'DELETE',
+      body: deleteData,
+      requireAuth: true,
+      errorMessage: '스터디 삭제 실패',
+      context: 'Admin Study Delete'
+    });
+  }
+
+  /**
+   * 일반 유저 생성 (회원가입)
+   * @param {Object} userData - 사용자 데이터
+   * @returns {Promise<Object>} 생성 결과
+   */
+  static async createUser(userData) {
+    const url = `${BASE_URL}/api/admin/create`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'POST',
+      body: userData,
+      requireAuth: true,
+      errorMessage: '사용자 생성 실패',
+      context: 'Admin User Create'
+    });
+  }
+
+  /**
+   * 배너 추가
+   * @param {string} imageKey - 이미지 키
+   * @returns {Promise<Object>} 배너 추가 결과
+   */
+  static async addBanner(imageKey) {
+    const queryParams = new URLSearchParams();
+    queryParams.append('imageKey', imageKey);
+
+    const url = `${BASE_URL}/api/admin/addBanner?${queryParams.toString()}`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'POST',
+      requireAuth: true,
+      errorMessage: '배너 추가 실패',
+      context: 'Admin Banner Add'
+    });
+  }
+
+  /**
+   * 유저 정보 목록 조회
+   * @param {number|null} lastUserId - 마지막 사용자 ID (커서 스크롤)
+   * @param {number} limit - 조회할 데이터 개수 (기본값: 10)
+   * @returns {Promise<Object>} 유저 정보 목록
+   */
+  static async getUserInfoList(lastUserId = null, limit = 10) {
+    const queryParams = new URLSearchParams();
+    if (lastUserId) queryParams.append('lastUserId', lastUserId);
+    queryParams.append('limit', limit);
+
+    const url = `${BASE_URL}/api/admin/getUserInfoList?${queryParams.toString()}`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'GET',
+      requireAuth: true,
+      errorMessage: '유저 정보 목록 조회 실패',
+      context: 'Admin User Info List'
+    });
+  }
+
+  /**
+   * 오프라인 참가 횟수 변경
+   * @param {number} userId - 사용자 ID
+   * @param {number} count - 오프라인 참여 횟수
+   * @returns {Promise<Object>} 업데이트 결과
+   */
+  static async updateOfflineCount(userId, count) {
+    const queryParams = new URLSearchParams();
+    queryParams.append('userId', userId);
+    queryParams.append('count', count);
+
+    const url = `${BASE_URL}/api/admin/updateOffline?${queryParams.toString()}`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'POST',
+      requireAuth: true,
+      errorMessage: '오프라인 참가 횟수 업데이트 실패',
+      context: 'Admin Update Offline Count'
+    });
+  }
+
+  /**
+   * 현재 배너 조회 (필요시 구현)
+   * @returns {Promise<Object>} 현재 배너 정보
+   */
+  static async getCurrentBanner() {
+    const url = `${BASE_URL}/api/admin/getBanner`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'GET',
+      requireAuth: true,
+      errorMessage: '배너 조회 실패',
+      context: 'Admin Get Banner'
+    });
+  }
+
+  /**
+   * 이미지 업로드 (필요시 구현)
+   * @param {File} file - 업로드할 이미지 파일
+   * @returns {Promise<Object>} 업로드 결과 (imageKey 포함)
+   */
+  static async uploadImage(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const url = `${BASE_URL}/api/admin/uploadImage`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'POST',
+      body: formData,
+      requireAuth: true,
+      errorMessage: '이미지 업로드 실패',
+      context: 'Admin Upload Image',
+      isFormData: true // FormData 처리를 위한 플래그
+    });
+  }
+
+  /**
+   * 배너 삭제 (필요시 구현)
+   * @param {string} bannerId - 배너 ID
+   * @returns {Promise<Object>} 삭제 결과
+   */
+  static async deleteBanner(bannerId) {
+    const url = `${BASE_URL}/api/admin/deleteBanner/${bannerId}`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'DELETE',
+      requireAuth: true,
+      errorMessage: '배너 삭제 실패',
+      context: 'Admin Delete Banner'
+    });
+  }
+
+  /**
+   * 프로젝트 상세 조회 (필요시 구현)
+   * @param {number} projectId - 프로젝트 ID
+   * @returns {Promise<Object>} 프로젝트 상세 데이터
+   */
+  static async getProjectDetail(projectId) {
+    const url = `${BASE_URL}/api/admin/findProject/${projectId}`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'GET',
+      requireAuth: true,
+      errorMessage: '프로젝트 상세 조회 실패',
+      context: 'Admin Project Detail'
+    });
+  }
+
+  /**
+   * 프로젝트 삭제 (필요시 구현)
+   * @param {Object} deleteData - 삭제 데이터
+   * @param {number} deleteData.id - 프로젝트 ID
+   * @param {string} deleteData.reason - 삭제 사유
+   * @returns {Promise<Object>} 삭제 결과
+   */
+  static async deleteProject(deleteData) {
+    const url = `${BASE_URL}/api/admin/deleteProject`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'DELETE',
+      body: deleteData,
+      requireAuth: true,
+      errorMessage: '프로젝트 삭제 실패',
+      context: 'Admin Project Delete'
     });
   }
 }

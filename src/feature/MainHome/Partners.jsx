@@ -6,7 +6,7 @@ export default function Partners() {
     {
       img : '/ansan.png',
       link : 'https://www.asyouthspace.kr/'
-    }
+    },
   ]
   return (
     <div 

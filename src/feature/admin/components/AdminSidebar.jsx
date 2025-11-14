@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ADMIN_ROUTES } from "../../../constants/routes.js";
+import useAuthStore from "../../../stores/authStore.js";
 
 export default function AdminSidebar({ currentPath }) {
   const [isOpen, setIsOpen] = useState(true);
+  const navigate = useNavigate();
+  const { logout } = useAuthStore();
 
   const menuItems = [
     { label: "홈", path: ADMIN_ROUTES.HOME },
@@ -12,6 +15,13 @@ export default function AdminSidebar({ currentPath }) {
     { label: "공지/배너", path: ADMIN_ROUTES.BANNER },
     { label: "설정", path: ADMIN_ROUTES.SETTINGS },
   ];
+
+  const handleLogout = async () => {
+    if (confirm("로그아웃 하시겠습니까?")) {
+      await logout();
+      navigate("/admin/login", { replace: true });
+    }
+  };
 
   return (
     <aside
@@ -37,6 +47,16 @@ export default function AdminSidebar({ currentPath }) {
             </li>
           );
         })}
+
+        {/* 로그아웃 버튼 */}
+        <li className="mt-8">
+          <button
+            onClick={handleLogout}
+            className="flex items-center justify-center w-full my-2 py-3 rounded-full text-lg transition-colors bg-red-500 text-white hover:bg-red-600"
+          >
+            로그아웃
+          </button>
+        </li>
       </ul>
     </aside>
   );

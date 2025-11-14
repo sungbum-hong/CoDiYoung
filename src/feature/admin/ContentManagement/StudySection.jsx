@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { FaEllipsisH } from "react-icons/fa";
-import { useStudyList } from './hooks/useContentManagement';
+import { useStudyList, useDeleteStudy } from './hooks/useContentManagement';
 
 /**
  * 스터디 섹션 컨테이너 컴포넌트
@@ -26,14 +26,31 @@ export default function StudySection() {
     retry
   } = useStudyList({ page, size: 5, sort });
 
+  const deleteStudyMutation = useDeleteStudy();
+
   // 스터디 클릭 핸들러
   const handleStudyClick = useCallback((study) => {
     // TODO: 스터디 상세 모달이나 페이지로 이동
+    alert(`스터디 상세 보기 (ID: ${study.id})`);
   }, []);
+
+  // 스터디 삭제 핸들러
+  const handleStudyDelete = useCallback((study) => {
+    const reason = prompt(`스터디 "${study.id}"를 삭제하는 이유를 입력하세요:`);
+    if (reason && reason.trim()) {
+      if (confirm(`정말로 스터디 ID ${study.id}를 삭제하시겠습니까?`)) {
+        deleteStudyMutation.mutate({
+          id: study.id,
+          reason: reason.trim()
+        });
+      }
+    }
+  }, [deleteStudyMutation]);
 
   // 메뉴 클릭 핸들러
   const handleMenuClick = useCallback(() => {
     // TODO: 메뉴 모달이나 드롭다운 표시
+    alert('스터디 관리 메뉴');
   }, []);
 
   // 로딩 상태
@@ -106,10 +123,25 @@ export default function StudySection() {
           {studies.map((study) => (
             <div
               key={study.id}
-              className="border border-indigo-600 w-25 h-25 rounded-3xl cursor-pointer hover:bg-gray-50 transition-colors flex flex-col items-center justify-center p-4"
-              onClick={() => handleStudyClick(study)}
+              className="relative border border-indigo-600 w-25 h-25 rounded-3xl hover:bg-gray-50 transition-colors flex flex-col items-center justify-center p-4"
             >
-              <div className="text-center">
+              {/* 삭제 버튼 */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleStudyDelete(study);
+                }}
+                className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 transition-colors"
+                disabled={deleteStudyMutation.isPending}
+              >
+                ×
+              </button>
+
+              {/* 스터디 내용 */}
+              <div
+                className="text-center cursor-pointer w-full h-full flex flex-col justify-center"
+                onClick={() => handleStudyClick(study)}
+              >
                 <div className="text-sm font-medium text-gray-900 mb-2">
                   ID: {study.id}
                 </div>
