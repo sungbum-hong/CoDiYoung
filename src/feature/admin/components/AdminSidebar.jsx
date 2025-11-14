@@ -16,12 +16,6 @@ export default function AdminSidebar({ currentPath }) {
     { label: "설정", path: ADMIN_ROUTES.SETTINGS },
   ];
 
-  const handleLogout = async () => {
-    if (confirm("로그아웃 하시겠습니까?")) {
-      await logout();
-      navigate("/admin/login", { replace: true });
-    }
-  };
 
   return (
     <aside
@@ -48,15 +42,7 @@ export default function AdminSidebar({ currentPath }) {
           );
         })}
 
-        {/* 로그아웃 버튼 */}
-        <li className="mt-8">
-          <button
-            onClick={handleLogout}
-            className="flex items-center justify-center w-full my-2 py-3 rounded-full text-lg transition-colors bg-red-500 text-white hover:bg-red-600"
-          >
-            로그아웃
-          </button>
-        </li>
+        
       </ul>
     </aside>
   );
