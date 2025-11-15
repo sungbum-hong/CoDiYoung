@@ -36,21 +36,25 @@ export class ApiUtils {
         throw error;
       }
     } else {
-      try {
-        // admin 토큰을 먼저 확인하고, 없으면 일반 토큰 사용
-        let token = localStorage.getItem("admin_access_token");
+      // requireAuth=false일 때는 토큰이 있으면 추가하고, 없거나 만료되었으면 무시
+      let token = localStorage.getItem("admin_access_token");
 
-        if (!token) {
-          token = AuthService.validateTokenBeforeRequest(false);
-        }
-
+      if (!token) {
+        token = localStorage.getItem("auth_token");
+        // 토큰이 있는 경우에만 만료 검증 (에러가 발생해도 무시)
         if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
+          try {
+            if (AuthService.isTokenExpired(token)) {
+              token = null; // 만료된 토큰은 사용하지 않음
+            }
+          } catch (error) {
+            token = null; // 토큰 검증 실패 시에도 무시
+          }
         }
-      } catch (error) {
-        if (error.message.includes('만료')) {
-          throw error;
-        }
+      }
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
       }
     }
 
