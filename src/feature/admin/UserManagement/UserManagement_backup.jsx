@@ -3,9 +3,8 @@ import { useUserList } from "./hooks/useUserManagement.js";
 import { useState } from "react";
 import { getMockUserPage } from "../../../mock/userData.js";
 
-export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, setSelectedUser }) {
+export default function UserManagement({setIsOpenAddUser, setIsOpenEditUser}) {
   const [lastUserId, setLastUserId] = useState(null);
-  const [selectedUserId, setSelectedUserId] = useState(null);
 
   // Mock 데이터 사용 (UI 테스트용)
   const mockData = getMockUserPage(lastUserId, 10);
@@ -17,13 +16,19 @@ export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, se
   const error = null;
   const retry = () => console.log('Mock retry called');
 
-  // 행 클릭 핸들러
-  const handleRowClick = (userId) => {
-    setSelectedUserId(selectedUserId === userId ? null : userId);
-  };
-
-  // 선택된 사용자 정보 가져오기
-  const selectedUser = users.find(user => user.id === selectedUserId);
+  // 실제 API 호출 (현재 주석 처리)
+  /*
+  const {
+    users,
+    nextCursor,
+    hasNext,
+    isLoading,
+    isError,
+    error,
+    retry,
+    rawData
+  } = useUserList({ lastUserId, limit: 10 });
+  */
 
   const columns = [
     { name: "이름", key: "name" },
@@ -66,43 +71,22 @@ export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, se
 
   return (
     <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="text-sm text-gray-600">
-          {selectedUserId ? (
-            <span className="text-pink-600 font-medium">
-              선택됨: {selectedUser?.name} ({selectedUser?.email})
-            </span>
-          ) : (
-            <span>수정할 사용자를 선택해주세요</span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              if (selectedUserId && selectedUser) {
-                setSelectedUser(selectedUser);
-                setIsOpenEditUser(true);
-              }
-            }}
-            disabled={!selectedUserId}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-              selectedUserId
-                ? 'bg-[#FF0066] text-white hover:bg-pink-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            <FaEdit size={20} />
-          </button>
-          <button
-            onClick={() => setIsOpenAddUser(true)}
-            className="bg-[#FF0066] text-white w-12 h-12 rounded-full hover:bg-pink-700 flex items-center justify-center"
-          >
-            <FaPlus size={20} />
-          </button>
-        </div>
+      <div className="mb-6 flex items-center justify-end gap-2">
+        <button
+          onClick={() => setIsOpenEditUser(true)}
+          className="bg-[#FF0066] text-white w-12 h-12 rounded-full hover:bg-pink-700 flex items-center justify-center"
+        >
+          <FaEdit size={20} />
+        </button>
+        <button
+          onClick={() => setIsOpenAddUser(true)}
+          className="bg-[#FF0066] text-white w-12 h-12 rounded-full hover:bg-pink-700 flex items-center justify-center"
+        >
+          <FaPlus size={20} />
+        </button>
       </div>
 
+      {/* 빈 상태 */}
       {users.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-32">
           <div className="text-gray-500 mb-2">등록된 사용자가 없습니다.</div>
@@ -112,27 +96,25 @@ export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, se
         </div>
       ) : (
         <div className="overflow-hidden">
+          {/* Flex 컨테이너로 컬럼 정렬 */}
           <div className="flex w-full">
+            {/* 각 컬럼별로 헤더와 데이터를 세로로 정렬 */}
             {columns.map((column, index) => (
               <div key={index} className="flex-1 flex flex-col">
+                {/* 테이블 헤더 */}
                 <div className="w-full py-3 px-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {column.name}
                 </div>
+
+                {/* 테이블 데이터 */}
                 <div className="w-full">
                   {users.map((userData, userIndex) => (
                     <div
                       key={userData.id || userIndex}
-                      onClick={() => handleRowClick(userData.id)}
-                      className={`h-12 px-2 text-center text-sm flex items-center justify-center border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors duration-200 ${
-                        selectedUserId === userData.id
-                          ? 'bg-pink-100 text-pink-800 border-pink-200'
-                          : 'text-gray-500 hover:bg-gray-50'
-                      }`}
+                      className="h-12 px-2 text-center text-sm text-gray-500 flex items-center justify-center border-b border-gray-100 last:border-b-0"
                     >
                       {column.key === "name" ? (
-                        <span className={`font-medium text-sm ${
-                          selectedUserId === userData.id ? 'text-pink-900' : 'text-gray-900'
-                        }`}>
+                        <span className="font-medium text-gray-900 text-sm">
                           {userData[column.key]}
                         </span>
                       ) : column.key === "createdAt" ? (
@@ -153,6 +135,7 @@ export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, se
             ))}
           </div>
 
+          {/* 더 보기 버튼 */}
           {hasNext && (
             <div className="mt-4 text-center">
               <button

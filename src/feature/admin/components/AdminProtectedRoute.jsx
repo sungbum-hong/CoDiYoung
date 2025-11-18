@@ -11,22 +11,14 @@ export default function AdminProtectedRoute({ children }) {
   const { isAuthenticated, user } = useAuthStore();
 
   useEffect(() => {
-    console.log("AdminProtectedRoute - Auth check:", {
-      isAuthenticated,
-      user,
-      isAdmin: user ? isAdminUser(user) : false
-    });
-
     // 로그인되지 않은 경우 admin 로그인 페이지로 이동
     if (!isAuthenticated) {
-      console.log("Admin access denied: Not authenticated");
       navigate("/admin/login", { replace: true });
       return;
     }
 
     // 로그인은 되어있지만 admin 권한이 없는 경우
     if (user && !isAdminUser(user)) {
-      console.log("Admin access denied: Not admin user", user);
       alert("관리자 권한이 필요합니다.");
       navigate("/admin/login", { replace: true });
       return;
