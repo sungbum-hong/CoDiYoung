@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminApiService } from '../../../../services/admin/adminApi';
+import { getStudyListResponse, getStudyById } from '../../../../mock/studyData';
+import { getProjectListResponse, getProjectById } from '../../../../mock/projectData';
 
 /**
  * 스터디 목록 조회 React Query 훅
@@ -15,7 +17,21 @@ export function useStudyList(params = {}, options = {}) {
 
   const query = useQuery({
     queryKey: ['admin', 'content', 'studies', { page, size, sort }],
-    queryFn: () => AdminApiService.getStudyList({ page, size, sort }),
+    queryFn: () => {
+      // Mock 데이터 사용
+      const mockResponse = getStudyListResponse(page, size, sort);
+      // API 응답 형태로 변환
+      return {
+        content: mockResponse.studies,
+        totalPages: mockResponse.totalPages,
+        totalElements: mockResponse.totalElements,
+        number: mockResponse.currentPage,
+        size: mockResponse.pageSize,
+        last: !mockResponse.hasNext,
+        first: !mockResponse.hasPrevious,
+        empty: mockResponse.isEmpty
+      };
+    },
     staleTime: 5 * 60 * 1000, // 5분
     cacheTime: 10 * 60 * 1000, // 10분
     retry: (failureCount, error) => {
@@ -65,7 +81,21 @@ export function useProjectList(params = {}, options = {}) {
 
   const query = useQuery({
     queryKey: ['admin', 'content', 'projects', { page, size, sort }],
-    queryFn: () => AdminApiService.getProjectList({ page, size, sort }),
+    queryFn: () => {
+      // Mock 데이터 사용
+      const mockResponse = getProjectListResponse(page, size, sort);
+      // API 응답 형태로 변환
+      return {
+        content: mockResponse.projects,
+        totalPages: mockResponse.totalPages,
+        totalElements: mockResponse.totalElements,
+        number: mockResponse.currentPage,
+        size: mockResponse.pageSize,
+        last: !mockResponse.hasNext,
+        first: !mockResponse.hasPrevious,
+        empty: mockResponse.isEmpty
+      };
+    },
     staleTime: 5 * 60 * 1000, // 5분
     cacheTime: 10 * 60 * 1000, // 10분
     retry: (failureCount, error) => {
@@ -107,7 +137,14 @@ export function useProjectList(params = {}, options = {}) {
 export function useStudyDetail(studyId, options = {}) {
   return useQuery({
     queryKey: ['admin', 'content', 'study', studyId],
-    queryFn: () => AdminApiService.getStudyDetail(studyId),
+    queryFn: () => {
+      // Mock 데이터에서 조회
+      const study = getStudyById(studyId);
+      if (!study) {
+        throw new Error('스터디를 찾을 수 없습니다.');
+      }
+      return study;
+    },
     staleTime: 5 * 60 * 1000, // 5분
     enabled: !!studyId, // studyId가 있을 때만 실행
     ...options,
@@ -120,7 +157,14 @@ export function useStudyDetail(studyId, options = {}) {
 export function useProjectDetail(projectId, options = {}) {
   return useQuery({
     queryKey: ['admin', 'content', 'project', projectId],
-    queryFn: () => AdminApiService.getProjectDetail(projectId),
+    queryFn: () => {
+      // Mock 데이터에서 조회
+      const project = getProjectById(projectId);
+      if (!project) {
+        throw new Error('프로젝트를 찾을 수 없습니다.');
+      }
+      return project;
+    },
     staleTime: 5 * 60 * 1000, // 5분
     enabled: !!projectId, // projectId가 있을 때만 실행
     ...options,
@@ -134,7 +178,10 @@ export function useDeleteStudy() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (deleteData) => AdminApiService.deleteStudy(deleteData),
+    mutationFn: (deleteData) => {
+      // Mock 데이터에서는 실제로 삭제하지 않고 성공 응답만 반환
+      return Promise.resolve({ success: true, message: '스터디가 삭제되었습니다.' });
+    },
     onSuccess: () => {
       // 스터디 목록 캐시 무효화
       queryClient.invalidateQueries({
@@ -151,7 +198,10 @@ export function useDeleteProject() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (deleteData) => AdminApiService.deleteProject(deleteData),
+    mutationFn: (deleteData) => {
+      // Mock 데이터에서는 실제로 삭제하지 않고 성공 응답만 반환
+      return Promise.resolve({ success: true, message: '프로젝트가 삭제되었습니다.' });
+    },
     onSuccess: () => {
       // 프로젝트 목록 캐시 무효화
       queryClient.invalidateQueries({
