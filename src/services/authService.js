@@ -184,16 +184,16 @@ export class AuthService {
     const expiration = payload.exp;
     const timeUntilExpiration = (expiration - now) * 1000; // 밀리초로 변환
 
-    // 만료 5분 전에 경고
-    const warningTime = Math.max(timeUntilExpiration - 5 * 60 * 1000, 0);
+    // 만료 2분 전에 조용한 경고 (덜 방해적)
+    const warningTime = Math.max(timeUntilExpiration - 2 * 60 * 1000, 0);
 
     if (warningTime > 0) {
       setTimeout(() => {
-        // 필요시 사용자에게 알림 표시
-        if (window.dispatchEvent) {
+        // 현재 페이지가 활성 상태일 때만 경고
+        if (!document.hidden && window.dispatchEvent) {
           window.dispatchEvent(
             new CustomEvent("tokenExpireWarning", {
-              detail: { remainingTime: 5 * 60 * 1000 },
+              detail: { remainingTime: 2 * 60 * 1000 },
             })
           );
         }
@@ -232,6 +232,56 @@ export class AuthService {
     if (this.expirationTimer) {
       clearTimeout(this.expirationTimer);
       this.expirationTimer = null;
+    }
+  }
+
+  // admin 토큰 만료 처리
+  static handleAdminTokenExpiration() {
+    // admin 로컬 스토리지 정리
+    localStorage.removeItem("admin_access_token");
+    localStorage.removeItem("admin_user_info");
+
+    // admin 토큰 만료 이벤트 발생
+    if (window.dispatchEvent) {
+      window.dispatchEvent(
+        new CustomEvent("adminTokenExpired", {
+          detail: {
+            message: "관리자 로그인이 만료되었습니다. 다시 로그인해주세요.",
+            timestamp: new Date().toISOString(),
+          },
+        })
+      );
+    }
+
+    // admin 타이머 정리
+    if (this.adminExpirationTimer) {
+      clearTimeout(this.adminExpirationTimer);
+      this.adminExpirationTimer = null;
+    }
+  }
+
+  // admin 토큰 만료 타이머 설정 (경고 없이 바로 로그아웃)
+  static setupAdminTokenExpirationTimer(token) {
+    // 기존 타이머가 있으면 클리어
+    if (this.adminExpirationTimer) {
+      clearTimeout(this.adminExpirationTimer);
+    }
+
+    const payload = this.decodeJWTToken(token);
+    if (!payload || !payload.exp) return;
+
+    const now = Math.floor(Date.now() / 1000);
+    const expiration = payload.exp;
+    const timeUntilExpiration = (expiration - now) * 1000; // 밀리초로 변환
+
+    // 어드민 토큰은 경고 없이 만료 시 즉시 로그아웃 (보안상 더 안전)
+    if (timeUntilExpiration > 0) {
+      this.adminExpirationTimer = setTimeout(() => {
+        this.handleAdminTokenExpiration();
+      }, timeUntilExpiration);
+    } else {
+      // 이미 만료된 토큰
+      this.handleAdminTokenExpiration();
     }
   }
 
@@ -296,6 +346,16 @@ export class AuthService {
         this.handleTokenExpiration();
       } else {
         this.setupTokenExpirationTimer(token);
+      }
+    }
+
+    // admin 토큰도 함께 검사
+    const adminToken = localStorage.getItem("admin_access_token");
+    if (adminToken) {
+      if (this.isTokenExpired(adminToken)) {
+        this.handleAdminTokenExpiration();
+      } else {
+        this.setupAdminTokenExpirationTimer(adminToken);
       }
     }
   }

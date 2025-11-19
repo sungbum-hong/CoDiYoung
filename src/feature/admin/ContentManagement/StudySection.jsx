@@ -1,14 +1,22 @@
 import { useState, useCallback } from 'react';
 import { FaEllipsisH } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
 import { useStudyList, useDeleteStudy } from './hooks/useContentManagement';
+import ContentDetailModal from './components/ContentDetailModal.jsx';
+import DeleteConfirmModal from './components/DeleteConfirmModal.jsx';
 
 /**
  * 스터디 섹션 컨테이너 컴포넌트
  * API 데이터를 활용한 스터디 목록 표시
  */
 export default function StudySection() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [sort, setSort] = useState(['createdAt,DESC']);
+  const [selectedStudy, setSelectedStudy] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [studyToDelete, setStudyToDelete] = useState(null);
 
   // React Query 훅으로 스터디 데이터 관리
   const {
@@ -28,30 +36,29 @@ export default function StudySection() {
 
   const deleteStudyMutation = useDeleteStudy();
 
-  // 스터디 클릭 핸들러
-  const handleStudyClick = useCallback((study) => {
-    // TODO: 스터디 상세 모달이나 페이지로 이동
-    alert(`스터디 상세 보기 (ID: ${study.id})`);
+  // 스터디 보기 핸들러
+  const handleStudyView = useCallback((study) => {
+    setSelectedStudy(study);
+    setIsDetailModalOpen(true);
   }, []);
 
   // 스터디 삭제 핸들러
   const handleStudyDelete = useCallback((study) => {
-    const reason = prompt(`스터디 "${study.id}"를 삭제하는 이유를 입력하세요:`);
-    if (reason && reason.trim()) {
-      if (confirm(`정말로 스터디 ID ${study.id}를 삭제하시겠습니까?`)) {
-        deleteStudyMutation.mutate({
-          id: study.id,
-          reason: reason.trim()
-        });
-      }
-    }
+    setStudyToDelete(study);
+    setIsDeleteModalOpen(true);
+  }, []);
+
+  // 삭제 확인 핸들러
+  const handleDeleteConfirm = useCallback((deleteData) => {
+    deleteStudyMutation.mutate(deleteData);
+    setIsDeleteModalOpen(false);
+    setStudyToDelete(null);
   }, [deleteStudyMutation]);
 
-  // 메뉴 클릭 핸들러
+  // 메뉴 클릭 핸들러 (더보기)
   const handleMenuClick = useCallback(() => {
-    // TODO: 메뉴 모달이나 드롭다운 표시
-    alert('스터디 관리 메뉴');
-  }, []);
+    navigate('/admin/content/studies');
+  }, [navigate]);
 
   // 로딩 상태
   if (isLoading) {
@@ -123,50 +130,70 @@ export default function StudySection() {
           {studies.map((study) => (
             <div
               key={study.id}
-              className="relative border border-indigo-600 w-25 h-25 rounded-3xl hover:bg-gray-50 transition-colors flex flex-col items-center justify-center p-4"
+              className="border border-indigo-600 w-25 h-25 rounded-3xl hover:bg-gray-50 transition-colors flex flex-col p-4"
             >
-              {/* 삭제 버튼 */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleStudyDelete(study);
-                }}
-                className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 transition-colors"
-                disabled={deleteStudyMutation.isPending}
-              >
-                ×
-              </button>
-
               {/* 스터디 내용 */}
-              <div
-                className="text-center cursor-pointer w-full h-full flex flex-col justify-center"
-                onClick={() => handleStudyClick(study)}
-              >
+              <div className="flex-1 flex flex-col justify-center text-center">
                 <div className="text-sm font-medium text-gray-900 mb-2">
                   ID: {study.id}
                 </div>
                 {study.content && (
-                  <div className="text-xs text-gray-600 line-clamp-3">
+                  <div className="text-xs text-gray-600 line-clamp-3 mb-2">
                     {study.content}
                   </div>
                 )}
                 {study.createdAt && (
-                  <div className="text-xs text-gray-400 mt-2">
+                  <div className="text-xs text-gray-400">
                     {new Date(study.createdAt).toLocaleDateString()}
                   </div>
                 )}
+              </div>
+
+              {/* 하단 버튼들 */}
+              <div className="flex justify-center gap-2 mt-3 pt-2 border-t border-gray-200">
+                <button
+                  onClick={() => handleStudyView(study)}
+                  className="text-xs text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  보기
+                </button>
+                <span className="text-xs text-gray-300">|</span>
+                <button
+                  onClick={() => handleStudyDelete(study)}
+                  disabled={deleteStudyMutation.isPending}
+                  className="text-xs text-red-600 hover:text-red-800 transition-colors disabled:opacity-50"
+                >
+                  삭제
+                </button>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* 페이지네이션 정보 */}
-      {!isEmpty && (
-        <div className="mt-4 text-sm text-gray-500 text-center">
-          총 {totalElements}개 중 {studies.length}개 표시 (페이지 {currentPage + 1}/{totalPages})
-        </div>
-      )}
+
+      {/* 상세보기 모달 */}
+      <ContentDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setSelectedStudy(null);
+        }}
+        content={selectedStudy}
+        type="study"
+      />
+
+      {/* 삭제 확인 모달 */}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setStudyToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        type="study"
+        itemId={studyToDelete?.id}
+      />
     </div>
   );
 }

@@ -14,11 +14,24 @@ export function useUserList(params = {}) {
     gcTime: 1000 * 60 * 10, // 10분
   });
 
+  // API 응답 데이터 처리
+  const processedData = query.data || {};
+  const usersList = Array.isArray(processedData) ? processedData :
+                   (processedData.data || processedData.users || processedData.content || []);
+
+  // 커서 기반 페이지네이션 정보 추출
+  const hasNextPage = processedData.hasNext ||
+                      processedData.hasNextPage ||
+                      (usersList.length >= limit);
+
+  const nextCursor = usersList.length > 0 ?
+                     usersList[usersList.length - 1]?.id ||
+                     usersList[usersList.length - 1]?.userId : null;
+
   return {
-    // API 응답 구조를 여러 가지로 시도 (실제 응답에 맞춰 조정 필요)
-    users: query.data?.data || query.data?.users || query.data || [],
-    nextCursor: query.data?.nextCursor,
-    hasNext: query.data?.hasNext || false,
+    users: usersList,
+    nextCursor: nextCursor,
+    hasNext: hasNextPage,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,

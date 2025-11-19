@@ -24,6 +24,8 @@ const AdminPageLayout = lazy(()=> import("./feature/admin/AdminPageLayout.jsx"))
 const AdminLoginPage = lazy(() => import("./feature/admin/Auth/AdminLoginPage.jsx"))
 const AdminHome = lazy(() => import("./feature/admin/Home/AdminHome.jsx"))
 const ContentManagement = lazy(() => import("./feature/admin/ContentManagement/ContentManagement.jsx"))
+const ProjectListPage = lazy(() => import("./feature/admin/ContentManagement/ProjectListPage.jsx"))
+const StudyListPage = lazy(() => import("./feature/admin/ContentManagement/StudyListPage.jsx"))
 const UserManagementLayout = lazy(() => import("./feature/admin/UserManagement/UserManagementLayout.jsx"))
 const NoticeBannerManagement = lazy(() => import("./feature/admin/NoticeBanner/NoticeBannerManagement.jsx"))
 const SettingManagement = lazy(() => import("./feature/admin/settingManagement/SettingManagement.jsx"))
@@ -68,6 +70,8 @@ const router = createBrowserRouter([
           { index: true, element: <Navigate to="/admin/login" replace /> },
           { path: "home", element: <Suspense fallback={<LoadingFallback />}><AdminHome /></Suspense> },
           { path: "content", element: <Suspense fallback={<LoadingFallback />}><ContentManagement /></Suspense> },
+          { path: "content/projects", element: <Suspense fallback={<LoadingFallback />}><ProjectListPage /></Suspense> },
+          { path: "content/studies", element: <Suspense fallback={<LoadingFallback />}><StudyListPage /></Suspense> },
           { path: "users", element: <Suspense fallback={<LoadingFallback />}><UserManagementLayout /></Suspense> },
           { path: "banner", element: <Suspense fallback={<LoadingFallback />}><NoticeBannerManagement /></Suspense> },
           { path: "settings", element: <Suspense fallback={<LoadingFallback />}><SettingManagement /></Suspense> },

@@ -25,7 +25,16 @@ export class ApiUtils {
         // admin 토큰을 먼저 확인하고, 없으면 일반 토큰 사용
         let token = localStorage.getItem("admin_access_token");
 
-        if (!token) {
+        if (token) {
+          // admin 토큰 만료 검증
+          if (AuthService.isTokenExpired(token)) {
+            // 만료된 admin 토큰 정리
+            localStorage.removeItem("admin_access_token");
+            localStorage.removeItem("admin_user_info");
+            AuthService.handleAdminTokenExpiration();
+            throw new Error("관리자 로그인이 만료되었습니다. 다시 로그인해주세요.");
+          }
+        } else {
           token = AuthService.validateTokenBeforeRequest(true);
         }
 
@@ -38,6 +47,19 @@ export class ApiUtils {
     } else {
       // requireAuth=false일 때는 토큰이 있으면 추가하고, 없거나 만료되었으면 무시
       let token = localStorage.getItem("admin_access_token");
+
+      if (token) {
+        // admin 토큰 만료 검증 (에러가 발생해도 무시)
+        try {
+          if (AuthService.isTokenExpired(token)) {
+            localStorage.removeItem("admin_access_token");
+            localStorage.removeItem("admin_user_info");
+            token = null; // 만료된 토큰은 사용하지 않음
+          }
+        } catch (error) {
+          token = null; // 토큰 검증 실패 시에도 무시
+        }
+      }
 
       if (!token) {
         token = localStorage.getItem("auth_token");
@@ -83,6 +105,27 @@ export class ApiUtils {
   }
 
   /**
+   * HTTP 응답 상태 코드별 인증 에러 처리
+   * @param {Response} response - Fetch Response 객체
+   */
+  static handleAuthError(response) {
+    if (response.status === 401 || response.status === 403) {
+      // admin 토큰이 있는지 확인
+      const adminToken = localStorage.getItem("admin_access_token");
+
+      if (adminToken) {
+        // admin 토큰 관련 401/403 에러
+        AuthService.handleAdminTokenExpiration();
+        throw new Error('관리자 세션이 만료되었습니다. 다시 로그인해주세요.');
+      } else {
+        // 일반 유저 토큰 관련 401/403 에러
+        AuthService.handleTokenExpiration();
+        throw new Error('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
+      }
+    }
+  }
+
+  /**
    * 공통 응답 처리
    * @param {Response} response - Fetch Response 객체
    * @param {string} errorMessage - 에러 시 표시할 기본 메시지
@@ -92,6 +135,9 @@ export class ApiUtils {
   static async handleResponse(response, errorMessage = 'API 요청 실패', expectedSchema = null) {
 
     if (!response.ok) {
+      // 401/403 에러 시 자동 로그아웃 처리
+      this.handleAuthError(response);
+
       let errorData = {};
       let errorText = '';
       try {

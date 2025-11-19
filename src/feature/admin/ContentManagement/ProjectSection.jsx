@@ -1,14 +1,22 @@
 import { useState, useCallback } from 'react';
 import { FaEllipsisH } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
 import { useProjectList, useDeleteProject } from './hooks/useContentManagement';
+import ContentDetailModal from './components/ContentDetailModal.jsx';
+import DeleteConfirmModal from './components/DeleteConfirmModal.jsx';
 
 /**
  * 프로젝트 섹션 컨테이너 컴포넌트
  * API 데이터를 활용한 프로젝트 목록 표시
  */
 export default function ProjectSection() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [sort, setSort] = useState(['createdAt,DESC']);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
 
   // React Query 훅으로 프로젝트 데이터 관리
   const {
@@ -28,30 +36,29 @@ export default function ProjectSection() {
 
   const deleteProjectMutation = useDeleteProject();
 
-  // 프로젝트 클릭 핸들러
-  const handleProjectClick = useCallback((project) => {
-    // TODO: 프로젝트 상세 모달이나 페이지로 이동
-    alert(`프로젝트 상세 보기 (ID: ${project.id})`);
+  // 프로젝트 보기 핸들러
+  const handleProjectView = useCallback((project) => {
+    setSelectedProject(project);
+    setIsDetailModalOpen(true);
   }, []);
 
   // 프로젝트 삭제 핸들러
   const handleProjectDelete = useCallback((project) => {
-    const reason = prompt(`프로젝트 "${project.id}"를 삭제하는 이유를 입력하세요:`);
-    if (reason && reason.trim()) {
-      if (confirm(`정말로 프로젝트 ID ${project.id}를 삭제하시겠습니까?`)) {
-        deleteProjectMutation.mutate({
-          id: project.id,
-          reason: reason.trim()
-        });
-      }
-    }
+    setProjectToDelete(project);
+    setIsDeleteModalOpen(true);
+  }, []);
+
+  // 삭제 확인 핸들러
+  const handleDeleteConfirm = useCallback((deleteData) => {
+    deleteProjectMutation.mutate(deleteData);
+    setIsDeleteModalOpen(false);
+    setProjectToDelete(null);
   }, [deleteProjectMutation]);
 
-  // 메뉴 클릭 핸들러
+  // 메뉴 클릭 핸들러 (더보기)
   const handleMenuClick = useCallback(() => {
-    // TODO: 메뉴 모달이나 드롭다운 표시
-    alert('프로젝트 관리 메뉴');
-  }, []);
+    navigate('/admin/content/projects');
+  }, [navigate]);
 
   // 로딩 상태
   if (isLoading) {
@@ -123,25 +130,10 @@ export default function ProjectSection() {
           {projects.map((project) => (
             <div
               key={project.id}
-              className="relative border border-indigo-600 w-25 h-25 rounded-3xl hover:bg-gray-50 transition-colors flex flex-col items-center justify-center p-4"
+              className="border border-indigo-600 w-25 h-25 rounded-3xl hover:bg-gray-50 transition-colors flex flex-col p-4"
             >
-              {/* 삭제 버튼 */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleProjectDelete(project);
-                }}
-                className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 transition-colors"
-                disabled={deleteProjectMutation.isPending}
-              >
-                ×
-              </button>
-
               {/* 프로젝트 내용 */}
-              <div
-                className="text-center cursor-pointer w-full h-full flex flex-col justify-center"
-                onClick={() => handleProjectClick(project)}
-              >
+              <div className="flex-1 flex flex-col justify-center text-center">
                 <div className="text-sm font-medium text-gray-900 mb-2">
                   ID: {project.id}
                 </div>
@@ -161,17 +153,52 @@ export default function ProjectSection() {
                   프로젝트
                 </div>
               </div>
+
+              {/* 하단 버튼들 */}
+              <div className="flex justify-center gap-2 mt-3 pt-2 border-t border-gray-200">
+                <button
+                  onClick={() => handleProjectView(project)}
+                  className="text-xs text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  보기
+                </button>
+                <span className="text-xs text-gray-300">|</span>
+                <button
+                  onClick={() => handleProjectDelete(project)}
+                  disabled={deleteProjectMutation.isPending}
+                  className="text-xs text-red-600 hover:text-red-800 transition-colors disabled:opacity-50"
+                >
+                  삭제
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* 페이지네이션 정보 */}
-      {!isEmpty && (
-        <div className="mt-4 text-sm text-gray-500 text-center">
-          총 {totalElements}개 중 {projects.length}개 표시 (페이지 {currentPage + 1}/{totalPages})
-        </div>
-      )}
+
+      {/* 상세보기 모달 */}
+      <ContentDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setSelectedProject(null);
+        }}
+        content={selectedProject}
+        type="project"
+      />
+
+      {/* 삭제 확인 모달 */}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setProjectToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        type="project"
+        itemId={projectToDelete?.id}
+      />
     </div>
   );
 }

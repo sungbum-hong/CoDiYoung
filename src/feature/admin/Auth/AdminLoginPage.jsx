@@ -7,6 +7,7 @@ import { MESSAGES } from "../../../constants/messages.js";
 import { CONFIG } from "../../../constants/config.js";
 import ErrorModal from "../../SignIn/components/ErrorModal.jsx";
 import { AdminApiService } from "../../../services/admin/adminApi.js";
+import { AuthService } from "../../../services/authService.js";
 import useAuthStore from "../../../stores/authStore.js";
 
 export default function AdminLoginPage() {
@@ -83,6 +84,9 @@ export default function AdminLoginPage() {
       if (loginResult && loginResult.accessToken) {
         // JWT 토큰 저장
         localStorage.setItem('admin_access_token', loginResult.accessToken);
+
+        // admin 토큰 만료 타이머 설정
+        AuthService.setupAdminTokenExpirationTimer(loginResult.accessToken);
 
         // 관리자 사용자 정보 설정
         const adminUser = {
