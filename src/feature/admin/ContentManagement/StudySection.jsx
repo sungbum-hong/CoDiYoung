@@ -55,6 +55,13 @@ export default function StudySection() {
     setStudyToDelete(null);
   }, [deleteStudyMutation]);
 
+  // 컨텐츠에서 첫 번째 텍스트 글자 추출
+  const getFirstChar = useCallback((content) => {
+    if (!content) return '';
+    const textOnly = content.replace(/<[^>]*>/g, '').trim();
+    return textOnly.charAt(0).toUpperCase();
+  }, []);
+
   // 메뉴 클릭 핸들러 (더보기)
   const handleMenuClick = useCallback(() => {
     navigate('/admin/content/studies');
@@ -134,19 +141,9 @@ export default function StudySection() {
             >
               {/* 스터디 내용 */}
               <div className="flex-1 flex flex-col justify-center text-center">
-                <div className="text-sm font-medium text-gray-900 mb-2">
-                  ID: {study.id}
+                <div className="text-6xl font-bold text-gray-700 mb-2">
+                  {getFirstChar(study.content) || 'S'}
                 </div>
-                {study.content && (
-                  <div className="text-xs text-gray-600 line-clamp-3 mb-2">
-                    {study.content}
-                  </div>
-                )}
-                {study.createdAt && (
-                  <div className="text-xs text-gray-400">
-                    {new Date(study.createdAt).toLocaleDateString()}
-                  </div>
-                )}
               </div>
 
               {/* 하단 버튼들 */}

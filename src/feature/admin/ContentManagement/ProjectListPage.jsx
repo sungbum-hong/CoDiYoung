@@ -15,7 +15,7 @@ export default function ProjectListPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState(null);
 
-  const pageSize = 12; // Grid에 적합한 개수
+  const pageSize = 24; // 6x4 그리드 (24개 아이템)
 
   // React Query 훅으로 프로젝트 데이터 관리
   const {
@@ -59,6 +59,13 @@ export default function ProjectListPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  // 프로젝트 제목에서 첫 번째 텍스트 글자 추출
+  const getFirstChar = useCallback((title) => {
+    if (!title) return '';
+    const textOnly = title.replace(/<[^>]*>/g, '').trim();
+    return textOnly.charAt(0).toUpperCase();
+  }, []);
+
   // 로딩 상태
   if (isLoading) {
     return (
@@ -85,7 +92,7 @@ export default function ProjectListPage() {
             </div>
             <button
               onClick={retry}
-              className="px-6 py-3 bg-[#FF0066] text-white rounded-lg hover:bg-pink-700 transition-colors"
+              className="px-6 py-3 bg-[#FF0066] text-white rounded-lg transition-colors"
             >
               다시 시도
             </button>
@@ -111,56 +118,52 @@ export default function ProjectListPage() {
           </div>
         ) : (
           <>
-            {/* 프로젝트 그리드 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+            {/* 프로젝트 그리드 - 6x4 형태 */}
+            <div className="grid grid-cols-6 gap-x-6 gap-y-6 max-w-7xl mx-auto mb-8">
               {projects.map((project) => (
                 <div
                   key={project.id}
-                  className="bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-200 overflow-hidden group"
+                  className="border border-indigo-600 w-25 h-25 rounded-3xl transition-colors flex flex-col p-4"
                 >
-                  {/* 프로젝트 이미지 영역 */}
-                  <div className="aspect-square bg-gray-100 relative overflow-hidden">
-                    {project.projectImageUrl ? (
-                      <img
-                        src={project.projectImageUrl}
-                        alt={`프로젝트 ${project.id}`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'flex';
-                        }}
-                      />
-                    ) : null}
-                    <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400" style={{ display: project.projectImageUrl ? 'none' : 'flex' }}>
-                      <span className="text-sm">이미지 없음</span>
+                  {/* 프로젝트 내용 */}
+                  <div className="flex-1 flex flex-col justify-center text-center">
+                    <div className="text-6xl font-bold text-gray-700 mb-2">
+                      {project.projectImageUrl ? (
+                        <img
+                          src={project.projectImageUrl}
+                          alt={`프로젝트 ${project.id}`}
+                          className="w-16 h-16 object-cover rounded-lg mx-auto"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'block';
+                          }}
+                        />
+                      ) : null}
+                      <span
+                        style={{ display: project.projectImageUrl ? 'none' : 'block' }}
+                        className="text-6xl font-bold text-gray-700"
+                      >
+                        {getFirstChar(project.title) || 'P'}
+                      </span>
                     </div>
                   </div>
 
-                  {/* 프로젝트 정보 */}
-                  <div className="p-4">
-                    <div className="text-sm text-gray-600 mb-2">ID: {project.id}</div>
-                    {project.title && (
-                      <div className="text-lg font-medium text-gray-900 mb-3 line-clamp-2">
-                        {project.title}
-                      </div>
-                    )}
-
-                    {/* 액션 버튼들 */}
-                    <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                      <button
-                        onClick={() => handleProjectView(project)}
-                        className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
-                      >
-                        보기
-                      </button>
-                      <button
-                        onClick={() => handleProjectDelete(project)}
-                        disabled={deleteProjectMutation.isPending}
-                        className="text-sm text-red-600 hover:text-red-800 transition-colors disabled:opacity-50"
-                      >
-                        삭제
-                      </button>
-                    </div>
+                  {/* 하단 버튼들 */}
+                  <div className="flex justify-center gap-2 mt-3 pt-2 border-t border-gray-200">
+                    <button
+                      onClick={() => handleProjectView(project)}
+                      className="text-xs text-gray-600 transition-colors"
+                    >
+                      보기
+                    </button>
+                    <span className="text-xs text-gray-300">|</span>
+                    <button
+                      onClick={() => handleProjectDelete(project)}
+                      disabled={deleteProjectMutation.isPending}
+                      className="text-xs text-red-600 transition-colors disabled:opacity-50"
+                    >
+                      삭제
+                    </button>
                   </div>
                 </div>
               ))}
@@ -172,7 +175,7 @@ export default function ProjectListPage() {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={!hasPrevious}
-                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   이전
                 </button>
@@ -185,7 +188,7 @@ export default function ProjectListPage() {
                     className={`px-3 py-2 rounded-lg transition-colors ${
                       currentPage === index
                         ? 'bg-[#FF0066] text-white'
-                        : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                        : 'border border-gray-300 text-gray-700'
                     }`}
                   >
                     {index + 1}
@@ -195,7 +198,7 @@ export default function ProjectListPage() {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={!hasNext}
-                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   다음
                 </button>

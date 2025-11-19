@@ -15,7 +15,7 @@ export default function StudyListPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [studyToDelete, setStudyToDelete] = useState(null);
 
-  const pageSize = 12; // Grid에 적합한 개수
+  const pageSize = 24; // 6x4 그리드 (24개 아이템)
 
   // React Query 훅으로 스터디 데이터 관리
   const {
@@ -59,6 +59,13 @@ export default function StudyListPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  // 콘텐츠에서 첫 번째 텍스트 글자 추출
+  const getFirstChar = useCallback((content) => {
+    if (!content) return '';
+    const textOnly = content.replace(/<[^>]*>/g, '').trim();
+    return textOnly.charAt(0).toUpperCase();
+  }, []);
+
   // 로딩 상태
   if (isLoading) {
     return (
@@ -85,7 +92,7 @@ export default function StudyListPage() {
             </div>
             <button
               onClick={retry}
-              className="px-6 py-3 bg-[#FF0066] text-white rounded-lg hover:bg-pink-700 transition-colors"
+              className="px-6 py-3 bg-[#FF0066] text-white rounded-lg transition-colors"
             >
               다시 시도
             </button>
@@ -111,45 +118,36 @@ export default function StudyListPage() {
           </div>
         ) : (
           <>
-            {/* 스터디 그리드 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+            {/* 스터디 그리드 - 6x4 형태 */}
+            <div className="grid grid-cols-6 gap-x-6 gap-y-6 max-w-7xl mx-auto mb-8">
               {studies.map((study) => (
                 <div
                   key={study.id}
-                  className="bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-200 overflow-hidden group"
+                  className="border border-indigo-600 w-25 h-25 rounded-3xl transition-colors flex flex-col p-4"
                 >
-                  {/* 스터디 내용 영역 */}
-                  <div className="p-6">
-                    <div className="text-sm text-gray-600 mb-3">ID: {study.id}</div>
-
-                    {study.content && (
-                      <div className="text-gray-800 mb-4 line-clamp-4 min-h-[4rem]">
-                        {study.content}
-                      </div>
-                    )}
-
-                    {study.createdAt && (
-                      <div className="text-xs text-gray-400 mb-4">
-                        {new Date(study.createdAt).toLocaleDateString()}
-                      </div>
-                    )}
-
-                    {/* 액션 버튼들 */}
-                    <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                      <button
-                        onClick={() => handleStudyView(study)}
-                        className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
-                      >
-                        보기
-                      </button>
-                      <button
-                        onClick={() => handleStudyDelete(study)}
-                        disabled={deleteStudyMutation.isPending}
-                        className="text-sm text-red-600 hover:text-red-800 transition-colors disabled:opacity-50"
-                      >
-                        삭제
-                      </button>
+                  {/* 스터디 내용 */}
+                  <div className="flex-1 flex flex-col justify-center text-center">
+                    <div className="text-6xl font-bold text-gray-700 mb-2">
+                      {getFirstChar(study.content) || 'S'}
                     </div>
+                  </div>
+
+                  {/* 하단 버튼들 */}
+                  <div className="flex justify-center gap-2 mt-3 pt-2 border-t border-gray-200">
+                    <button
+                      onClick={() => handleStudyView(study)}
+                      className="text-xs text-gray-600 transition-colors"
+                    >
+                      보기
+                    </button>
+                    <span className="text-xs text-gray-300">|</span>
+                    <button
+                      onClick={() => handleStudyDelete(study)}
+                      disabled={deleteStudyMutation.isPending}
+                      className="text-xs text-red-600 transition-colors disabled:opacity-50"
+                    >
+                      삭제
+                    </button>
                   </div>
                 </div>
               ))}
@@ -161,7 +159,7 @@ export default function StudyListPage() {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={!hasPrevious}
-                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   이전
                 </button>
@@ -174,7 +172,7 @@ export default function StudyListPage() {
                     className={`px-3 py-2 rounded-lg transition-colors ${
                       currentPage === index
                         ? 'bg-[#FF0066] text-white'
-                        : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                        : 'border border-gray-300 text-gray-700'
                     }`}
                   >
                     {index + 1}
@@ -184,7 +182,7 @@ export default function StudyListPage() {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={!hasNext}
-                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   다음
                 </button>

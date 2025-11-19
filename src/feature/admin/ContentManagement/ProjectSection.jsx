@@ -55,6 +55,13 @@ export default function ProjectSection() {
     setProjectToDelete(null);
   }, [deleteProjectMutation]);
 
+  // 프로젝트 제목에서 첫 번째 텍스트 글자 추출
+  const getFirstChar = useCallback((title) => {
+    if (!title) return '';
+    const textOnly = title.replace(/<[^>]*>/g, '').trim();
+    return textOnly.charAt(0).toUpperCase();
+  }, []);
+
   // 메뉴 클릭 핸들러 (더보기)
   const handleMenuClick = useCallback(() => {
     navigate('/admin/content/projects');
@@ -134,23 +141,24 @@ export default function ProjectSection() {
             >
               {/* 프로젝트 내용 */}
               <div className="flex-1 flex flex-col justify-center text-center">
-                <div className="text-sm font-medium text-gray-900 mb-2">
-                  ID: {project.id}
-                </div>
-                {project.projectImageUrl && (
-                  <div className="mb-2">
+                <div className="text-6xl font-bold text-gray-700 mb-2">
+                  {project.projectImageUrl ? (
                     <img
                       src={project.projectImageUrl}
                       alt={`프로젝트 ${project.id}`}
-                      className="w-12 h-12 object-cover rounded-lg mx-auto"
+                      className="w-16 h-16 object-cover rounded-lg mx-auto"
                       onError={(e) => {
                         e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'block';
                       }}
                     />
-                  </div>
-                )}
-                <div className="text-xs text-gray-400">
-                  프로젝트
+                  ) : null}
+                  <span
+                    style={{ display: project.projectImageUrl ? 'none' : 'block' }}
+                    className="text-6xl font-bold text-gray-700"
+                  >
+                    {getFirstChar(project.title) || 'P'}
+                  </span>
                 </div>
               </div>
 
