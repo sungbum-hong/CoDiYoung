@@ -1,98 +1,123 @@
 import { useState, useRef } from "react";
-import { FaEdit } from "react-icons/fa";
-import { useUploadAndAddBanner } from "./hooks/useBannerManagement.js";
+import { FaPlus, FaTrash, FaTimes } from "react-icons/fa";
+import { useUploadAndAddBanner, useBannerList, useDeleteBanner } from "./hooks/useBannerManagement.js";
+
+import PartnerManagement from "../PartnerManagement/PartnerManagement.jsx";
+import AddModal from "../components/AddModal.jsx";
 
 export default function NoticeBannerManagement() {
-  const [image, setImage] = useState("/cdymainbanner.png");
-  const fileInputRef = useRef(null);
-  const { uploadAndAdd, isLoading, error } = useUploadAndAddBanner();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { uploadAndAdd, isLoading: isUploading, error: uploadError } = useUploadAndAddBanner();
+  const { data: banners = [], isLoading: isListLoading, error: listError } = useBannerList();
+  const deleteBannerMutation = useDeleteBanner();
 
-  // 아이콘 클릭 시 파일 선택 창 열기
-  const handleEditClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
+  // 모달 열기
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
-  // 파일 선택 시 이미지 업로드 및 배너 변경
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // 이미지 타입 검증
-    if (!file.type.startsWith('image/')) {
-      alert('이미지 파일만 업로드 가능합니다.');
-      return;
-    }
-
-    // 파일 크기 검증 (10MB 제한)
-    if (file.size > 10 * 1024 * 1024) {
-      alert('파일 크기는 10MB 이하만 가능합니다.');
-      return;
-    }
-
+  // 배너 추가 핸들러
+  const handleBannerSubmit = async ({ file, link }) => {
     try {
-      // 미리보기 설정
-      const imageUrl = URL.createObjectURL(file);
-      setImage(imageUrl);
-
-      // 실제 업로드 및 배너 등록
-      await uploadAndAdd(file);
-      alert('배너가 성공적으로 변경되었습니다!');
+      await uploadAndAdd(file, link);
+      alert('배너가 성공적으로 추가되었습니다!');
+      closeModal();
     } catch (error) {
       console.error('배너 업로드 실패:', error);
       alert('배너 업로드에 실패했습니다: ' + error.message);
+    }
+  };
 
-      // 실패 시 이전 이미지로 되돌리기
-      setImage("/cdymainbanner.png");
-    } finally {
-      // 파일 입력 초기화
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+  // 배너 삭제 핸들러
+  const handleDeleteClick = async (bannerId) => {
+    if (window.confirm('정말 이 배너를 삭제하시겠습니까?')) {
+      try {
+        await deleteBannerMutation.mutateAsync(bannerId);
+        alert('배너가 삭제되었습니다.');
+      } catch (error) {
+        console.error('배너 삭제 실패:', error);
+        alert('배너 삭제에 실패했습니다.');
       }
     }
   };
+
+  if (isListLoading) {
+    return <div className="p-6 text-center">배너 목록을 불러오는 중...</div>;
+  }
 
   return (
     <div className="p-6">
       {/* 헤더 */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">배너 관리</h1>
+      </div>
 
-        {/* 편집 버튼 */}
-        <div>
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            className="hidden"
-            onChange={handleImageChange}
-          />
-          <button
-            aria-label="배너 편집"
-            className="p-3 rounded-full text-white bg-[#FF0066] hover:bg-[#e6005c] transition-colors disabled:opacity-50"
-            onClick={handleEditClick}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+      {/* 배너 그리드 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* 배너 목록 */}
+        {banners.map((banner, index) => (
+          <div key={banner.id || index} className="relative group rounded-lg overflow-hidden shadow-md aspect-video bg-gray-100">
+            {/* 링크가 있으면 a 태그로 감싸기 */}
+            {banner.url ? (
+              <a href={banner.url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                <img
+                  src={banner.imageUrl || banner.url || "/cdymainbanner.png"}
+                  alt={`배너 ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </a>
             ) : (
-              <FaEdit size={25} />
+              <img
+                src={banner.imageUrl || banner.url || "/cdymainbanner.png"}
+                alt={`배너 ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
             )}
-          </button>
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <button
+                onClick={() => handleDeleteClick(banner.id)}
+                className="p-3 bg-white text-red-500 rounded-full hover:bg-red-50 transition-colors"
+                title="삭제"
+              >
+                <FaTrash size={20} />
+              </button>
+            </div>
+          </div>
+        ))}
+
+        {/* 추가 버튼 카드 */}
+        <div
+          onClick={openModal}
+          className="border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center aspect-video cursor-pointer hover:border-[#FF0066] hover:bg-pink-50 transition-all duration-200 group"
+        >
+          <div className={`p-4 rounded-full bg-gray-100 group-hover:bg-[#FF0066] group-hover:text-white transition-colors mb-2 ${isUploading ? 'animate-pulse' : ''}`}>
+            {isUploading ? (
+              <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <FaPlus size={24} className="text-gray-400 group-hover:text-white" />
+            )}
+          </div>
+          <span className="text-gray-500 group-hover:text-[#FF0066] font-medium">
+            {isUploading ? '업로드 중...' : '배너 추가'}
+          </span>
         </div>
       </div>
 
-      {/* 배너 이미지 */}
-      <div className="w-full h-48 sm:h-64 md:h-72 lg:h-80 rounded-lg overflow-hidden ">
-        <img
-          src={image}
-          alt="배너 이미지"
-          className="w-full h-full object-cover object-center"
-        />
+      {/* 구분선 */}
+      <hr className="my-12 border-gray-200" />
+
+      {/* 파트너 관리 섹션 */}
+      <div className="-mx-6">
+        <PartnerManagement />
       </div>
+
+      {/* 배너 추가 모달 */}
+      <AddModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onSubmit={handleBannerSubmit}
+        title="배너 추가"
+        isUploading={isUploading}
+      />
     </div>
   );
 }
-
-

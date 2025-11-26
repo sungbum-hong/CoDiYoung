@@ -1,4 +1,6 @@
 import BaseModal from "../../../../ui/BaseModal.jsx";
+import { useStudyDetail, useProjectDetail } from "../hooks/useContentManagement";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 /**
  * 컨텐츠 상세보기 모달 (스터디/프로젝트 공용)
@@ -14,6 +16,35 @@ export default function ContentDetailModal({
 
   const isStudy = type === 'study';
   const isProject = type === 'project';
+
+  // 상세 데이터 조회
+  const { data: studyDetail, isLoading: isStudyLoading } = useStudyDetail(
+    isStudy && isOpen ? content.id : null
+  );
+
+  const { data: projectDetail, isLoading: isProjectLoading } = useProjectDetail(
+    isProject && isOpen ? content.id : null
+  );
+
+  const isLoading = isStudy ? isStudyLoading : isProjectLoading;
+  const detailData = isStudy ? studyDetail : projectDetail;
+
+  // 로딩 중일 때
+  if (isLoading) {
+    return (
+      <BaseModal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="CUSTOM"
+        style={{ width: '500px', height: '600px' }}
+      >
+        <LoadingSpinner />
+      </BaseModal>
+    );
+  }
+
+  // 데이터가 없을 때 (에러 등)
+  if (!detailData) return null;
 
   return (
     <BaseModal
@@ -34,18 +65,33 @@ export default function ContentDetailModal({
         <div className="absolute inset-0 flex flex-col items-center justify-center pb-20">
           <div className="text-center space-y-6 px-8">
             {/* 스터디 전용: 내용 */}
-            {isStudy && content.content && (
-              <div className="text-lg text-gray-800 max-w-md mx-auto leading-relaxed whitespace-pre-wrap">
-                {content.content}
+            {isStudy && detailData.content && (
+              <div
+                className="text-lg text-gray-800 max-w-md mx-auto leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: detailData.content }}
+              />
+            )}
+
+            {/* 스터디 전용: 이미지 목록 */}
+            {isStudy && detailData.images && detailData.images.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto py-2 justify-center">
+                {detailData.images.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img.url}
+                    alt={`스터디 이미지 ${idx}`}
+                    className="w-20 h-20 object-cover rounded-lg"
+                  />
+                ))}
               </div>
             )}
 
-            {/* 프로젝트 전용: 이미지 */}
-            {isProject && content.projectImageUrl && (
+            {/* 프로젝트 전용: 이미지 (projectImageUrl 또는 imageUrl) */}
+            {isProject && (detailData.projectImageUrl || detailData.imageUrl) && (
               <div className="flex justify-center">
                 <img
-                  src={content.projectImageUrl}
-                  alt={`프로젝트 ${content.id}`}
+                  src={detailData.projectImageUrl || detailData.imageUrl}
+                  alt={`프로젝트 ${detailData.id}`}
                   className="w-40 h-40 object-cover rounded-lg"
                   onError={(e) => {
                     e.target.style.display = 'none';
@@ -59,9 +105,16 @@ export default function ContentDetailModal({
             )}
 
             {/* 프로젝트 전용: 제목 (있는 경우) */}
-            {isProject && content.title && (
+            {isProject && detailData.title && (
               <div className="text-lg text-gray-800 font-medium max-w-md mx-auto">
-                {content.title}
+                {detailData.title}
+              </div>
+            )}
+
+            {/* 프로젝트 내용 (API에서 content로 옴) */}
+            {isProject && detailData.content && (
+              <div className="text-base text-gray-600 max-w-md mx-auto mt-2 whitespace-pre-wrap">
+                {detailData.content}
               </div>
             )}
           </div>

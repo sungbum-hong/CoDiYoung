@@ -18,7 +18,7 @@ const ProjectPageLayout = lazy(() => import("./feature/ProjectPage/ProjectPageLa
 const ProjectsPage = lazy(() => import("./feature/ProjectsPage/ProjectsPage.jsx"))
 const WritePageLayout = lazy(() => import("./feature/WritePage/WritePageLayout.jsx"))
 const MyProfileLayout = lazy(() => import("./feature/MyProfile/MyProfileLayout.jsx"))
-const AdminPageLayout = lazy(()=> import("./feature/admin/AdminPageLayout.jsx"))
+const AdminPageLayout = lazy(() => import("./feature/admin/AdminPageLayout.jsx"))
 
 // Admin 페이지 컴포넌트들
 const AdminLoginPage = lazy(() => import("./feature/admin/Auth/AdminLoginPage.jsx"))

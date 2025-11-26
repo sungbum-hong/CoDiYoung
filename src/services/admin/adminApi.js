@@ -179,15 +179,17 @@ export class AdminApiService {
   /**
    * 배너 추가
    * @param {string} imageKey - 이미지 키
+   * @param {string} url - 배너 클릭 시 이동할 URL (옵션)
    * @returns {Promise<Object>} 배너 추가 결과
    */
-  static async addBanner(imageKey) {
+  static async addBanner(imageKey, url = '') {
     const queryParams = new URLSearchParams();
     queryParams.append('imageKey', imageKey);
+    if (url) queryParams.append('url', url);
 
-    const url = `${BASE_URL}/api/admin/addBanner?${queryParams.toString()}`;
+    const requestUrl = `${BASE_URL}/api/admin/addBanner?${queryParams.toString()}`;
 
-    return await ApiUtils.fetchWrapper(url, {
+    return await ApiUtils.fetchWrapper(requestUrl, {
       method: 'POST',
       requireAuth: true,
       errorMessage: '배너 추가 실패',
@@ -238,17 +240,33 @@ export class AdminApiService {
   }
 
   /**
-   * 현재 배너 조회 (필요시 구현)
-   * @returns {Promise<Object>} 현재 배너 정보
+   * 배너 전체 조회
+   * @returns {Promise<Array>} 배너 목록 ([{ id, imageUrl }])
    */
-  static async getCurrentBanner() {
-    const url = `${BASE_URL}/api/admin/getBanner`;
+  static async getBannerList() {
+    const url = `${BASE_URL}/api/admin/findAllBanner`;
 
     return await ApiUtils.fetchWrapper(url, {
       method: 'GET',
       requireAuth: true,
-      errorMessage: '배너 조회 실패',
-      context: 'Admin Get Banner'
+      errorMessage: '배너 목록 조회 실패',
+      context: 'Admin Get Banner List'
+    });
+  }
+
+  /**
+   * 배너 단건 조회
+   * @param {number} bannerId - 배너 ID
+   * @returns {Promise<Object>} 배너 상세 ({ id, imageUrl })
+   */
+  static async getBannerDetail(bannerId) {
+    const url = `${BASE_URL}/api/admin/findOneBanner/${bannerId}`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'GET',
+      requireAuth: true,
+      errorMessage: '배너 상세 조회 실패',
+      context: 'Admin Get Banner Detail'
     });
   }
 
@@ -295,7 +313,7 @@ export class AdminApiService {
    * @returns {Promise<Object>} 프로젝트 상세 데이터
    */
   static async getProjectDetail(projectId) {
-    const url = `${BASE_URL}/api/admin/findProject/${projectId}`;
+    const url = `${BASE_URL}/api/admin/findSingleProject/${projectId}`;
 
     return await ApiUtils.fetchWrapper(url, {
       method: 'GET',
@@ -321,6 +339,75 @@ export class AdminApiService {
       requireAuth: true,
       errorMessage: '프로젝트 삭제 실패',
       context: 'Admin Project Delete'
+    });
+  }
+  /**
+   * 파트너 전체 조회
+   * @returns {Promise<Array>} 파트너 목록 ([{ id, name, imageUrl }])
+   */
+  static async getPartnerList() {
+    const url = `${BASE_URL}/api/admin/findAllPartner`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'GET',
+      requireAuth: true,
+      errorMessage: '파트너 목록 조회 실패',
+      context: 'Admin Get Partner List'
+    });
+  }
+
+  /**
+   * 파트너 단건 조회
+   * @param {number} partnerId - 파트너 ID
+   * @returns {Promise<Object>} 파트너 상세 ({ id, name, imageUrl })
+   */
+  static async getPartnerDetail(partnerId) {
+    const url = `${BASE_URL}/api/admin/findOnePartner/${partnerId}`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'GET',
+      requireAuth: true,
+      errorMessage: '파트너 상세 조회 실패',
+      context: 'Admin Get Partner Detail'
+    });
+  }
+
+  /**
+   * 파트너 추가
+   * @param {Object} partnerData - 파트너 데이터
+   * @param {string} partnerData.name - 파트너 이름
+   * @param {string} partnerData.imageKey - 이미지 키
+   * @param {string} partnerData.link - 파트너 링크 (옵션)
+   * @returns {Promise<Object>} 추가 결과
+   */
+  static async addPartner(partnerData) {
+    const queryParams = new URLSearchParams();
+    queryParams.append('name', partnerData.name);
+    queryParams.append('imageKey', partnerData.imageKey);
+    if (partnerData.link) queryParams.append('link', partnerData.link);
+
+    const url = `${BASE_URL}/api/admin/addPartner?${queryParams.toString()}`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'POST',
+      requireAuth: true,
+      errorMessage: '파트너 추가 실패',
+      context: 'Admin Add Partner'
+    });
+  }
+  /**
+   * 파트너 삭제
+   * @param {number} partnerId - 파트너 ID
+   * @returns {Promise<Object>} 삭제 결과
+   */
+  static async deletePartner(partnerId) {
+    const url = `${BASE_URL}/api/admin/deletePartner/${partnerId}`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'DELETE',
+      requireAuth: true,
+      errorMessage: '파트너 삭제 실패',
+      context: 'Admin Delete Partner'
     });
   }
 }

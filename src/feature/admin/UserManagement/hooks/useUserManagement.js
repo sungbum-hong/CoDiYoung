@@ -1,43 +1,32 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { AdminApiService } from '../../../../services/admin/adminApi.js';
 
 /**
  * 사용자 목록 조회 훅
  */
 export function useUserList(params = {}) {
-  const { lastUserId, limit = 10 } = params;
+  const { limit = 10 } = params;
 
-  const query = useQuery({
-    queryKey: ['admin', 'users', 'list', { lastUserId, limit }],
-    queryFn: () => AdminApiService.getUserInfoList(lastUserId, limit),
+  const query = useInfiniteQuery({
+    queryKey: ['admin', 'users', 'list', { limit }],
+    queryFn: ({ pageParam = null }) => AdminApiService.getUserInfoList(pageParam, limit),
+    getNextPageParam: (lastPage) => {
+      return lastPage.hasNext ? lastPage.nextCursor : undefined;
+    },
     staleTime: 1000 * 60 * 5, // 5분
     gcTime: 1000 * 60 * 10, // 10분
   });
 
-  // API 응답 데이터 처리
-  const processedData = query.data || {};
-  const usersList = Array.isArray(processedData) ? processedData :
-                   (processedData.data || processedData.users || processedData.content || []);
-
-  // 커서 기반 페이지네이션 정보 추출
-  const hasNextPage = processedData.hasNext ||
-                      processedData.hasNextPage ||
-                      (usersList.length >= limit);
-
-  const nextCursor = usersList.length > 0 ?
-                     usersList[usersList.length - 1]?.id ||
-                     usersList[usersList.length - 1]?.userId : null;
-
   return {
-    users: usersList,
-    nextCursor: nextCursor,
-    hasNext: hasNextPage,
+    data: query.data,
+    users: query.data?.pages.flatMap(page => page.data) || [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
-    retry: query.refetch,
-    // 디버깅을 위한 원본 데이터
-    rawData: query.data
+    fetchNextPage: query.fetchNextPage,
+    hasNextPage: query.hasNextPage,
+    isFetchingNextPage: query.isFetchingNextPage,
+    retry: query.refetch
   };
 }
 
@@ -49,11 +38,12 @@ export function useCreateUser() {
 
   return useMutation({
     mutationFn: (userData) => AdminApiService.createUser(userData),
-    onSuccess: () => {
-      // 사용자 목록 캐시 무효화
-      queryClient.invalidateQueries({
-        queryKey: ['admin', 'users', 'list']
-      });
+    onSuccess: async () => {
+      // 사용자 목록과 홈 데이터 캐시 무효화
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['admin', 'users', 'list'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin', 'home'] })
+      ]);
     }
   });
 }

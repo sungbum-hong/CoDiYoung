@@ -1,21 +1,21 @@
 import { FaEdit, FaPlus } from "react-icons/fa";
 import { useUserList } from "./hooks/useUserManagement.js";
 import { useState } from "react";
-import { getMockUserPage } from "../../../mock/userData.js";
 
 export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, setSelectedUser }) {
-  const [lastUserId, setLastUserId] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
 
-  // Mock 데이터 사용 (UI 테스트용)
-  const mockData = getMockUserPage(lastUserId, 10);
-  const users = mockData.data;
-  const nextCursor = mockData.nextCursor;
-  const hasNext = mockData.hasNext;
-  const isLoading = false;
-  const isError = false;
-  const error = null;
-  const retry = () => console.log('Mock retry called');
+  // API 데이터 사용
+  const {
+    users,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    retry
+  } = useUserList({ limit: 10 });
 
   // 행 클릭 핸들러
   const handleRowClick = (userId) => {
@@ -30,7 +30,7 @@ export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, se
     { name: "연락처", key: "phoneNumber" },
     { name: "이메일", key: "email" },
     { name: "비밀번호", key: "password" },
-    { name: "포지션", key: "userCategory" },
+    { name: "포지션", key: "category" },
     { name: "가입일", key: "createdAt" },
   ];
 
@@ -86,11 +86,10 @@ export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, se
               }
             }}
             disabled={!selectedUserId}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-              selectedUserId
-                ? 'bg-[#FF0066] text-white hover:bg-pink-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${selectedUserId
+              ? 'bg-[#FF0066] text-white hover:bg-pink-700'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
           >
             <FaEdit size={20} />
           </button>
@@ -123,16 +122,14 @@ export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, se
                     <div
                       key={userData.id || userIndex}
                       onClick={() => handleRowClick(userData.id)}
-                      className={`h-12 px-2 text-center text-sm flex items-center justify-center border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors duration-200 ${
-                        selectedUserId === userData.id
-                          ? 'bg-pink-100 text-pink-800 border-pink-200'
-                          : 'text-gray-500 hover:bg-gray-50'
-                      }`}
+                      className={`h-12 px-2 text-center text-sm flex items-center justify-center border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors duration-200 ${selectedUserId === userData.id
+                        ? 'bg-pink-100 text-pink-800 border-pink-200'
+                        : 'text-gray-500 hover:bg-gray-50'
+                        }`}
                     >
                       {column.key === "name" ? (
-                        <span className={`font-medium text-sm ${
-                          selectedUserId === userData.id ? 'text-pink-900' : 'text-gray-900'
-                        }`}>
+                        <span className={`font-medium text-sm ${selectedUserId === userData.id ? 'text-pink-900' : 'text-gray-900'
+                          }`}>
                           {userData[column.key]}
                         </span>
                       ) : column.key === "createdAt" ? (
@@ -153,13 +150,14 @@ export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, se
             ))}
           </div>
 
-          {hasNext && (
+          {hasNextPage && (
             <div className="mt-4 text-center">
               <button
-                onClick={() => setLastUserId(nextCursor)}
-                className="px-4 py-2 bg-[#FF0066] text-white rounded hover:bg-pink-700"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="px-4 py-2 bg-[#FF0066] text-white rounded hover:bg-pink-700 disabled:opacity-50"
               >
-                더 보기
+                {isFetchingNextPage ? '로딩 중...' : '더 보기'}
               </button>
             </div>
           )}

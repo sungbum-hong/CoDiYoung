@@ -1,17 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AdminApiService } from '../../../../services/admin/adminApi.js';
+import { ImageService } from '../../../../services/imageService.js';
 
 /**
  * 현재 배너 조회 훅 (서버에서 API 지원 시 사용)
  */
-export function useCurrentBanner() {
+/**
+ * 현재 배너 목록 조회 훅
+ */
+export function useBannerList() {
   return useQuery({
-    queryKey: ['admin', 'banner', 'current'],
-    queryFn: () => AdminApiService.getCurrentBanner(),
+    queryKey: ['admin', 'banner', 'list'],
+    queryFn: async () => {
+      const response = await AdminApiService.getBannerList();
+      return response;
+    },
     staleTime: 1000 * 60 * 5, // 5분
     gcTime: 1000 * 60 * 10, // 10분
-    // API가 구현되지 않은 경우 비활성화
-    enabled: false
   });
 }
 
@@ -20,10 +25,16 @@ export function useCurrentBanner() {
  */
 export function useUploadImage() {
   return useMutation({
-    mutationFn: (file) => AdminApiService.uploadImage(file)
+    mutationFn: async (file) => {
+      const imageKey = await ImageService.uploadImage(file);
+      return { imageKey };
+    }
   });
 }
 
+/**
+ * 배너 추가 훅
+ */
 /**
  * 배너 추가 훅
  */
@@ -33,35 +44,51 @@ export function useAddBanner() {
   return useMutation({
     mutationFn: (imageKey) => AdminApiService.addBanner(imageKey),
     onSuccess: () => {
-      // 배너 관련 캐시 무효화
+      // 배너 목록 캐시 무효화
       queryClient.invalidateQueries({
-        queryKey: ['admin', 'banner']
+        queryKey: ['admin', 'banner', 'list']
       });
     }
   });
 }
 
 /**
- * 이미지 업로드 후 배너 추가를 한번에 처리하는 훅
+ * 배너 삭제 훅
+ */
+export function useDeleteBanner() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (bannerId) => AdminApiService.deleteBanner(bannerId),
+    onSuccess: () => {
+      // 배너 목록 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: ['admin', 'banner', 'list']
+      });
+    }
+  });
+}
+
+/**
+ * 이미지 업로드 및 배너 추가 통합 훅
  */
 export function useUploadAndAddBanner() {
   const uploadImageMutation = useUploadImage();
   const addBannerMutation = useAddBanner();
 
-  const uploadAndAdd = async (file) => {
+  const uploadAndAdd = async (file, url = '') => {
     try {
       // 1. 이미지 업로드
-      const uploadResult = await uploadImageMutation.mutateAsync(file);
-      const imageKey = uploadResult.imageKey || uploadResult.key || uploadResult.url;
+      const { imageKey } = await uploadImageMutation.mutateAsync(file);
 
       if (!imageKey) {
         throw new Error('이미지 업로드 결과에서 imageKey를 찾을 수 없습니다.');
       }
 
       // 2. 배너 추가
-      const bannerResult = await addBannerMutation.mutateAsync(imageKey);
+      const result = await addBannerMutation.mutateAsync({ imageKey, url });
 
-      return { upload: uploadResult, banner: bannerResult };
+      return result;
     } catch (error) {
       throw error;
     }
