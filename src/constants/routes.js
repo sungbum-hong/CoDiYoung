@@ -2,18 +2,18 @@
 export const ROUTES = {
   // 메인 페이지
   HOME: "/",
-  
+
   // 인증 관련 페이지
   SIGNIN: "/signin",
   FIND_PASSWORD: "/findpassword",
   RESET_PASSWORD: "/resetpassword",
   SUCCESS_RESET_PASSWORD: "/successresetpassword",
-  
+
   // 동적 라우트
   STUDY_CHANNEL: "/study/:userId",
   PROJECTS: "/projects",
-  PROJECT_DETAIL: "/project/:projectId", 
-  
+  PROJECT_DETAIL: "/project/:projectId",
+
   // 사용자 기능
   WRITE: "/write",
   WRITE_VIEW: "/write/:id",

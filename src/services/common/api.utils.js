@@ -26,14 +26,8 @@ export class ApiUtils {
         let token = localStorage.getItem("admin_access_token");
 
         if (token) {
-          // admin 토큰 만료 검증
-          if (AuthService.isTokenExpired(token)) {
-            // 만료된 admin 토큰 정리
-            localStorage.removeItem("admin_access_token");
-            localStorage.removeItem("admin_user_info");
-            AuthService.handleAdminTokenExpiration();
-            throw new Error("관리자 로그인이 만료되었습니다. 다시 로그인해주세요.");
-          }
+          // admin 토큰 만료 검증 로직 제거 (서버 401 응답에 의존)
+          // 클라이언트 시간과 서버 시간 차이로 인한 오작동 방지
         } else {
           token = AuthService.validateTokenBeforeRequest(true);
         }
@@ -109,6 +103,12 @@ export class ApiUtils {
    * @param {Response} response - Fetch Response 객체
    */
   static handleAuthError(response) {
+    console.error('Auth Error detected:', {
+      url: response.url,
+      status: response.status,
+      statusText: response.statusText
+    });
+
     if (response.status === 401 || response.status === 403) {
       // admin 토큰이 있는지 확인
       const adminToken = localStorage.getItem("admin_access_token");
@@ -132,11 +132,13 @@ export class ApiUtils {
    * @param {string} expectedSchema - 예상되는 응답 스키마 타입
    * @returns {Promise<any>} 파싱된 응답 데이터
    */
-  static async handleResponse(response, errorMessage = 'API 요청 실패', expectedSchema = null) {
+  static async handleResponse(response, errorMessage = 'API 요청 실패', expectedSchema = null, ignoreAuthError = false) {
 
     if (!response.ok) {
-      // 401/403 에러 시 자동 로그아웃 처리
-      this.handleAuthError(response);
+      // 401/403 에러 시 자동 로그아웃 처리 (ignoreAuthError가 false일 때만)
+      if (!ignoreAuthError) {
+        this.handleAuthError(response);
+      }
 
       let errorData = {};
       let errorText = '';
@@ -235,7 +237,12 @@ export class ApiUtils {
 
       const response = await fetch(url, requestOptions);
 
-      return await this.handleResponse(response, options.errorMessage || 'API 요청 실패');
+      return await this.handleResponse(
+        response,
+        options.errorMessage || 'API 요청 실패',
+        null,
+        options.ignoreAuthError
+      );
     } catch (error) {
       this.handleApiError(error, options.context || '');
       throw error;

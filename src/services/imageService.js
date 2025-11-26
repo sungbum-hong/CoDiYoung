@@ -22,7 +22,8 @@ export class ImageService {
     }
 
     if (includeAuth) {
-      const token = localStorage.getItem('auth_token');
+      // admin 토큰을 먼저 확인하고, 없으면 일반 토큰 사용 (ApiUtils와 동일한 로직)
+      const token = localStorage.getItem('admin_access_token') || localStorage.getItem('auth_token');
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
@@ -112,6 +113,7 @@ export class ImageService {
    */
   static async uploadToStorage(presignedUrl, file) {
     try {
+      console.log('Uploading to Presigned URL:', presignedUrl);
       const response = await fetch(presignedUrl, {
         method: 'PUT',
         body: file,
