@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FaEye, FaEyeSlash, FaCopy } from "react-icons/fa";
 import { AdminApiService } from "../../../services/admin/adminApi";
 import { useCreateUser } from "./hooks/useUserManagement.js";
 export default function AccountCreationForm({ setIsOpenAddUser }) {
@@ -10,6 +11,7 @@ export default function AccountCreationForm({ setIsOpenAddUser }) {
     userCategory: "CODING",
     nickname: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const createUserMutation = useCreateUser();
 
@@ -53,6 +55,23 @@ export default function AccountCreationForm({ setIsOpenAddUser }) {
       ...prev,
       password: resultPassword,
     }));
+
+    // 생성된 비밀번호 바로 보이게 설정
+    setShowPassword(true);
+  };
+
+  const handleCopyPassword = async () => {
+    if (!formData.password) {
+      alert("복사할 비밀번호가 없습니다.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(formData.password);
+      alert("비밀번호가 클립보드에 복사되었습니다.");
+    } catch (err) {
+      console.error('비밀번호 복사 실패:', err);
+      alert("비밀번호 복사에 실패했습니다.");
+    }
   };
 
   const handleChange = (field, value) => {
@@ -140,23 +159,45 @@ export default function AccountCreationForm({ setIsOpenAddUser }) {
               className="w-1 h-6 mr-8"
               style={{ backgroundColor: "#FF0066" }}
             ></div>
-            <div className="w-80 relative">
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) => handleChange("password", e.target.value)}
-                className="w-full px-5 py-3 pr-14 border-2 rounded-2xl text-base outline-none focus:ring-4 transition"
-                style={{ borderColor: "#FF0066" }}
-                placeholder="비밀번호를 입력하세요"
-                required
-              />
+            <div className="w-80 relative flex items-center gap-2">
+              <div className="relative w-full">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={(e) => handleChange("password", e.target.value)}
+                  className="w-full px-5 py-3 pr-10 border-2 rounded-2xl text-base outline-none focus:ring-4 transition"
+                  style={{ borderColor: "#FF0066" }}
+                  placeholder="비밀번호를 입력하세요"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#FF0066] transition"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+                </button>
+              </div>
+
+              {/* 생성 버튼 */}
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-white hover:opacity-90 transition"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white hover:opacity-90 transition shadow-md shrink-0"
                 onClick={() => getRandomPassword()}
                 style={{ backgroundColor: "#FF0066" }}
+                title="비밀번호 생성"
               >
                 +
+              </button>
+
+              {/* 복사 버튼 */}
+              <button
+                type="button"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200 transition shadow-md shrink-0"
+                onClick={handleCopyPassword}
+                title="비밀번호 복사"
+              >
+                <FaCopy size={16} />
               </button>
             </div>
           </div>
