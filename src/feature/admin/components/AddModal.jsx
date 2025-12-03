@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FaTimes, FaCamera } from "react-icons/fa";
 
 export default function AddModal({ isOpen, onClose, onSubmit, title, showNameInput = false, isUploading }) {
@@ -7,6 +7,19 @@ export default function AddModal({ isOpen, onClose, onSubmit, title, showNameInp
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const fileInputRef = useRef(null);
+
+    // 모달이 열릴 때 상태 초기화
+    useEffect(() => {
+        if (isOpen) {
+            setName("");
+            setLink("");
+            setSelectedFile(null);
+            setPreviewUrl(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
+        }
+    }, [isOpen]);
 
     if (!isOpen) return null;
 

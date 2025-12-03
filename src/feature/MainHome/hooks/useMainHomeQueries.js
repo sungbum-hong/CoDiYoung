@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { StudyService } from '../../../services/study/StudyService.js';
 import { ProjectService } from '../../../services/project/ProjectService.js';
+import { HomeService } from '../../../services/homeService.js';
 
 /**
  * MainHome 전용 스터디 카테고리 데이터 조회
@@ -56,6 +57,32 @@ export const useMainHomeProjects = () => {
       // 프로젝트 데이터 가공
       return data?.content || data || [];
     },
+    retry: 1
+  });
+};
+
+/**
+ * MainHome 배너 목록 조회
+ */
+export const useMainHomeBanners = () => {
+  return useQuery({
+    queryKey: ['mainHome', 'banners'],
+    queryFn: () => HomeService.getBanners(),
+    staleTime: 10 * 60 * 1000,
+    select: (data) => data || [],
+    retry: 1
+  });
+};
+
+/**
+ * MainHome 파트너 목록 조회
+ */
+export const useMainHomePartners = () => {
+  return useQuery({
+    queryKey: ['mainHome', 'partners'],
+    queryFn: () => HomeService.getPartners(),
+    staleTime: 10 * 60 * 1000,
+    select: (data) => data || [],
     retry: 1
   });
 };
