@@ -42,7 +42,7 @@ export function useAddBanner() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (imageKey) => AdminApiService.addBanner(imageKey),
+    mutationFn: (data) => AdminApiService.addBanner(data),
     onSuccess: () => {
       // 배너 목록 캐시 무효화
       queryClient.invalidateQueries({
@@ -76,7 +76,7 @@ export function useUploadAndAddBanner() {
   const uploadImageMutation = useUploadImage();
   const addBannerMutation = useAddBanner();
 
-  const uploadAndAdd = async (file, url = '') => {
+  const uploadAndAdd = async (file, link = '') => {
     try {
       // 1. 이미지 업로드
       const { imageKey } = await uploadImageMutation.mutateAsync(file);
@@ -86,7 +86,7 @@ export function useUploadAndAddBanner() {
       }
 
       // 2. 배너 추가
-      const result = await addBannerMutation.mutateAsync({ imageKey, url });
+      const result = await addBannerMutation.mutateAsync({ imageKey, link });
 
       return result;
     } catch (error) {

@@ -182,16 +182,13 @@ export class AdminApiService {
    * @param {string} url - 배너 클릭 시 이동할 URL (옵션)
    * @returns {Promise<Object>} 배너 추가 결과
    */
-  static async addBanner(imageKey, url = '') {
-    const queryParams = new URLSearchParams();
-    queryParams.append('imageKey', imageKey);
-    if (url) queryParams.append('url', url);
-
-    const requestUrl = `${BASE_URL}/api/admin/addBanner?${queryParams.toString()}`;
+  static async addBanner({ imageKey, link }) {
+    const requestUrl = `${BASE_URL}/api/admin/addBanner`;
 
     return await ApiUtils.fetchWrapper(requestUrl, {
       method: 'POST',
       requireAuth: true,
+      body: { imageKey, link },
       errorMessage: '배너 추가 실패',
       context: 'Admin Banner Add'
     });
@@ -225,15 +222,12 @@ export class AdminApiService {
    * @returns {Promise<Object>} 업데이트 결과
    */
   static async updateOfflineCount(userId, count) {
-    const queryParams = new URLSearchParams();
-    queryParams.append('userId', userId);
-    queryParams.append('count', count);
-
-    const url = `${BASE_URL}/api/admin/updateOffline?${queryParams.toString()}`;
+    const url = `${BASE_URL}/api/admin/updateOffline`;
 
     return await ApiUtils.fetchWrapper(url, {
       method: 'POST',
       requireAuth: true,
+      body: { userId, count },
       errorMessage: '오프라인 참가 횟수 업데이트 실패',
       context: 'Admin Update Offline Count'
     });
@@ -381,16 +375,12 @@ export class AdminApiService {
    * @returns {Promise<Object>} 추가 결과
    */
   static async addPartner(partnerData) {
-    const queryParams = new URLSearchParams();
-    queryParams.append('name', partnerData.name);
-    queryParams.append('imageKey', partnerData.imageKey);
-    if (partnerData.link) queryParams.append('link', partnerData.link);
-
-    const url = `${BASE_URL}/api/admin/addPartner?${queryParams.toString()}`;
+    const url = `${BASE_URL}/api/admin/addPartner`;
 
     return await ApiUtils.fetchWrapper(url, {
       method: 'POST',
       requireAuth: true,
+      body: partnerData,
       errorMessage: '파트너 추가 실패',
       context: 'Admin Add Partner'
     });
