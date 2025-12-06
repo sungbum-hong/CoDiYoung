@@ -1,5 +1,5 @@
-import { FaEdit, FaPlus } from "react-icons/fa";
-import { useUserList } from "./hooks/useUserManagement.js";
+import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
+import { useUserList, useDeleteUser } from "./hooks/useUserManagement.js";
 import { useState } from "react";
 
 export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, setSelectedUser }) {
@@ -24,6 +24,24 @@ export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, se
 
   // 선택된 사용자 정보 가져오기
   const selectedUser = users.find(user => user.id === selectedUserId);
+
+  const { mutate: deleteUser, isPending: isDeleting } = useDeleteUser();
+
+  const handleDelete = () => {
+    if (!selectedUserId) return;
+
+    if (window.confirm('정말로 이 사용자를 삭제하시겠습니까?')) {
+      deleteUser(selectedUserId, {
+        onSuccess: () => {
+          setSelectedUserId(null);
+          alert('사용자가 삭제되었습니다.');
+        },
+        onError: (error) => {
+          alert(error.message || '사용자 삭제에 실패했습니다.');
+        }
+      });
+    }
+  };
 
   const columns = [
     { name: "이름", key: "name" },
@@ -92,6 +110,16 @@ export default function UserManagement({ setIsOpenAddUser, setIsOpenEditUser, se
               }`}
           >
             <FaEdit size={20} />
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={!selectedUserId || isDeleting}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${selectedUserId
+              ? 'bg-gray-500 text-white hover:bg-gray-600'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+          >
+            <FaTrash size={18} />
           </button>
           <button
             onClick={() => setIsOpenAddUser(true)}

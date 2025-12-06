@@ -1,4 +1,5 @@
 import StudyCategory from "./StudyCategory";
+import BannerSlider from "./components/BannerSlider";
 import ProjectSection from "./ProjectSection";
 import Partners from "./Partners";
 import Footer from "../../components/Footer";
@@ -14,24 +15,7 @@ export default function HomePage() {
       <section className="mb-21">
         {/* 배너 컨테이너 */}
         <div className="flex flex-col gap-4">
-          {banners && banners.length > 0 && (
-            banners.map((banner) => (
-              <a
-                key={banner.id}
-                href={banner.link || '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block focus:outline-none focus:ring-2 focus:ring-offset-2"
-              >
-                <img
-                  src={banner.imageUrl}
-                  alt="메인 배너"
-                  className="w-full h-56 sm:h-64 md:h-80 lg:h-96 object-cover transition-transform duration-300 hover:scale-[1.01] cursor-pointer"
-                  loading="eager"
-                />
-              </a>
-            ))
-          )}
+          <BannerSlider banners={banners} />
         </div>
       </section>
 
