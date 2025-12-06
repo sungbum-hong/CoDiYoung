@@ -177,6 +177,22 @@ export class AdminApiService {
   }
 
   /**
+   * 유저 삭제
+   * @param {number} userId - 삭제할 유저 ID
+   * @returns {Promise<Object>} 삭제 결과
+   */
+  static async deleteUser(userId) {
+    const url = `${BASE_URL}/api/admin/deleteUser/${userId}`;
+
+    return await ApiUtils.fetchWrapper(url, {
+      method: 'DELETE',
+      requireAuth: true,
+      errorMessage: '사용자 삭제 실패',
+      context: 'Admin User Delete'
+    });
+  }
+
+  /**
    * 배너 추가
    * @param {string} imageKey - 이미지 키
    * @param {string} url - 배너 클릭 시 이동할 URL (옵션)

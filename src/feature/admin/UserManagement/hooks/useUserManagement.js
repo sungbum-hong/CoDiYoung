@@ -67,3 +67,23 @@ export function useUpdateOfflineCount() {
     }
   });
 }
+
+/**
+ * 사용자 삭제 훅
+ */
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userId) => AdminApiService.deleteUser(userId),
+    onSuccess: () => {
+      // 사용자 목록과 홈 데이터 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: ['admin', 'users', 'list']
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['admin', 'home']
+      });
+    }
+  });
+}
