@@ -1,4 +1,3 @@
-
 export const CONFIG = {
   // 검증 설정
   VALIDATION: {
@@ -8,10 +7,9 @@ export const CONFIG = {
       LOWERCASE: /(?=.*[a-z])/,
       UPPERCASE: /(?=.*[A-Z])/,
       NUMBER: /(?=.*\d)/,
-      SPECIAL: /(?=.*[!@#$%^&*])/,
+      SPECIAL: /(?=.*[!@#$%^&*()-_=+[\]{};:,.<>?])/,
     },
   },
-
 
   // 에디터 설정
   EDITOR: {
@@ -21,7 +19,7 @@ export const CONFIG = {
     HELP_TIMEOUT: 3000,
     VIDEO: {
       DEFAULT_WIDTH: "560",
-      DEFAULT_HEIGHT: "315"
+      DEFAULT_HEIGHT: "315",
     },
     TABLE: {
       DEFAULT_ROWS: 3,
@@ -44,8 +42,8 @@ export const CONFIG = {
             <td>데이터 6</td>
           </tr>
         </table>
-      `
-    }
+      `,
+    },
   },
 
   // 레이아웃 설정
@@ -56,14 +54,14 @@ export const CONFIG = {
     AUTH_MAX_WIDTH: 1120,
     CONTAINER_PADDING: {
       MOBILE: 16, // 1rem
-      TABLET: 24, // 1.5rem  
+      TABLET: 24, // 1.5rem
       DESKTOP: 48, // 3rem
     },
     GRID: {
       STUDY_COLUMNS: 12,
       PROJECT_COLUMNS: 5,
       PARTNER_GAP: 128, // gap-32 = 8rem = 128px
-    }
+    },
   },
 
   // 카드/아이템 설정
@@ -79,9 +77,9 @@ export const CONFIG = {
     },
     PARTNER: {
       WIDTH: 108, // w-27 = 6.75rem
-      HEIGHT: 60,  // h-15 = 3.75rem
+      HEIGHT: 60, // h-15 = 3.75rem
       GAP: 32,
-    }
+    },
   },
 
   // 애니메이션 설정
@@ -91,7 +89,6 @@ export const CONFIG = {
     SLIDE_DURATION: 250,
     BOUNCE_DURATION: 500,
   },
-
 
   // 기본 카운트/제한값
   DEFAULTS: {
@@ -115,19 +112,19 @@ export const CONFIG = {
   // 버튼 크기 설정 (sizes.js에서 이동)
   BUTTON_SIZES: {
     sm: {
-      padding: '0.5rem 1rem',
-      fontSize: '0.875rem',
-      height: '2rem',
+      padding: "0.5rem 1rem",
+      fontSize: "0.875rem",
+      height: "2rem",
     },
     md: {
-      padding: '0.75rem 1.5rem', 
-      fontSize: '1rem',
-      height: '2.75rem',
+      padding: "0.75rem 1.5rem",
+      fontSize: "1rem",
+      height: "2.75rem",
     },
     lg: {
-      padding: '1rem 2rem',
-      fontSize: '1.125rem', 
-      height: '3rem',
+      padding: "1rem 2rem",
+      fontSize: "1.125rem",
+      height: "3rem",
     },
   },
 
@@ -135,11 +132,11 @@ export const CONFIG = {
   API: {
     BASE_URL: import.meta.env.VITE_BASE_URL,
     AUTH: {
-      LOGIN: '/api/auth/login',
-      LOGOUT: '/api/auth/logout', 
-      PROFILE: '/api/auth/profile',
-      SIGNUP: '/api/auth/join',
-      SIGNUP_ADMIN: '/api/admin/create',
+      LOGIN: "/api/auth/login",
+      LOGOUT: "/api/auth/logout",
+      PROFILE: "/api/auth/profile",
+      SIGNUP: "/api/auth/join",
+      SIGNUP_ADMIN: "/api/admin/create",
     },
   },
 
@@ -182,32 +179,31 @@ export const CONFIG = {
 
   // 반응형 브레이크포인트
   RESPONSIVE: {
-    sm: '640px',
-    md: '768px',
-    lg: '1024px',
-    xl: '1280px',
-    '2xl': '1536px',
+    sm: "640px",
+    md: "768px",
+    lg: "1024px",
+    xl: "1280px",
+    "2xl": "1536px",
   },
 
   // 아바타 크기 설정
   AVATAR_SIZES: {
-    sm: 'w-10 h-10',
-    md: 'w-12 h-12', 
-    lg: 'w-56 h-56',
+    sm: "w-10 h-10",
+    md: "w-12 h-12",
+    lg: "w-56 h-56",
   },
 
   // 스터디 카테고리 설정
   STUDY_CATEGORIES: {
     coding: "코딩",
-    design: "디자인", 
-    video: "영상"
+    design: "디자인",
+    video: "영상",
   },
 
   // 테스트 사용자 데이터
   TEST_USER: {
     name: "김지호",
     email: "test@example.com",
-    avatar: null
+    avatar: null,
   },
-
-}
+};
