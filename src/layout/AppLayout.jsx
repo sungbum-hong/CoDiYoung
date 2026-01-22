@@ -10,7 +10,7 @@ export default function AppLayout() {
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
 
   const hideHeaderOnUser = pathname.startsWith("/user/");
-  const hideHeader = hideHeaderOnUser;
+  const hideHeader = hideHeaderOnUser || isAuthRoute;
 
   // ✅ 인증 페이지일 때 페이지 스크롤 완전 차단 (html/body)
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function AppLayout() {
   // 레이아웃 스타일 정의 (매직 넘버 제거)
   const base = "relative z-0";
   const authLayout = `min-h-[calc(100dvh-${CONFIG.LAYOUT.HEADER_TOTAL_HEIGHT}px)] grid place-items-center overflow-hidden`;
-  const normalLayout = `max-w-[${CONFIG.LAYOUT.MAX_CONTENT_WIDTH}px] mx-10 px-4 sm:px-6 lg:px-6`;
+  const normalLayout = `max-w-[${CONFIG.LAYOUT.MAX_CONTENT_WIDTH}px] mx-auto px-6 md:px-24 lg:px-36`;
 
   return (
     <div className="min-h-screen overflow-x-hidden">
