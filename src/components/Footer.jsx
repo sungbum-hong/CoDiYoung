@@ -1,84 +1,66 @@
 import { COLORS } from "../constants/colors.js";
+import { FaInstagram } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer
-      className="relative mt-10 px-9 pt-6 pb-3"
-      style={{
-        background: "linear-gradient(to bottom, #f9f9ff, #f3e8ff)",
-      }}
-    >
-      <div
-        className="mb-18 flex items-center relative"
-        style={{ color: COLORS.GRAY_600 }}
-      >
-        {/* 로고 */}
-        <div className="absolute left-2 top-1/2 -translate-y-1/2 translate-y-2">
-          <img src="/cdylogo.png" alt="Company Logo" className="h-14 w-auto" />
+    <footer className="w-full py-12 px-6 md:px-24 lg:px-36 bg-white mt-20">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+        
+        {/* Left Section */}
+        <div className="flex flex-col gap-4">
+          {/* Logo */}
+          <div>
+            <img src="/cdylogo.png" alt="CoDiYoung Logo" className="h-10 w-auto" />
+          </div>
+          
+          {/* Slogan */}
+          <p className="text-sm text-gray-600">
+            함께 배우고 성장하는 청년 스터디 커뮤니티 플랫폼
+          </p>
+          
+          {/* Legal Links */}
+          <div className="flex items-center gap-3 text-sm font-bold text-gray-800 mt-2">
+            <Link to="/terms" className="hover:text-purple-600 transition-colors">
+              이용약관
+            </Link>
+            <span className="text-gray-300">|</span>
+            <Link to="/privacy" className="hover:text-purple-600 transition-colors">
+              개인정보처리방침
+            </Link>
+          </div>
         </div>
 
-        {/* 카테고리 메뉴 (가로 정렬) */}
-        <nav className="ml-auto" aria-label="푸터 카테고리">
-          <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm">
-            <li>
-              <a
-                href="/terms"
-                className="hover:underline rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/40"
-              >
-                이용약관
-              </a>
-            </li>
-            <li>
-              <a
-                href="/privacy"
-                className="hover:underline rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/40"
-              >
-                개인정보처리방침
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://open.kakao.com/o/sNuPVDLh"
-                target="_blank"
-                className="hover:underline rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/40"
-              >
-                신청하기
-              </a>
-            </li>
-            <li>
-              <a
-                href="/ads"
-                className="hover:underline rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/40"
-              >
-                광고/외주
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.instagram.com/codiyoung_community?igsh=ZTg5ZGt6NWlsdDVk"
-                target="_blank"
-                className="hover:underline rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/40"
-              >
-                SNS
-              </a>
-            </li>
-            <li className="font-medium">
-              <a
-                href="/about/made-us"
-                className="hover:underline rounded px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/40"
-              >
-                Made by Us
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
+        {/* Right Section */}
+        <div className="flex flex-col items-start md:items-end gap-4 w-full md:w-auto">
+          {/* Instagram Icon */}
+          <a 
+            href="https://www.instagram.com/codiyoung_community?igsh=ZTg5ZGt6NWlsdDVk" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-gray-800 hover:text-purple-600 transition-colors mb-2"
+          >
+            <FaInstagram size={28} />
+          </a>
 
-      {/* 저작권 문구 */}
-      <div className="flex justify-center sm:justify-end mt-4">
-        <p className="text-xs" style={{ color: COLORS.GRAY_400 }}>
-          © {new Date().getFullYear()} Codiyoung
-        </p>
+          {/* Menu Links */}
+          <div className="flex items-center gap-6 text-sm text-gray-700">
+            <a href="https://open.kakao.com/o/sNuPVDLh" target="_blank" rel="noopener noreferrer" className="hover:text-purple-600 transition-colors">
+              신청하기
+            </a>
+            <Link to="/ads" className="hover:text-purple-600 transition-colors">
+              광고/외주
+            </Link>
+            <Link to="/about/made-us" className="hover:text-purple-600 transition-colors">
+              Made by Us
+            </Link>
+          </div>
+
+          {/* Copyright */}
+          <p className="text-xs text-gray-400 mt-2">
+            © 2025 Codiyoung
+          </p>
+        </div>
       </div>
     </footer>
   );

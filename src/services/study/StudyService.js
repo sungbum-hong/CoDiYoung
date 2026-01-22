@@ -1,7 +1,7 @@
-import { ApiUtils } from '../common/api.utils.js';
-import { ValidationUtils } from '../common/validation.utils.js';
-import { BASE_URL, ENDPOINTS, STUDY_CONSTANTS } from './study.constants.js';
-import { ImageService } from '../imageService.js';
+import { ApiUtils } from "../common/api.utils.js";
+import { ValidationUtils } from "../common/validation.utils.js";
+import { BASE_URL, ENDPOINTS, STUDY_CONSTANTS } from "./study.constants.js";
+import { ImageService } from "../imageService.js";
 
 // 요청 캐시 및 중복 방지를 위한 Map
 const requestCache = new Map();
@@ -29,15 +29,22 @@ export class StudyService {
 
       const requestData = {
         content,
-        images
+        images,
       };
 
       const headers = ApiUtils.getCommonHeaders();
-      const options = ApiUtils.createRequestOptions('POST', headers, requestData);
+      const options = ApiUtils.createRequestOptions(
+        "POST",
+        headers,
+        requestData,
+      );
 
-      const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_CREATE}`, options);
+      const response = await fetch(
+        `${BASE_URL}${ENDPOINTS.STUDY_CREATE}`,
+        options,
+      );
 
-      return await ApiUtils.handleResponse(response, '스터디 생성 실패');
+      return await ApiUtils.handleResponse(response, "스터디 생성 실패");
     } catch (error) {
       ApiUtils.handleApiError(error);
     }
@@ -53,11 +60,14 @@ export class StudyService {
   static async getStudyById(studyId) {
     try {
       const headers = ApiUtils.getCommonHeaders(true, false); // 인증 선택사항
-      const options = ApiUtils.createRequestOptions('GET', headers);
+      const options = ApiUtils.createRequestOptions("GET", headers);
 
-      const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_GET_BY_ID}/${studyId}`, options);
+      const response = await fetch(
+        `${BASE_URL}${ENDPOINTS.STUDY_GET_BY_ID}/${studyId}`,
+        options,
+      );
 
-      return await ApiUtils.handleResponse(response, '스터디 조회 실패');
+      return await ApiUtils.handleResponse(response, "스터디 조회 실패");
     } catch (error) {
       ApiUtils.handleApiError(error);
     }
@@ -72,11 +82,17 @@ export class StudyService {
     try {
       // 스터디 채널은 공개 정보이므로 인증을 선택사항으로 변경
       const headers = ApiUtils.getCommonHeaders(true, false); // 인증 선택사항
-      const options = ApiUtils.createRequestOptions('GET', headers);
+      const options = ApiUtils.createRequestOptions("GET", headers);
 
-      const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_GET_USER_CHANNEL}/${userId}`, options);
+      const response = await fetch(
+        `${BASE_URL}${ENDPOINTS.STUDY_GET_USER_CHANNEL}/${userId}`,
+        options,
+      );
 
-      return await ApiUtils.handleResponse(response, '사용자 스터디 채널 조회 실패');
+      return await ApiUtils.handleResponse(
+        response,
+        "사용자 스터디 채널 조회 실패",
+      );
     } catch (error) {
       ApiUtils.handleApiError(error);
     }
@@ -89,11 +105,17 @@ export class StudyService {
   static async getUserStudies() {
     try {
       const headers = ApiUtils.getCommonHeaders();
-      const options = ApiUtils.createRequestOptions('GET', headers);
+      const options = ApiUtils.createRequestOptions("GET", headers);
 
-      const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_GET_USER_STUDIES}`, options);
+      const response = await fetch(
+        `${BASE_URL}${ENDPOINTS.STUDY_GET_USER_STUDIES}`,
+        options,
+      );
 
-      return await ApiUtils.handleResponse(response, '사용자 스터디 목록 조회 실패');
+      return await ApiUtils.handleResponse(
+        response,
+        "사용자 스터디 목록 조회 실패",
+      );
     } catch (error) {
       ApiUtils.handleApiError(error);
     }
@@ -105,7 +127,7 @@ export class StudyService {
    */
   static async getGroupedStudies() {
     try {
-      const cacheKey = 'grouped-studies';
+      const cacheKey = "grouped-studies";
 
       // 캐시 확인
       if (requestCache.has(cacheKey)) {
@@ -130,7 +152,7 @@ export class StudyService {
         // 캐시 저장
         requestCache.set(cacheKey, {
           data: result,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
 
         return result;
@@ -148,11 +170,14 @@ export class StudyService {
    */
   static async fetchGroupedStudies() {
     const headers = ApiUtils.getCommonHeaders(true, false); // 인증 선택사항
-    const options = ApiUtils.createRequestOptions('GET', headers);
+    const options = ApiUtils.createRequestOptions("GET", headers);
 
-    const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_GET_GROUPED}`, options);
+    const response = await fetch(
+      `${BASE_URL}${ENDPOINTS.STUDY_GET_GROUPED}`,
+      options,
+    );
 
-    return await ApiUtils.handleResponse(response, '그룹화된 스터디 조회 실패');
+    return await ApiUtils.handleResponse(response, "그룹화된 스터디 조회 실패");
   }
 
   // === 스터디 수정/삭제 ===
@@ -169,14 +194,17 @@ export class StudyService {
       this.validateStudyUpdateData(updateData);
 
       const headers = ApiUtils.getCommonHeaders();
-      const options = ApiUtils.createRequestOptions('PUT', headers, updateData);
+      const options = ApiUtils.createRequestOptions("PUT", headers, updateData);
 
-      const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_UPDATE}/${studyId}`, options);
+      const response = await fetch(
+        `${BASE_URL}${ENDPOINTS.STUDY_UPDATE}/${studyId}`,
+        options,
+      );
 
       // 캐시 무효화
       this.invalidateCache();
 
-      return await ApiUtils.handleResponse(response, '스터디 수정 실패');
+      return await ApiUtils.handleResponse(response, "스터디 수정 실패");
     } catch (error) {
       ApiUtils.handleApiError(error);
     }
@@ -190,21 +218,25 @@ export class StudyService {
   static async deleteStudy(studyId) {
     try {
       // 문자열인 경우 숫자로 변환
-      const numericId = typeof studyId === 'string' ? parseInt(studyId, 10) : studyId;
+      const numericId =
+        typeof studyId === "string" ? parseInt(studyId, 10) : studyId;
 
       if (!numericId || isNaN(numericId) || numericId <= 0) {
-        throw new Error('유효하지 않은 스터디 ID입니다.');
+        throw new Error("유효하지 않은 스터디 ID입니다.");
       }
 
       const headers = ApiUtils.getCommonHeaders();
-      const options = ApiUtils.createRequestOptions('DELETE', headers);
+      const options = ApiUtils.createRequestOptions("DELETE", headers);
 
-      const response = await fetch(`${BASE_URL}${ENDPOINTS.STUDY_DELETE}/${numericId}`, options);
+      const response = await fetch(
+        `${BASE_URL}${ENDPOINTS.STUDY_DELETE}/${numericId}`,
+        options,
+      );
 
       // 캐시 무효화
       this.invalidateCache();
 
-      return await ApiUtils.handleResponse(response, '스터디 삭제 실패');
+      return await ApiUtils.handleResponse(response, "스터디 삭제 실패");
     } catch (error) {
       ApiUtils.handleApiError(error);
     }
@@ -218,14 +250,18 @@ export class StudyService {
    * @throws {Error} 유효성 검사 실패 시 에러
    */
   static validateStudyCreateData(data) {
-    ValidationUtils.validateRequired(data, ['content']);
+    ValidationUtils.validateRequired(data, ["content"]);
 
-    if (!data.content || data.content.trim() === '' || data.content === '<p></p>') {
-      throw new Error('스터디 내용을 입력해주세요.');
+    if (
+      !data.content ||
+      data.content.trim() === "" ||
+      data.content === "<p></p>"
+    ) {
+      throw new Error("스터디 내용을 입력해주세요.");
     }
 
     if (data.images && !Array.isArray(data.images)) {
-      throw new Error('이미지 데이터 형식이 올바르지 않습니다.');
+      throw new Error("이미지 데이터 형식이 올바르지 않습니다.");
     }
 
     return true;
@@ -237,25 +273,29 @@ export class StudyService {
    * @throws {Error} 유효성 검사 실패 시 에러
    */
   static validateStudyData(studyData) {
-    ValidationUtils.validateRequired(studyData, ['title', 'description', 'category']);
+    ValidationUtils.validateRequired(studyData, [
+      "title",
+      "description",
+      "category",
+    ]);
 
     ValidationUtils.validateStringLength(
       studyData.title,
-      '제목',
-      STUDY_CONSTANTS.MAX_TITLE_LENGTH
+      "제목",
+      STUDY_CONSTANTS.MAX_TITLE_LENGTH,
     );
 
     ValidationUtils.validateStringLength(
       studyData.description,
-      '설명',
-      STUDY_CONSTANTS.MAX_DESCRIPTION_LENGTH
+      "설명",
+      STUDY_CONSTANTS.MAX_DESCRIPTION_LENGTH,
     );
 
     if (studyData.capacity) {
       ValidationUtils.validateNumberRange(
         studyData.capacity,
-        '모집인원',
-        STUDY_CONSTANTS.MIN_CAPACITY
+        "모집인원",
+        STUDY_CONSTANTS.MIN_CAPACITY,
       );
     }
 
@@ -271,24 +311,24 @@ export class StudyService {
     if (updateData.title) {
       ValidationUtils.validateStringLength(
         updateData.title,
-        '제목',
-        STUDY_CONSTANTS.MAX_TITLE_LENGTH
+        "제목",
+        STUDY_CONSTANTS.MAX_TITLE_LENGTH,
       );
     }
 
     if (updateData.description) {
       ValidationUtils.validateStringLength(
         updateData.description,
-        '설명',
-        STUDY_CONSTANTS.MAX_DESCRIPTION_LENGTH
+        "설명",
+        STUDY_CONSTANTS.MAX_DESCRIPTION_LENGTH,
       );
     }
 
     if (updateData.capacity) {
       ValidationUtils.validateNumberRange(
         updateData.capacity,
-        '모집인원',
-        STUDY_CONSTANTS.MIN_CAPACITY
+        "모집인원",
+        STUDY_CONSTANTS.MIN_CAPACITY,
       );
     }
 
