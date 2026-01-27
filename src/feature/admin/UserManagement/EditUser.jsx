@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { AdminApiService } from "../../../services/admin/adminApi";
 import { useCreateUser } from "./hooks/useUserManagement.js";
-import { mockUserData } from "../../../mock/userData.js";
 
 export default function EditUser({ setIsOpenEditUser, selectedUser }) {
-  // 선택된 사용자 또는 Mock 데이터의 첫 번째 사용자로 초기화
-  const userToEdit = selectedUser || mockUserData[0];
+  // 선택된 사용자 또는 기본값으로 초기화
+  const userToEdit = selectedUser || {
+    name: "",
+    email: "",
+    phoneNumber: "",
+    userCategory: "CODING"
+  };
 
   const [formData, setFormData] = useState({
     name: userToEdit.name,
