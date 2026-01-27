@@ -28,8 +28,11 @@ export default function SignInPage({ onClose }) {
   };
 
   return (
-    <div className={`min-h-[calc(100dvh-${CONFIG.LAYOUT.HEADER_TOTAL_HEIGHT}px)] flex flex-col items-center justify-center`}>
-      <div className={`w-full max-w-[${CONFIG.LAYOUT.MAX_CONTENT_WIDTH}px] px-6 md:px-24 lg:px-36`}>
+    <div className={`w-full min-h-[calc(100dvh-${CONFIG.LAYOUT.HEADER_TOTAL_HEIGHT}px)] flex flex-col items-center justify-center`}>
+      <div 
+        className="w-full px-4 flex flex-col items-center"
+        style={{ maxWidth: '600px' }}
+      >
         {/* Header Section */}
         <div className="flex flex-col items-center mb-10">
           {/* Logo */}
@@ -55,7 +58,8 @@ export default function SignInPage({ onClose }) {
           </p>
         </div>
 
-        <form onSubmit={onSubmit} className="flex flex-col gap-6">
+        {/* Form Section */}
+        <form onSubmit={onSubmit} className="flex flex-col gap-6 w-full">
           {/* Email Input */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-bold text-gray-900">이메일</label>
