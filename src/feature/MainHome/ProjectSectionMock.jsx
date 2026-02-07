@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ProjectCard from "./components/ProjectCard.jsx";
 import { MOCK_PROJECTS } from "../../services/project/mockProjectData.js";
 
 export default function ProjectSectionMock() {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTech, setSelectedTech] = useState(null);
   const [selectedPosition, setSelectedPosition] = useState(null);
@@ -225,7 +227,7 @@ export default function ProjectSectionMock() {
           <ProjectCard 
             key={project.id} 
             project={project} 
-            onProjectClick={() => {}} 
+            onProjectClick={(id) => navigate(`/project/${id}`)} 
           />
         ))}
       </div>

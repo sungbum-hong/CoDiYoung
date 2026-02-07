@@ -1,6 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ProjectService } from '../../../services/project/ProjectService.js';
-import { useAuthState } from '../../../hooks/useAuth.js';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ProjectService } from "../../../services/project/ProjectService.js";
+import { MOCK_PROJECTS } from "../../../services/project/mockProjectData.js";
+import { useAuthState } from "../../../hooks/useAuth.js";
 
 /**
  * ProjectPage 전용 React Query 훅들
@@ -13,7 +14,7 @@ import { useAuthState } from '../../../hooks/useAuth.js';
  */
 export const useProjectQuestions = (projectId, options = {}) => {
   return useQuery({
-    queryKey: ['projectPage', 'project', projectId, 'questions'],
+    queryKey: ["projectPage", "project", projectId, "questions"],
     queryFn: async () => {
       if (!projectId) return [];
 
@@ -23,7 +24,7 @@ export const useProjectQuestions = (projectId, options = {}) => {
     enabled: !!projectId, // projectId가 있을 때만 실행
     staleTime: 5 * 60 * 1000, // 5분 캐시
     retry: 2,
-    ...options
+    ...options,
   });
 };
 
@@ -32,27 +33,55 @@ export const useProjectQuestions = (projectId, options = {}) => {
  */
 export const useProjectDetail = (projectId, options = {}) => {
   return useQuery({
-    queryKey: ['projectPage', 'project', projectId],
+    queryKey: ["projectPage", "project", projectId],
     queryFn: async () => {
       if (!projectId) return null;
 
-      const response = await ProjectService.getProject(projectId);
-      return response;
+      try {
+        // Create a timeout promise
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("Request timed out")), 2000);
+        });
+
+        // Race between API call and timeout
+        const response = await Promise.race([
+          ProjectService.getProject(projectId),
+          timeoutPromise,
+        ]);
+
+        return response;
+      } catch (error) {
+        console.warn(
+          "Failed to fetch project detail (or timed out), falling back to mock data:",
+          error,
+        );
+        // Fallback to mock data
+        const mockProject = MOCK_PROJECTS.find(
+          (p) => p.id === Number(projectId),
+        );
+        if (mockProject) {
+          return {
+            ...mockProject,
+            isMock: true,
+          };
+        }
+        throw error;
+      }
     },
     enabled: !!projectId, // projectId가 있을 때만 실행
     staleTime: 3 * 60 * 1000, // 3분 캐시
     retry: (failureCount, error) => {
       // 404나 삭제된 프로젝트는 재시도하지 않음
       if (
-        error?.message?.includes('404') ||
-        error?.message?.includes('존재하지 않습니다') ||
-        error?.message?.includes('삭제된')
+        error?.message?.includes("404") ||
+        error?.message?.includes("존재하지 않습니다") ||
+        error?.message?.includes("삭제된")
       ) {
         return false;
       }
       return failureCount < 2;
     },
-    ...options
+    ...options,
   });
 };
 
@@ -61,7 +90,7 @@ export const useProjectDetail = (projectId, options = {}) => {
  */
 export const useProjectApplicants = (projectId, options = {}) => {
   return useQuery({
-    queryKey: ['projectPage', 'project', projectId, 'applicants'],
+    queryKey: ["projectPage", "project", projectId, "applicants"],
     queryFn: async () => {
       if (!projectId) return [];
 
@@ -74,17 +103,17 @@ export const useProjectApplicants = (projectId, options = {}) => {
     retry: (failureCount, error) => {
       // 인증 에러나 권한 에러는 재시도하지 않음
       if (
-        error?.message?.includes('로그인이 필요합니다') ||
-        error?.message?.includes('401') ||
-        error?.message?.includes('권한이 없습니다') ||
-        error?.message?.includes('403') ||
-        error?.message?.includes('신청자가 없습니다')
+        error?.message?.includes("로그인이 필요합니다") ||
+        error?.message?.includes("401") ||
+        error?.message?.includes("권한이 없습니다") ||
+        error?.message?.includes("403") ||
+        error?.message?.includes("신청자가 없습니다")
       ) {
         return false;
       }
       return failureCount < 1;
     },
-    ...options
+    ...options,
   });
 };
 
@@ -93,7 +122,7 @@ export const useProjectApplicants = (projectId, options = {}) => {
  */
 export const useProjectApplicationStatus = (projectId, options = {}) => {
   return useQuery({
-    queryKey: ['projectPage', 'project', projectId, 'applicationStatus'],
+    queryKey: ["projectPage", "project", projectId, "applicationStatus"],
     queryFn: async () => {
       if (!projectId) return null;
 
@@ -106,22 +135,21 @@ export const useProjectApplicationStatus = (projectId, options = {}) => {
           isAlreadyApplied: project?.isAlreadyApplied || false,
           isFull: project?.isFull || false,
           isExpired: project?.isExpired || false,
-          isOwner: project?.isOwner || false
+          isOwner: project?.isOwner || false,
         };
       } catch (error) {
-        
         return {
           canApply: false,
           isAlreadyApplied: false,
           isFull: false,
           isExpired: false,
-          isOwner: false
+          isOwner: false,
         };
       }
     },
     enabled: !!projectId,
     staleTime: 1 * 60 * 1000, // 1분 캐시 (신청 상태는 자주 변경될 수 있음)
-    ...options
+    ...options,
   });
 };
 
@@ -140,21 +168,30 @@ export const useProjectApplication = () => {
     onMutate: async ({ projectId }) => {
       // 진행 중인 쿼리 취소
       await queryClient.cancelQueries({
-        queryKey: ['projectPage', 'project', projectId]
+        queryKey: ["projectPage", "project", projectId],
       });
 
       // 이전 데이터 백업
-      const previousProject = queryClient.getQueryData(['projectPage', 'project', projectId]);
-      const previousApplicationStatus = queryClient.getQueryData(['projectPage', 'project', projectId, 'applicationStatus']);
+      const previousProject = queryClient.getQueryData([
+        "projectPage",
+        "project",
+        projectId,
+      ]);
+      const previousApplicationStatus = queryClient.getQueryData([
+        "projectPage",
+        "project",
+        projectId,
+        "applicationStatus",
+      ]);
 
       // Optimistic update: 신청 상태 업데이트
       queryClient.setQueryData(
-        ['projectPage', 'project', projectId, 'applicationStatus'],
+        ["projectPage", "project", projectId, "applicationStatus"],
         (oldData) => ({
           ...oldData,
           isAlreadyApplied: true,
-          canApply: false
-        })
+          canApply: false,
+        }),
       );
 
       return { previousProject, previousApplicationStatus };
@@ -163,36 +200,35 @@ export const useProjectApplication = () => {
       // 실패 시 이전 상태로 복원
       if (context?.previousProject) {
         queryClient.setQueryData(
-          ['projectPage', 'project', projectId],
-          context.previousProject
+          ["projectPage", "project", projectId],
+          context.previousProject,
         );
       }
       if (context?.previousApplicationStatus) {
         queryClient.setQueryData(
-          ['projectPage', 'project', projectId, 'applicationStatus'],
-          context.previousApplicationStatus
+          ["projectPage", "project", projectId, "applicationStatus"],
+          context.previousApplicationStatus,
         );
       }
-      
     },
     onSuccess: (result, { projectId }) => {
       // 관련 쿼리들 무효화
       queryClient.invalidateQueries({
-        queryKey: ['projectPage', 'project', projectId],
-        exact: false
+        queryKey: ["projectPage", "project", projectId],
+        exact: false,
       });
 
       // 신청자 목록도 무효화 (팀장이 보는 경우)
       queryClient.invalidateQueries({
-        queryKey: ['projectPage', 'project', projectId, 'applicants']
+        queryKey: ["projectPage", "project", projectId, "applicants"],
       });
 
       // MyProfile의 신청한 프로젝트 목록도 무효화 (사용자별로)
       queryClient.invalidateQueries({
-        queryKey: ['myProfile', 'projects', 'applied'],
-        exact: false
+        queryKey: ["myProfile", "projects", "applied"],
+        exact: false,
       });
-    }
+    },
   });
 };
 
@@ -203,24 +239,30 @@ export const useProjectApplicationCancel = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (projectId) => ProjectService.cancelProjectApplication(projectId),
+    mutationFn: (projectId) =>
+      ProjectService.cancelProjectApplication(projectId),
     onMutate: async (projectId) => {
       // 진행 중인 쿼리 취소
       await queryClient.cancelQueries({
-        queryKey: ['projectPage', 'project', projectId]
+        queryKey: ["projectPage", "project", projectId],
       });
 
       // 이전 데이터 백업
-      const previousApplicationStatus = queryClient.getQueryData(['projectPage', 'project', projectId, 'applicationStatus']);
+      const previousApplicationStatus = queryClient.getQueryData([
+        "projectPage",
+        "project",
+        projectId,
+        "applicationStatus",
+      ]);
 
       // Optimistic update: 신청 취소 상태 업데이트
       queryClient.setQueryData(
-        ['projectPage', 'project', projectId, 'applicationStatus'],
+        ["projectPage", "project", projectId, "applicationStatus"],
         (oldData) => ({
           ...oldData,
           isAlreadyApplied: false,
-          canApply: true
-        })
+          canApply: true,
+        }),
       );
 
       return { previousApplicationStatus };
@@ -229,25 +271,24 @@ export const useProjectApplicationCancel = () => {
       // 실패 시 이전 상태로 복원
       if (context?.previousApplicationStatus) {
         queryClient.setQueryData(
-          ['projectPage', 'project', projectId, 'applicationStatus'],
-          context.previousApplicationStatus
+          ["projectPage", "project", projectId, "applicationStatus"],
+          context.previousApplicationStatus,
         );
       }
-      
     },
     onSuccess: (result, projectId) => {
       // 관련 쿼리들 무효화
       queryClient.invalidateQueries({
-        queryKey: ['projectPage', 'project', projectId],
-        exact: false
+        queryKey: ["projectPage", "project", projectId],
+        exact: false,
       });
 
       // MyProfile의 신청한 프로젝트 목록도 무효화 (사용자별로)
       queryClient.invalidateQueries({
-        queryKey: ['myProfile', 'projects', 'applied'],
-        exact: false
+        queryKey: ["myProfile", "projects", "applied"],
+        exact: false,
       });
-    }
+    },
   });
 };
 
@@ -259,7 +300,7 @@ export const useApplicantDecision = () => {
 
   return useMutation({
     mutationFn: async ({ projectId, applicantId, decision }) => {
-      if (decision === 'approve') {
+      if (decision === "approve") {
         return await ProjectService.approveApplicant(projectId, applicantId);
       } else {
         return await ProjectService.rejectApplicant(projectId, applicantId);
@@ -268,30 +309,35 @@ export const useApplicantDecision = () => {
     onMutate: async ({ projectId, applicantId, decision }) => {
       // 진행 중인 쿼리 취소
       await queryClient.cancelQueries({
-        queryKey: ['projectPage', 'project', projectId, 'applicants']
+        queryKey: ["projectPage", "project", projectId, "applicants"],
       });
 
       // 이전 데이터 백업
-      const previousApplicants = queryClient.getQueryData(['projectPage', 'project', projectId, 'applicants']);
+      const previousApplicants = queryClient.getQueryData([
+        "projectPage",
+        "project",
+        projectId,
+        "applicants",
+      ]);
 
       // Optimistic update: 신청자 목록에서 상태 업데이트 또는 제거
       queryClient.setQueryData(
-        ['projectPage', 'project', projectId, 'applicants'],
+        ["projectPage", "project", projectId, "applicants"],
         (oldData) => {
           if (!oldData) return [];
 
-          if (decision === 'approve') {
+          if (decision === "approve") {
             // 승인 시: 해당 신청자의 상태를 승인으로 변경
-            return oldData.map(applicant =>
+            return oldData.map((applicant) =>
               applicant.id === applicantId
-                ? { ...applicant, status: 'approved' }
-                : applicant
+                ? { ...applicant, status: "approved" }
+                : applicant,
             );
           } else {
             // 거부 시: 신청자 목록에서 제거
-            return oldData.filter(applicant => applicant.id !== applicantId);
+            return oldData.filter((applicant) => applicant.id !== applicantId);
           }
-        }
+        },
       );
 
       return { previousApplicants };
@@ -300,23 +346,22 @@ export const useApplicantDecision = () => {
       // 실패 시 이전 상태로 복원
       if (context?.previousApplicants) {
         queryClient.setQueryData(
-          ['projectPage', 'project', projectId, 'applicants'],
-          context.previousApplicants
+          ["projectPage", "project", projectId, "applicants"],
+          context.previousApplicants,
         );
       }
-      
     },
     onSuccess: (result, { projectId }) => {
       // 신청자 목록 무효화
       queryClient.invalidateQueries({
-        queryKey: ['projectPage', 'project', projectId, 'applicants']
+        queryKey: ["projectPage", "project", projectId, "applicants"],
       });
 
       // 프로젝트 상세 정보도 무효화 (참여자 수 변경 가능)
       queryClient.invalidateQueries({
-        queryKey: ['projectPage', 'project', projectId]
+        queryKey: ["projectPage", "project", projectId],
       });
-    }
+    },
   });
 };
 
@@ -329,11 +374,12 @@ export const useProjectPageData = (projectId) => {
   const projectQuery = useProjectDetail(projectId);
   const applicationStatusQuery = useProjectApplicationStatus(projectId);
   const applicantsQuery = useProjectApplicants(projectId, {
-    enabled: !!projectId && projectQuery.data?.isOwner
+    enabled: !!projectId && projectQuery.data?.isOwner,
   });
 
   const isLoading = projectQuery.isLoading || applicationStatusQuery.isLoading;
-  const error = projectQuery.error || applicationStatusQuery.error || applicantsQuery.error;
+  const error =
+    projectQuery.error || applicationStatusQuery.error || applicantsQuery.error;
 
   return {
     // 데이터
@@ -363,7 +409,7 @@ export const useProjectPageData = (projectId) => {
       if (projectQuery.data?.isOwner) {
         applicantsQuery.refetch();
       }
-    }
+    },
   };
 };
 
@@ -410,6 +456,6 @@ export const useProjectPageActions = () => {
       applicationMutation.reset();
       cancelMutation.reset();
       decisionMutation.reset();
-    }
+    },
   };
 };

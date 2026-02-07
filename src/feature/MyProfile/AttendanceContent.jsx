@@ -1,50 +1,58 @@
-import { useState, useCallback } from 'react';
-import { CalendarIcon } from '@heroicons/react/24/outline';
-import Button from '../../ui/Button';
-import AttendanceStars from './AttendanceStars';
-import DatePickerModal from './Study/DatePickerModal';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { MOCK_ATTENDANCE } from '../../services/profile/mockProfileData.js';
+import AttendanceCalendar from './AttendanceCalendar';
 
 export default function AttendanceContent() {
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  // Use Dec 2025 mock data
+  const { checkedDates, today, month, year } = MOCK_ATTENDANCE["2025-12"];
+  
+  // Demo State for "Study Completed"
+  const [isStudyCompleted, setIsStudyCompleted] = useState(false);
 
-  // 콜백으로 성능 최적화
-  const handleCalendarClick = useCallback(() => {
-    setIsDatePickerOpen(true);
-  }, []);
-
-  const closeDatePicker = useCallback(() => {
-    setIsDatePickerOpen(false);
-  }, []);
+  // If completed, increment count
+  const attendedCount = isStudyCompleted ? checkedDates.length + 1 : checkedDates.length;
+  // If completed, add today to checked dates for visualization
+  const currentCheckedDates = isStudyCompleted ? [...checkedDates, today] : checkedDates;
 
   return (
-    <div className="bg-white py-6 px-7 min-h-[500px]">
-      {/* 헤더 영역 - 오른쪽 정렬 */}
-      <div className="flex justify-end items-center mb-12">
-        {/* 달력 버튼 - 오른쪽에 배치 */}
-        <Button
-          variant="secondary"
-          onClick={handleCalendarClick}
-          className="!rounded-full !w-10 !h-10 !p-0 flex items-center justify-center"
-          title="달력 보기"
-          style={{
-            minWidth: '40px',
-            minHeight: '40px',
-            width: '40px',
-            height: '40px',
-          }}
+    <div className="bg-white min-h-[500px] flex flex-col items-center pt-8 relative">
+      {/* Demo Toggle Button (dev only) */}
+      <div className="absolute top-0 right-0 p-2 opacity-50 hover:opacity-100 transition-opacity">
+        <button 
+          onClick={() => setIsStudyCompleted(!isStudyCompleted)}
+          className="bg-gray-200 text-xs px-2 py-1 rounded"
         >
-          <CalendarIcon className="w-5 h-5" />
-        </Button>
+          {isStudyCompleted ? "Reset Demo" : "Simulate Complete"}
+        </button>
       </div>
 
-      {/* 출석 별 표시 */}
-      <AttendanceStars />
+      {/* 1. Header Texts */}
+      <h3 className="text-xl text-gray-900 mb-6 font-medium">
+        {isStudyCompleted ? (
+             <>
+                오늘의 <Link to="/write" className="font-bold underline decoration-pink-500 underline-offset-4 text-gray-900 cursor-pointer hover:text-pink-600 transition-colors">스터디</Link> 기록완료
+             </>
+        ) : (
+             <>
+                오늘의 <Link to="/write" className="font-bold underline decoration-pink-500 underline-offset-4 text-gray-900 cursor-pointer hover:text-pink-600 transition-colors">스터디</Link>를 기록해주세요.
+             </>
+        )}
+      </h3>
+      
+      <p className="text-gray-900 mb-12 font-medium">
+        이번달 출석횟수 : <span className="text-[#FF4081] font-bold">{attendedCount}회</span>
+      </p>
 
-      {/* 달력 모달 */}
-      <DatePickerModal
-        isOpen={isDatePickerOpen}
-        onClose={closeDatePicker}
-      />
+      {/* 2. Calendar */}
+      <div className="w-full px-4">
+        <AttendanceCalendar 
+          year={year} 
+          month={month} 
+          checkedDates={currentCheckedDates}
+          today={today}
+        />
+      </div>
     </div>
   );
 }

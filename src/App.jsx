@@ -18,6 +18,7 @@ const ProjectPageLayout = lazy(() => import("./feature/ProjectPage/ProjectPageLa
 const ProjectsPage = lazy(() => import("./feature/ProjectsPage/ProjectsPage.jsx"))
 const WritePageLayout = lazy(() => import("./feature/WritePage/WritePageLayout.jsx"))
 const MyProfileLayout = lazy(() => import("./feature/MyProfile/MyProfileLayout.jsx"))
+const StudyMembersPage = lazy(() => import("./feature/MainHome/StudyMembersPage.jsx"))
 const AdminPageLayout = lazy(() => import("./feature/admin/AdminPageLayout.jsx"))
 
 // Admin 페이지 컴포넌트들
@@ -48,6 +49,7 @@ const router = createBrowserRouter([
       { path: "/resetpassword", element: <Suspense fallback={<LoadingFallback />}><ResetPassword /></Suspense> },
       { path: "/successresetpassword", element: <Suspense fallback={<LoadingFallback />}><SuccessResetPassword /></Suspense> },
       { path: "/study/:userId", element: <Suspense fallback={<LoadingFallback />}><StudyChannelPage /></Suspense> },
+      { path: "/studies", element: <Suspense fallback={<LoadingFallback />}><StudyMembersPage /></Suspense> },
       { path: "/projects", element: <Suspense fallback={<LoadingFallback />}><ProjectsPage /></Suspense> },
       { path: "/project/:projectId", element: <Suspense fallback={<LoadingFallback />}><ProjectPageLayout /></Suspense> },
       { path: "/write", element: <Suspense fallback={<LoadingFallback />}><WritePageLayout /></Suspense> },
