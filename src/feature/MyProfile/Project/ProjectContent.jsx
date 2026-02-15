@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { MOCK_MY_PROJECTS } from "../../../services/profile/mockProfileData.js";
+import { MOCK_MY_PROJECTS } from "../../../mock/profile.js";
 import MyProjectCard from "./MyProjectCard";
 import ProjectCreateForm from "./ProjectCreateForm";
 
@@ -36,7 +36,7 @@ export default function ProjectContent() {
         <section>
           <h2 className="text-lg font-bold text-gray-900 mb-6">관심 프로젝트</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MOCK_MY_PROJECTS.interested.map(project => (
+            {MOCK_MY_PROJECTS.interested?.map(project => (
                 <MyProjectCard key={project.id} project={project} type="interested" />
             ))}
           </div>
@@ -46,7 +46,7 @@ export default function ProjectContent() {
         <section>
           <h2 className="text-lg font-bold text-gray-900 mb-6">신청 프로젝트</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MOCK_MY_PROJECTS.applied.map(project => (
+            {MOCK_MY_PROJECTS.applied?.map(project => (
                 <MyProjectCard key={project.id} project={project} type="applied" />
             ))}
             {/* Empty state specifically for applied if empty? No, mock has data */}
@@ -58,7 +58,7 @@ export default function ProjectContent() {
           <h2 className="text-lg font-bold text-gray-900 mb-6">진행 프로젝트</h2>
           {MOCK_MY_PROJECTS.ongoing.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                 {MOCK_MY_PROJECTS.ongoing.map(project => (
+                 {MOCK_MY_PROJECTS.ongoing?.map(project => (
                     <MyProjectCard key={project.id} project={project} type="ongoing" />
                 ))}
             </div>
@@ -74,7 +74,7 @@ export default function ProjectContent() {
           <h2 className="text-lg font-bold text-gray-900 mb-6">완료 프로젝트</h2>
           {MOCK_MY_PROJECTS.completed.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                 {MOCK_MY_PROJECTS.completed.map(project => (
+                 {MOCK_MY_PROJECTS.completed?.map(project => (
                     <MyProjectCard key={project.id} project={project} type="completed" />
                 ))}
             </div>

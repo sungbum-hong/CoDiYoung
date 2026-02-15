@@ -1,112 +1,100 @@
-import { create } from 'zustand';
-import { AuthService } from '../services/authService.js';
+import { create } from "zustand";
 
 const useAuthStore = create((set, get) => ({
   // === 인증 상태 ===
-  isAuthenticated: false,
-  user: null,
+  isAuthenticated: true, // 목업: 기본 로그인 상태
+  user: {
+    id: 1,
+    email: "mock@example.com",
+    name: "Mock User",
+    role: "USER",
+  },
   isLoading: false,
   error: null,
 
   // === 로그인 폼 상태 ===
-  email: '',
-  password: '',
-  emailError: '',
-  passwordError: '',
+  email: "",
+  password: "",
+  emailError: "",
+  passwordError: "",
 
   // === 비밀번호 재설정 상태 ===
-  verificationCode: '',
-  newPassword: '',
-  confirmPassword: '',
+  verificationCode: "",
+  newPassword: "",
+  confirmPassword: "",
   isCodeSent: false,
-  verificationCodeError: '',
-  newPasswordError: '',
-  confirmPasswordError: '',
+  verificationCodeError: "",
+  newPasswordError: "",
+  confirmPasswordError: "",
 
   // === 인증 액션 ===
   setLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error }),
   clearError: () => set({ error: null }),
-  setUser: (user) => set({
-    isAuthenticated: true,
-    user,
-    isLoading: false,
-    error: null
-  }),
+  setUser: (user) =>
+    set({
+      isAuthenticated: true,
+      user,
+      isLoading: false,
+      error: null,
+    }),
 
-  // 로그인
+  // 로그인 (목업)
   login: async (email, password) => {
     set({ isLoading: true, error: null });
 
-    try {
-      const user = await AuthService.login(email, password);
-      set({
-        isAuthenticated: true,
-        user,
-        isLoading: false,
-        error: null
-      });
-      return { success: true, user };
-    } catch (error) {
-      set({
-        isAuthenticated: false,
-        user: null,
-        isLoading: false,
-        error: error.message
-      });
-      return { success: false, error: error.message };
-    }
+    // 심플한 목업 로그인 지연
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const mockUser = {
+      id: 1,
+      email: email,
+      name: "Mock User",
+      role: "USER",
+    };
+
+    set({
+      isAuthenticated: true,
+      user: mockUser,
+      isLoading: false,
+      error: null,
+    });
+    return { success: true, user: mockUser };
   },
 
-  // 로그아웃
+  // 로그아웃 (목업)
   logout: async () => {
     set({ isLoading: true });
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
-    try {
-      await AuthService.logout();
-
-      // admin 토큰 및 정보도 함께 정리
-      localStorage.removeItem("admin_access_token");
-      localStorage.removeItem("admin_user_info");
-
-      set({
-        isAuthenticated: false,
-        user: null,
-        isLoading: false,
-        error: null
-      });
-      return { success: true };
-    } catch (error) {
-      // 에러가 발생해도 로컬 토큰은 정리
-      localStorage.removeItem("admin_access_token");
-      localStorage.removeItem("admin_user_info");
-
-      set({
-        isAuthenticated: false,
-        user: null,
-        error: error.message,
-        isLoading: false
-      });
-      return { success: false, error: error.message };
-    }
+    set({
+      isAuthenticated: false,
+      user: null,
+      isLoading: false,
+      error: null,
+    });
+    return { success: true };
   },
 
-  // 프로필 로드
+  // 프로필 로드 (목업)
   loadProfile: async () => {
     set({ isLoading: true, error: null });
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
-    try {
-      const profile = await AuthService.getMyProfile();
-      set({
-        isAuthenticated: true,
-        user: profile,
-        isLoading: false
-      });
-      return { success: true, profile };
-    } catch (error) {
-      set({ error: error.message, isLoading: false });
-      return { success: false, error: error.message };
-    }
+    const profile = {
+      id: 1,
+      name: "Mock User",
+      email: "mock@example.com",
+      nickName: "Mock Nickname",
+      imageKey: "https://api.dicebear.com/9.x/avataaars/svg?seed=Felix",
+    };
+
+    set({
+      isAuthenticated: true,
+      user: profile,
+      isLoading: false,
+    });
+    return { success: true, profile };
   },
 
   // === 로그인 폼 액션 ===
@@ -125,79 +113,58 @@ const useAuthStore = create((set, get) => ({
   setCodeSent: (sent) => set({ isCodeSent: sent }),
 
   // === 초기화 액션 ===
-  resetState: () => set({
-    isAuthenticated: false,
-    user: null,
-    isLoading: false,
-    error: null,
-    email: '',
-    password: '',
-    emailError: '',
-    passwordError: '',
-    verificationCode: '',
-    newPassword: '',
-    confirmPassword: '',
-    isCodeSent: false,
-    verificationCodeError: '',
-    newPasswordError: '',
-    confirmPasswordError: '',
-  }),
+  resetState: () =>
+    set({
+      isAuthenticated: false,
+      user: null,
+      isLoading: false,
+      error: null,
+      email: "",
+      password: "",
+      emailError: "",
+      passwordError: "",
+      verificationCode: "",
+      newPassword: "",
+      confirmPassword: "",
+      isCodeSent: false,
+      verificationCodeError: "",
+      newPasswordError: "",
+      confirmPasswordError: "",
+    }),
 
-  resetErrors: () => set({
-    error: null,
-    emailError: '',
-    passwordError: '',
-    verificationCodeError: '',
-    newPasswordError: '',
-    confirmPasswordError: '',
-  }),
+  resetErrors: () =>
+    set({
+      error: null,
+      emailError: "",
+      passwordError: "",
+      verificationCodeError: "",
+      newPasswordError: "",
+      confirmPasswordError: "",
+    }),
 
-  resetForm: () => set({
-    email: '',
-    password: '',
-    emailError: '',
-    passwordError: '',
-  }),
+  resetForm: () =>
+    set({
+      email: "",
+      password: "",
+      emailError: "",
+      passwordError: "",
+    }),
 
-  resetPasswordResetState: () => set({
-    verificationCode: '',
-    newPassword: '',
-    confirmPassword: '',
-    isCodeSent: false,
-    verificationCodeError: '',
-    newPasswordError: '',
-    confirmPasswordError: '',
-  }),
+  resetPasswordResetState: () =>
+    set({
+      verificationCode: "",
+      newPassword: "",
+      confirmPassword: "",
+      isCodeSent: false,
+      verificationCodeError: "",
+      newPasswordError: "",
+      confirmPasswordError: "",
+    }),
 
-  // === 초기화 (앱 시작 시 로그인 상태 확인) ===
+  // === 초기화 (앱 시작 시 로그인 상태 확인 - 목업은 항상 true 또는 로컬 스토리지 체크 흉내) ===
   initialize: () => {
-    // 일반 사용자 로그인 확인
-    const currentUser = AuthService.getCurrentUser();
-    if (currentUser) {
-      set({
-        isAuthenticated: true,
-        user: currentUser
-      });
-      return;
-    }
-
-    // admin 토큰 확인
-    const adminToken = localStorage.getItem("admin_access_token");
-    const adminUserInfo = localStorage.getItem("admin_user_info");
-
-    if (adminToken && adminUserInfo) {
-      try {
-        const adminUser = JSON.parse(adminUserInfo);
-        set({
-          isAuthenticated: true,
-          user: { ...adminUser, isAdmin: true, role: 'ADMIN' }
-        });
-      } catch (error) {
-        // admin 정보 파싱 실패 시 정리
-        localStorage.removeItem("admin_access_token");
-        localStorage.removeItem("admin_user_info");
-      }
-    }
+    // 목업: 항상 로그인 상태 유지하거나, 필요 시 false로 변경 가능
+    // 여기서는 기본값을 true로 설정해둠
   },
 }));
 

@@ -30,3 +30,25 @@ export const STUDY_MEMBERS = [
     introduction: "협업 경험 다수 있습니다.",
   },
 ];
+
+export const MOCK_GROUPED_STUDIES = {
+  coding: {
+    content: STUDY_MEMBERS.filter((m) => m.category === "코딩").map((m) => ({
+      userId: m.id,
+      userImage: null,
+      ...m,
+    })),
+  },
+  design: {
+    content: STUDY_MEMBERS.filter((m) => m.category === "디자인").map((m) => ({
+      userId: m.id,
+      userImage: null,
+      ...m,
+    })),
+  },
+  video: {
+    content: STUDY_MEMBERS.filter((m) => m.category === "영상편집").map(
+      (m) => ({ userId: m.id, userImage: null, ...m }),
+    ),
+  },
+};

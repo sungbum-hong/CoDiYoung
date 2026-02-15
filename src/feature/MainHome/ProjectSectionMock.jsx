@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import ProjectCard from "./components/ProjectCard.jsx";
-import { MOCK_PROJECTS } from "../../services/project/mockProjectData.js";
+import { MOCK_PROJECTS } from "../../mock/projects.js";
 
 export default function ProjectSectionMock() {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = router.push;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTech, setSelectedTech] = useState(null);
   const [selectedPosition, setSelectedPosition] = useState(null);

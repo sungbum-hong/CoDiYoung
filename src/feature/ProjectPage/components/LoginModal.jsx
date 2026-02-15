@@ -1,13 +1,13 @@
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from "next/navigation";
 import BaseModal from '../../../ui/BaseModal.jsx';
 import Button from '../../../ui/Button.jsx';
 
 export default function LoginModal({ onClose, onProviderLogin }) {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const goLogin = () => {
     onClose?.();
-    navigate('/signin'); // 로그인 페이지 경로
+    router.push('/signin'); // 로그인 페이지 경로
   };
 
   const handleProvider = (provider) => {

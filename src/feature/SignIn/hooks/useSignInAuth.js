@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import useAuthStore from "../../../stores/authStore.js";
 import { ROUTES } from "../../../constants/routes.js";
 
 export function useSignInAuth() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const login = useAuthStore((state) => state.login);
   const isLoading = useAuthStore((state) => state.isLoading);
 
@@ -11,7 +11,7 @@ export function useSignInAuth() {
     try {
       const result = await login(email, password);
       if (result.success) {
-        navigate(ROUTES.HOME);
+        router.push(ROUTES.HOME);
         onClose?.();
       }
     } catch (error) {
@@ -21,12 +21,12 @@ export function useSignInAuth() {
 
   const handleFindPassword = (resetErrors) => {
     resetErrors();
-    navigate(ROUTES.FIND_PASSWORD);
+    router.push(ROUTES.FIND_PASSWORD);
   };
 
   return {
     isLoading,
     handleLogin,
-    handleFindPassword
+    handleFindPassword,
   };
 }

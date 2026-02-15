@@ -1,4 +1,6 @@
-import { useParams } from "react-router-dom";
+"use client";
+
+import { useParams } from "next/navigation";
 import ProjectCard from "./ProjectCard.jsx";
 import { useProjectDetail } from "./hooks/useProjectDetail.js";
 

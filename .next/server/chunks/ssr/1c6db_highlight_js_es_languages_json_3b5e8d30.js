@@ -1,0 +1,3 @@
+module.exports=[77586,a=>{"use strict";function b(a){let b=["true","false","null"],c={scope:"literal",beginKeywords:b.join(" ")};return{name:"JSON",aliases:["jsonc"],keywords:{literal:b},contains:[{className:"attr",begin:/"(\\.|[^\\"\r\n])*"(?=\s*:)/,relevance:1.01},{match:/[{}[\],:]/,className:"punctuation",relevance:0},a.QUOTE_STRING_MODE,c,a.C_NUMBER_MODE,a.C_LINE_COMMENT_MODE,a.C_BLOCK_COMMENT_MODE],illegal:"\\S"}}a.s(["default",()=>b])}];
+
+//# sourceMappingURL=1c6db_highlight_js_es_languages_json_3b5e8d30.js.map

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { MOCK_ATTENDANCE } from '../../services/profile/mockProfileData.js';
+import Link from 'next/link';
+import { MOCK_ATTENDANCE } from '../../mock/profile.js';
 import AttendanceCalendar from './AttendanceCalendar';
 
 export default function AttendanceContent() {
@@ -31,11 +31,11 @@ export default function AttendanceContent() {
       <h3 className="text-xl text-gray-900 mb-6 font-medium">
         {isStudyCompleted ? (
              <>
-                오늘의 <Link to="/write" className="font-bold underline decoration-pink-500 underline-offset-4 text-gray-900 cursor-pointer hover:text-pink-600 transition-colors">스터디</Link> 기록완료
+                오늘의 <Link href="/write" className="font-bold underline decoration-pink-500 underline-offset-4 text-gray-900 cursor-pointer hover:text-pink-600 transition-colors">스터디</Link> 기록완료
              </>
         ) : (
              <>
-                오늘의 <Link to="/write" className="font-bold underline decoration-pink-500 underline-offset-4 text-gray-900 cursor-pointer hover:text-pink-600 transition-colors">스터디</Link>를 기록해주세요.
+                오늘의 <Link href="/write" className="font-bold underline decoration-pink-500 underline-offset-4 text-gray-900 cursor-pointer hover:text-pink-600 transition-colors">스터디</Link>를 기록해주세요.
              </>
         )}
       </h3>

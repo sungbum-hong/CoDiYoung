@@ -1,3 +1,4 @@
+"use client";
 
 import AuthStatusBar from "./AuthStatusBar.jsx";
 

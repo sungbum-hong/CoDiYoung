@@ -1,5 +1,7 @@
-import TiptapEditor from './TiptapEditor';
+import dynamic from 'next/dynamic';
 import { forwardRef, useImperativeHandle } from 'react';
+
+const TiptapEditor = dynamic(() => import('./TiptapEditor'), { ssr: false });
 
 const WriteForm = forwardRef(({ title, setTitle, content, setContent, isLoading, onSave, showToolbar = true, readOnly = false }, ref) => {
 

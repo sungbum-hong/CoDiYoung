@@ -130,7 +130,7 @@ export const CONFIG = {
 
   // API 엔드포인트 설정
   API: {
-    BASE_URL: import.meta.env.VITE_BASE_URL,
+    BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
     AUTH: {
       LOGIN: "/api/auth/login",
       LOGOUT: "/api/auth/logout",
