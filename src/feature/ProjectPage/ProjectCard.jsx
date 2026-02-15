@@ -1,5 +1,5 @@
 
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import Avatar from "./Avatar.jsx";
 import ApplicationModal from "./components/ApplicationModal.jsx";
 import LoginModal from "./components/LoginModal.jsx";
@@ -10,7 +10,7 @@ import { useAuthState } from "../../hooks/useAuth.js";
 import { useState } from "react";
 
 export default function ProjectCard({ project }) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const { isAuthenticated } = useAuthState();
@@ -49,7 +49,7 @@ export default function ProjectCard({ project }) {
       {/* 1. Top Navigation & Title Section */}
       <div className="mb-10">
         <button 
-          onClick={() => navigate(-1)}
+          onClick={() => router.back()}
           className="mb-8 text-gray-500 hover:text-gray-900 transition-colors"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

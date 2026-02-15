@@ -1,40 +1,15 @@
-import useAuthStore from '../stores/authStore.js';
-import { CONFIG } from '../constants/config.js';
+import useAuthStore from "../stores/authStore.js";
 
-export function useAuthActions() {
-  const setUser = useAuthStore((state) => state.setUser);
-  const logout = useAuthStore((state) => state.logout);
-  const resetState = useAuthStore((state) => state.resetState);
+export const useAuthState = () => {
+  const { isAuthenticated, user, isLoading, error } = useAuthStore();
+  return { isAuthenticated, user, isLoading, error };
+};
 
-  const loginWithTestData = () => {
-    setUser(CONFIG.TEST_USER);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-  };
-
-  const resetAuthState = () => {
-    resetState();
-  };
-
+export const useAuthActions = () => {
+  const { login, logout, loadProfile } = useAuthStore();
   return {
-    loginWithTestData,
-    handleLogout,
-    resetAuthState
+    handleLogin: login,
+    handleLogout: logout,
+    fetchProfile: loadProfile,
   };
-}
-
-export function useAuthState() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const user = useAuthStore((state) => state.user);
-  const isLoading = useAuthStore((state) => state.isLoading);
-  const error = useAuthStore((state) => state.error);
-
-  return {
-    isAuthenticated,
-    user,
-    isLoading,
-    error
-  };
-}
+};

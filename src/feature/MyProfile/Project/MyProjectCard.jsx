@@ -27,7 +27,7 @@ const MyProjectCard = ({ project, type }) => {
 
       {/* 2. Tags */}
       <div className="flex gap-2 mb-4">
-        {project.positions.map((pos) => (
+        {project.positions?.map((pos) => (
             <span key={pos} className={`px-2 py-0.5 rounded text-[10px] font-medium border
                 ${pos === '디자이너' ? 'text-yellow-600 bg-yellow-50 border-yellow-100' : ''}
                 ${pos === '백엔드' ? 'text-pink-600 bg-pink-50 border-pink-100' : ''}

@@ -8,7 +8,7 @@ import { useSignInForm } from "./hooks/useSignInForm.js";
 import { useSignInAuth } from "./hooks/useSignInAuth.js";
 
 
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function SignInPage({ onClose }) {
   const {
@@ -37,7 +37,7 @@ export default function SignInPage({ onClose }) {
         <div className="flex flex-col items-center mb-10">
           {/* Logo */}
           <div className="mb-4">
-            <Link to="/">
+            <Link href="/">
               <img 
                 src="/cdylogo.png" 
                 alt="CoDiYoung Logo" 

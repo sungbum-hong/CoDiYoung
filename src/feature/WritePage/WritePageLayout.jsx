@@ -1,6 +1,7 @@
+"use client";
 
 import { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from "next/navigation";
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 
 // 훅들 import
@@ -13,7 +14,7 @@ import RecordModal from './components/RecordModal.jsx';
 import ConfirmModal from './components/ConfirmModal.jsx';
 
 export default function WritePageLayout() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const writeFormRef = useRef(null);
   const {
     title,
@@ -47,7 +48,7 @@ export default function WritePageLayout() {
       <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
         {/* Back Button */}
         <button 
-            onClick={() => navigate(-1)}
+            onClick={() => router.back()}
             className="p-1 hover:bg-gray-100 rounded-full transition-colors"
         >
             <ChevronLeftIcon className="w-6 h-6 text-gray-600" />

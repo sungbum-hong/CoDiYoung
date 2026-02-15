@@ -1,12 +1,12 @@
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { COLORS } from "../../constants/colors.js";
 import { useAvatarGeneration } from "../../hooks/useAvatarGeneration.js";
 import { useStudyNavigation } from "./hooks/useStudyNavigation.js";
 import { useCategoryConfig } from "./hooks/useCategoryConfig.js";
 import { useAuthState } from "../../hooks/useAuth.js";
 import CategoryCard from "./components/CategoryCard.jsx";
-import { MOCK_GROUPED_STUDIES } from "../../services/study/mockStudyData.js";
+import { MOCK_GROUPED_STUDIES } from "../../mock/studyMembers.js";
 
 export default function StudyCategoryMock() {
   const title = "코디영 스터디 회원";
@@ -32,7 +32,7 @@ export default function StudyCategoryMock() {
 
   // 인증 상태 확인
   const { isAuthenticated } = useAuthState();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   // 스크롤 핸들러
   const scrollRefs = useRef({});
@@ -59,7 +59,7 @@ export default function StudyCategoryMock() {
         <div className="flex items-center justify-between mb-8 border-b border-gray-100 pb-4">
           <h2 className="font-bold text-2xl text-gray-900">{title}</h2>
           <button 
-            onClick={() => navigate('/studies')}
+            onClick={() => router.push('/studies')}
             className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded hover:bg-gray-50 transition-colors"
           >
             모두 보기

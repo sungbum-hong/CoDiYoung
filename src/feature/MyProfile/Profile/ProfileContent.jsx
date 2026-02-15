@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { MOCK_PROFILE, STUDY_FIELDS } from '../../../services/profile/mockProfileData.js';
+import { MOCK_PROFILE, STUDY_FIELDS } from '../../../mock/profile.js';
 
 export default function ProfileContent() {
   const [formData, setFormData] = useState({
@@ -45,7 +45,7 @@ export default function ProfileContent() {
             onChange={(e) => handleChange('studyField', e.target.value)}
             className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm appearance-none focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all bg-white"
           >
-            {STUDY_FIELDS.map(field => (
+            {STUDY_FIELDS?.map(field => (
                 <option key={field} value={field}>{field}</option>
             ))}
           </select>

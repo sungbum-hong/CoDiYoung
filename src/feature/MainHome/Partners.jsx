@@ -1,5 +1,5 @@
 import { CONFIG } from '../../constants/config.js';
-import { MOCK_PARTNERS } from '../../services/home/mockPartnerData.js';
+import { MOCK_PARTNERS } from '../../mock/home.js';
 
 export default function Partners() {
   const partners = MOCK_PARTNERS;

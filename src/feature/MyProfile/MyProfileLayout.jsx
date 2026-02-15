@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { MESSAGES } from '../../constants/messages';
 import { COLORS } from '../../constants/colors.js';
-import { MOCK_PROFILE } from '../../services/profile/mockProfileData.js';
+import { MOCK_PROFILE } from '../../mock/profile.js';
 import ProfileContent from './Profile/ProfileContent';
 import StudyContent from './Study/StudyContent';
 import ProjectContent from './Project/ProjectContent';
@@ -60,7 +60,7 @@ export default function MyProfileLayout() {
         <div className="flex flex-col items-center gap-2 mb-4">
              <h2 className="text-xl font-bold text-gray-900">{MOCK_PROFILE.user.nickname}</h2>
              <div className="flex gap-2">
-                 {MOCK_PROFILE.user.tags.map(tag => (
+                 {MOCK_PROFILE.user.tags?.map(tag => (
                      <span key={tag} className="px-3 py-1 rounded-lg border border-purple-500 text-purple-600 text-xs font-medium">
                          {tag}
                      </span>

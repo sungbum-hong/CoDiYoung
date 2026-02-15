@@ -1,54 +1,36 @@
+"use client";
+
 import { useRef, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from "next/navigation";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 import { useAuthState, useAuthActions } from '../hooks/useAuth';
 import useAuthStore from '../stores/authStore.js';
-import { UserProfileService } from '../services/userProfile/UserProfileService.js';
 import { ROUTES } from '../constants/routes.js';
 import { MESSAGES } from '../constants/messages.js';
-
 export default function UserProfile() {
   const dropdownRef = useRef(null);
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user } = useAuthState();
   const { handleLogout } = useAuthActions();
   const resetState = useAuthStore((state) => state.resetState);
   const [profileImage, setProfileImage] = useState(null);
   const [nickname, setNickname] = useState('');
 
-  // 프로필 정보 로드
+  // 프로필 정보 로드 (Mock)
   useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const profileData = await UserProfileService.getMyProfile();
-        if (profileData.imageKey) {
-          // imageKey가 이미 완전한 URL인지 확인
-          if (profileData.imageKey.startsWith('http')) {
-            setProfileImage(profileData.imageKey);
-          } else {
-            const imageUrl = await UserProfileService.getImageUrl(profileData.imageKey);
-            setProfileImage(imageUrl);
-          }
-        }
-        if (profileData.nickName) {
-          setNickname(profileData.nickName);
-        }
-      } catch (error) {
-        // 헤더 프로필 정보 로드 실패
-      }
-    };
-
-    loadProfile();
+    // Mock data for profile
+    setProfileImage("https://api.dicebear.com/9.x/avataaars/svg?seed=Felix");
+    setNickname("Mock User");
   }, []);
 
   const onLogout = async () => {
     await handleLogout();
     resetState(); // 폼 상태 초기화 (이메일, 비밀번호 등)
-    navigate(ROUTES.HOME);
+    router.push(ROUTES.HOME);
   };
 
   const onProfileClick = () => {
-    navigate(ROUTES.PROFILE);
+    router.push(ROUTES.PROFILE);
   };
 
   return (

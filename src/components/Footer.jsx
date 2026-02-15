@@ -1,6 +1,6 @@
 import { COLORS } from "../constants/colors.js";
 import { FaInstagram } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -21,11 +21,11 @@ export default function Footer() {
           
           {/* Legal Links */}
           <div className="flex items-center gap-3 text-sm font-bold text-gray-800 mt-2">
-            <Link to="/terms" className="hover:text-purple-600 transition-colors">
+            <Link href="/terms" className="hover:text-purple-600 transition-colors">
               이용약관
             </Link>
             <span className="text-gray-300">|</span>
-            <Link to="/privacy" className="hover:text-purple-600 transition-colors">
+            <Link href="/privacy" className="hover:text-purple-600 transition-colors">
               개인정보처리방침
             </Link>
           </div>
@@ -48,10 +48,10 @@ export default function Footer() {
             <a href="https://open.kakao.com/o/sNuPVDLh" target="_blank" rel="noopener noreferrer" className="hover:text-purple-600 transition-colors">
               신청하기
             </a>
-            <Link to="/ads" className="hover:text-purple-600 transition-colors">
+            <Link href="/ads" className="hover:text-purple-600 transition-colors">
               광고/외주
             </Link>
-            <Link to="/about/made-us" className="hover:text-purple-600 transition-colors">
+            <Link href="/about/made-us" className="hover:text-purple-600 transition-colors">
               Made by Us
             </Link>
           </div>

@@ -1,35 +1,44 @@
-import { ImageService } from '../../../services/imageService.js';
-import { validateFileUpload } from '../utils/sanitizer.js';
+// import { ImageService } from "../../../services/imageService.js";
+import { validateFileUpload } from "../utils/sanitizer.js";
 
 export const useImageUpload = (editor) => {
   const handleImageClick = async () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+
     input.onchange = async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
 
       try {
         validateFileUpload(file);
-        
-        const imageKey = await ImageService.uploadImage(file);
-        const imageUrl = await ImageService.getImageUrl(imageKey);
+
+        // Mock upload delay
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Mock image URL (using dicebear for random avatar as placeholder or just a placeholder image)
+        const imageUrl = `https://placehold.co/600x400?text=${encodeURIComponent(file.name)}`;
+        const imageKey = `mock-key-${Date.now()}`;
+
         const imageData = { url: imageUrl, key: imageKey };
         if (imageData.url) {
-          editor.chain().focus().setImage({ 
-            src: imageData.url,
-            'data-id': imageData.id || 0,
-            'data-key': imageData.key || imageData.url,
-            alt: file.name.replace(/\.[^/.]+$/, ''),
-            title: file.name
-          }).run();
+          editor
+            .chain()
+            .focus()
+            .setImage({
+              src: imageData.url,
+              "data-id": imageData.id || 0,
+              "data-key": imageData.key || imageData.url,
+              alt: file.name.replace(/\.[^/.]+$/, ""),
+              title: file.name,
+            })
+            .run();
         }
       } catch (error) {
-        const errorMessage = error.message || '이미지 업로드에 실패했습니다';
-        
-        const notification = document.createElement('div');
+        const errorMessage = error.message || "이미지 업로드에 실패했습니다";
+
+        const notification = document.createElement("div");
         notification.style.cssText = `
           position: fixed;
           top: 20px;
@@ -43,23 +52,21 @@ export const useImageUpload = (editor) => {
           box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         `;
         notification.textContent = errorMessage;
-        
+
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
           if (notification.parentNode) {
             notification.parentNode.removeChild(notification);
           }
         }, 5000);
-        
-        // Silent error handling
       }
     };
-    
+
     input.click();
   };
 
   return {
-    handleImageClick
+    handleImageClick,
   };
 };

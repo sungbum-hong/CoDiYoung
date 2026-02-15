@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { ROUTES } from "../../../constants/routes.js";
 
 export function useProjectModal() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
 
@@ -17,7 +17,7 @@ export function useProjectModal() {
   };
 
   const handleMoreClick = () => {
-    navigate(ROUTES.PROJECTS);
+    router.push(ROUTES.PROJECTS);
   };
 
   const onCardKeyDown = (e, projectId) => {

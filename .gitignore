@@ -70,3 +70,4 @@ temp/
 
 # Local development
 .claude/
+.next/
