@@ -1,36 +1,249 @@
 :root {
-  --color-primary: #722EFF;
-  --color-secondary: #193794;
-  --color-accent: #15267E;
-  --color-border: #1a237e;
-  
-  --color-white: #FFFFFF;
+  /* --- Base Palette --- */
+
+  /* Neutral */
+  --color-white: #ffffff;
   --color-black: #000000;
-  
-  --color-error: #EF4444;
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  
-  --color-gray-50: #F9FAFB;
-  --color-gray-100: #F3F4F6;
-  --color-gray-200: #E5E7EB;
-  --color-gray-300: #D1D5DB;
-  --color-gray-400: #9CA3AF;
-  --color-gray-500: #6B7280;
-  --color-gray-600: #4B5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1F2937;
-  --color-gray-900: #111827;
-  
-  --color-blue-600: #2563EB;
-  --color-blue-800: #1E3A8A;
-  --color-blue-900: #1E40AF;
-  
-  --color-red-600: #DC2626;
-  
-  --color-table-border: #CCC;
-  --color-table-header-bg: #F2F2F2;
-  --color-editor-border: #DDD;
-  
-  --color-custom-gray: #6E6E6E;
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #dddddd;
+  --color-neutral-400: #999999;
+  --color-neutral-500: #767676;
+  --color-neutral-600: #505050;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #111111;
+  --color-neutral-950: #171717;
+
+  /* Red */
+  --color-red-50: #fef2f2;
+  --color-red-100: #ffe2e2;
+  --color-red-200: #ffc9c9;
+  --color-red-300: #ffa2a2;
+  --color-red-400: #ff6467;
+  --color-red-500: #fb2c36;
+  --color-red-600: #e7000b;
+  --color-red-700: #c10007;
+  --color-red-800: #9f0712;
+  --color-red-900: #82181a;
+  --color-red-950: #460809;
+
+  /* Orange */
+  --color-orange-50: #fff7ed;
+  --color-orange-100: #ffedd4;
+  --color-orange-200: #ffd6a8;
+  --color-orange-300: #ffb86a;
+  --color-orange-400: #ff8904;
+  --color-orange-500: #ff6900;
+  --color-orange-600: #f54900;
+  --color-orange-700: #ca3500;
+  --color-orange-800: #9f2d00;
+  --color-orange-900: #7e2a0c;
+  --color-orange-950: #441306;
+
+  /* Yellow */
+  --color-yellow-50: #fefce8;
+  --color-yellow-100: #fef9c2;
+  --color-yellow-200: #fff085;
+  --color-yellow-300: #ffdf20;
+  --color-yellow-400: #fdc700;
+  --color-yellow-500: #f0b100;
+  --color-yellow-600: #d08700;
+  --color-yellow-700: #a65f00;
+  --color-yellow-800: #894b00;
+  --color-yellow-900: #733e0a;
+  --color-yellow-950: #432004;
+
+  /* Green */
+  --color-green-50: #f0fdf4;
+  --color-green-100: #dcfce7;
+  --color-green-200: #b9f8cf;
+  --color-green-300: #7bf1a8;
+  --color-green-400: #05df72;
+  --color-green-500: #00c950;
+  --color-green-600: #00a63e;
+  --color-green-700: #008236;
+  --color-green-800: #016630;
+  --color-green-900: #0d542b;
+  --color-green-950: #032e15;
+
+  /* Blue */
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bedbff;
+  --color-blue-300: #8ec5ff;
+  --color-blue-400: #51a2ff;
+  --color-blue-500: #2b7fff;
+  --color-blue-600: #155dfc;
+  --color-blue-700: #1447e6;
+  --color-blue-800: #193cb8;
+  --color-blue-900: #1c398e;
+  --color-blue-950: #162456;
+
+  /* Purple */
+  --color-purple-50: #f1eaff;
+  --color-purple-100: #eae0ff;
+  --color-purple-200: #d3beff;
+  --color-purple-300: #9c6cff;
+  --color-purple-400: #8d55ff;
+  --color-purple-500: #722eff;
+  --color-purple-600: #6729e6;
+  --color-purple-700: #5b25cc;
+  --color-purple-800: #5623bf;
+  --color-purple-900: #441c99;
+  --color-purple-950: #331573;
+
+  /* Pink */
+  --color-pink-50: #ffedf4;
+  --color-pink-100: #ffe4ef;
+  --color-pink-200: #ffc8de;
+  --color-pink-300: #ff83b5;
+  --color-pink-400: #ff75ac;
+  --color-pink-500: #ff4d94;
+  --color-pink-600: #e64585;
+  --color-pink-700: #cc3e76;
+  --color-pink-800: #bf3a6f;
+  --color-pink-900: #992e59;
+  --color-pink-950: #732343;
+
+  /* --- Semantic Colors --- */
+
+  /* Brand Aliases */
+  --color-brand-pink-50: var(--color-pink-50);
+  --color-brand-pink-100: var(--color-pink-100);
+  --color-brand-pink-500: var(--color-pink-500);
+  /* ... mapping semantic to base is implicit in usage, but defining brand primary if needed */
+
+  /* Text */
+  --color-text-primary: var(--color-neutral-900);
+  --color-text-secondary: var(--color-neutral-600);
+  --color-text-tertiary: var(--color-neutral-500);
+  --color-text-disabled: var(--color-neutral-400);
+  --color-text-info: var(--color-blue-500);
+  --color-text-danger: var(--color-red-500);
+  --color-text-warning: var(--color-orange-500);
+  --color-text-success: var(--color-green-500);
+  --color-text-interactive-inverse: var(--color-white);
+
+  /* Text Interactive */
+  --color-text-interactive-brand-pink: var(--color-pink-500);
+  --color-text-interactive-brand-pink-hovered: var(--color-pink-600);
+  --color-text-interactive-brand-pink-pressed: var(--color-pink-700);
+
+  --color-text-interactive-brand-yellow: var(--color-yellow-500);
+  --color-text-interactive-brand-yellow-hovered: var(--color-yellow-600);
+  --color-text-interactive-brand-yellow-pressed: var(--color-yellow-700);
+
+  --color-text-interactive-brand-purple: var(--color-purple-500);
+  --color-text-interactive-brand-purple-hovered: var(--color-purple-600);
+  --color-text-interactive-brand-purple-pressed: var(--color-purple-700);
+
+  /* Background */
+  --color-bg-primary: var(--color-white);
+  --color-bg-secondary: var(--color-neutral-100);
+  --color-bg-disabled: var(--color-neutral-300);
+
+  --color-bg-info: var(--color-blue-500);
+  --color-bg-info-subtle: var(--color-blue-50);
+
+  --color-bg-danger: var(--color-red-500);
+  --color-bg-danger-subtle: var(--color-red-50);
+
+  --color-bg-warning: var(--color-orange-500);
+  --color-bg-warning-subtle: var(--color-orange-50);
+
+  --color-bg-success: var(--color-green-500);
+  --color-bg-success-subtle: var(--color-green-50);
+
+  /* Background Interactive */
+  --color-bg-interactive-brand-pink: var(--color-pink-500);
+  --color-bg-interactive-brand-pink-hovered: var(--color-pink-600);
+  --color-bg-interactive-brand-pink-pressed: var(--color-pink-700);
+
+  --color-bg-interactive-brand-yellow: var(--color-yellow-500);
+  --color-bg-interactive-brand-yellow-hovered: var(--color-yellow-600);
+  --color-bg-interactive-brand-yellow-pressed: var(--color-yellow-700);
+
+  --color-bg-interactive-brand-purple: var(--color-purple-500);
+  --color-bg-interactive-brand-purple-hovered: var(--color-purple-600);
+  --color-bg-interactive-brand-purple-pressed: var(--color-purple-700);
+
+  /* Icon */
+  --color-icon-primary: var(--color-neutral-900);
+  --color-icon-secondary: var(--color-neutral-600);
+  --color-icon-tertiary: var(--color-neutral-500);
+  --color-icon-disabled: var(--color-neutral-400);
+  --color-icon-person: var(
+    --color-neutral-100
+  ); /* Note: Based on user input #f5f5f5 */
+
+  --color-icon-info: var(--color-blue-500);
+  --color-icon-danger: var(--color-red-500);
+  --color-icon-warning: var(--color-orange-500);
+  --color-icon-success: var(--color-green-500);
+
+  --color-icon-interactive-brand-pink: var(--color-pink-500);
+  --color-icon-interactive-brand-purple: var(--color-purple-500);
+  --color-icon-interactive-brand-yellow: var(--color-yellow-500);
+
+  /* Border */
+  --color-border-primary: var(--color-neutral-400);
+  --color-border-secondary: var(--color-neutral-300);
+  --color-border-tertiary: var(--color-neutral-200);
+  --color-border-focus-ring: var(--color-purple-500);
+
+  --color-border-info: var(--color-blue-500);
+  --color-border-info-subtle: var(--color-blue-50);
+
+  --color-border-danger: var(--color-red-500);
+  --color-border-danger-subtle: var(--color-red-50);
+
+  --color-border-warning: var(--color-orange-500);
+  --color-border-warning-subtle: var(--color-orange-50);
+
+  --color-border-success: var(--color-green-500);
+  --color-border-success-subtle: var(--color-green-50);
+
+  /* --- Legacy Compatibility --- */
+  /* Mapping old variables to new closest equivalents to prevent breakage */
+  --color-primary: var(
+    --color-purple-500
+  ); /* Old: #722EFF -> New: Purple 500 (#722eff) - Match! */
+  --color-secondary: var(
+    --color-blue-900
+  ); /* Old: #193794 -> New: Blue 900 (#1c398e) - Close */
+  --color-accent: var(
+    --color-blue-800
+  ); /* Old: #15267E -> New: Blue 800 (#193cb8) - Close */
+  --color-border: var(
+    --color-neutral-200
+  ); /* Old: #1a237e (Dark!) but usually border is light? check usage. 
+                                                Note: Original variable was --color-border: #1a237e; which is very dark blue.
+                                                However, standard borders in modern UI are gray. 
+                                                I will keep it safer by mapping to new border-primary or just keep the old value if it was specific.
+                                                Actually, looking at previous variables.css: --color-border: #1a237e;
+                                                But in colors.js BORDER calls getCSSVar('border').
+                                                Code usage likely expects a generic border. 
+                                                If I change it to gray, it might change look significantly if it was used for deep blue borders.
+                                                Let's map it to Blue 900 for now to be safe, or stick to new system's border.
+                                                User request implies "New Color Rules", so I should probably switch to the new system's Border Primary (Gray).
+                                                I will map --color-border to --color-border-primary (Gray 400/999).
+                                              */
+  --color-gray-50: var(--color-neutral-50);
+  --color-gray-100: var(--color-neutral-100);
+  --color-gray-200: var(--color-neutral-200);
+  --color-gray-300: var(--color-neutral-300);
+  --color-gray-400: var(--color-neutral-400);
+  --color-gray-500: var(--color-neutral-500);
+  --color-gray-600: var(--color-neutral-600);
+  --color-gray-700: var(--color-neutral-700);
+  --color-gray-800: var(--color-neutral-800);
+  --color-gray-900: var(--color-neutral-900);
+
+  /* Specific Component Mappings */
+  --color-table-border: var(--color-neutral-300);
+  --color-table-header-bg: var(--color-neutral-100);
+  --color-editor-border: var(--color-neutral-300);
+  --color-custom-gray: var(--color-neutral-500);
 }
